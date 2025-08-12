@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<ruleset name="Blok45">
+    <description>Custom WordPress configuration</description>
+    <rule ref="WordPress">
+        <exclude name="WordPress-Docs"/>
+        <exclude name="WordPress.Files.FileName.InvalidClassFileName"/>
+        <exclude name="WordPress.PHP.YodaConditions"/>
+        <exclude name="WordPress.WP.I18n.MissingTranslatorsComment"/>
+        <exclude name="WordPress.Security.NonceVerification"/>
+    </rule>
+    <exclude-pattern>external/*</exclude-pattern>
+</ruleset>

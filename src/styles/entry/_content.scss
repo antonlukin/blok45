@@ -1,0 +1,207 @@
+@use '../config/mixins' as mixins;
+
+.entry-content {
+  display: block;
+
+  width: 100%;
+  padding: 1rem 2rem;
+
+  font-family: var(--font-content);
+  font-size: 1.25rem;
+  line-height: 1.5;
+
+  overflow-wrap: break-word;
+
+  body.is-page & {
+    padding-bottom: 4.5rem;
+  }
+
+  body.is-cards & {
+    padding: 0;
+    margin-bottom: 1rem;
+  }
+
+  body.is-wide & {
+    margin-left: auto;
+    margin-right: auto;
+    padding: 1rem;
+    max-width: var(--width-site);
+  }
+
+  @media screen and (max-width: 767px) {
+    padding: 1rem;
+    font-size: 1.25rem;
+  }
+
+  & > * {
+    display: block;
+
+    width: 100%;
+    max-width: var(--width-content);
+    margin: 0 auto 1rem;
+
+    &:first-child {
+      margin-top: 0;
+    }
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  strong {
+    font-family: var(--font-regular);
+    font-weight: 700;
+    font-style: normal;
+  }
+
+  em {
+    font-family: var(--font-content);
+    font-style: italic;
+    font-weight: 400;
+  }
+
+  strong em {
+    font-family: var(--font-regular);
+    font-style: normal;
+  }
+
+  em strong {
+    font-style: normal;
+  }
+
+  sub {
+    vertical-align: sub;
+    font-size: smaller;
+  }
+
+  sup {
+    vertical-align: super;
+    font-size: smaller;
+  }
+
+  a {
+    @include mixins.default-link;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    display: block;
+    margin-top: 3rem;
+
+    font-family: var(--font-regular);
+    font-weight: 700;
+  }
+
+  h1 {
+    font-size: 2.25rem;
+    line-height: 1.125;
+
+    @media screen and (max-width: 767px) {
+      font-size: 2rem;
+    }
+
+    @media screen and (max-width: 479px) {
+      font-size: 1.75rem;
+    }
+  }
+
+  h2 {
+    font-size: 2rem;
+    line-height: 1.125;
+
+    @media screen and (max-width: 767px) {
+      margin-top: 2.25rem;
+      font-size: 1.75rem;
+    }
+
+    @media screen and (max-width: 479px) {
+      font-size: 1.625rem;
+      line-height: 1.1875;
+    }
+  }
+
+  h3 {
+    margin-top: 1.5rem;
+    font-size: 1.75rem;
+    line-height: 1.25;
+
+    @media screen and (max-width: 767px) {
+      font-size: 1.625rem;
+    }
+
+    @media screen and (max-width: 479px) {
+      font-size: 1.5rem;
+      line-height: 1.175;
+    }
+  }
+
+  h4 {
+    margin-top: 1.5rem;
+    font-size: 1.5rem;
+    line-height: 1.1625;
+
+    @media screen and (max-width: 767px) {
+      font-size: 1.3125rem;
+    }
+
+    @media screen and (max-width: 479px) {
+      font-size: 1.375rem;
+      line-height: 1.25;
+    }
+  }
+
+  h5 {
+    margin-top: 1.25rem;
+    font-size: 1rem;
+    line-height: 1.375;
+
+    @media screen and (max-width: 767px) {
+      font-size: 0.875rem;
+      line-height: 1.375;
+    }
+
+    @media screen and (max-width: 479px) {
+      font-size: 0.75rem;
+      line-height: 1.5;
+    }
+  }
+
+  h6 {
+    margin-top: 1rem;
+    font-size: 0.875rem;
+    font-weight: 400;
+
+    @media screen and (max-width: 767px) {
+      font-size: 0.8125rem;
+    }
+
+    @media screen and (max-width: 479px) {
+      font-size: 0.75rem;
+      line-height: 1.375;
+    }
+  }
+
+  code {
+    padding: 0.125rem;
+
+    font-family: var(--font-monospace);
+    font-size: 0.875rem;
+    font-weight: 400;
+    overflow-x: auto;
+
+    background-color: var(--color-background);
+    border-radius: 0.125rem;
+  }
+
+  small {
+    display: block;
+
+    font-weight: 400;
+    font-size: small;
+  }
+}

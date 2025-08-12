@@ -1,0 +1,47 @@
+@use '../config/mixins' as mixins;
+
+.meta {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+  gap: 0.25rem;
+  cursor: default;
+
+  .meta__item {
+    position: relative;
+    padding: 0 0.25rem;
+    z-index: 2;
+
+    font-size: 0.75rem;
+    line-height: 1.375;
+    font-weight: 500;
+
+    color: var(--color-meta);
+    background-color: var(--color-secondary);
+    border-radius: 0.25rem;
+
+    &:is(a) {
+      cursor: pointer;
+      transition: filter 0.25s;
+
+      &:hover {
+        filter: brightness(90%);
+      }
+    }
+
+    &.meta__item--promo {
+      background-color: var(--color-promo);
+    }
+
+    &.meta__item--best {
+      color: var(--color-light);
+      background-color: var(--color-accent);
+    }
+
+    &.meta__item--source {
+      text-transform: uppercase;
+      color: var(--color-light);
+      background-color: var(--color-dark);
+    }
+  }
+}

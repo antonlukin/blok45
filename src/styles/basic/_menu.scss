@@ -1,0 +1,20 @@
+.menu {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: var(--font-regular);
+  line-height: 1.25;
+
+  .menu__item {
+    display: inline-flex;
+    margin: 0;
+
+    .menu__item-link {
+      display: inline-flex;
+      margin: 0;
+    }
+  }
+}
