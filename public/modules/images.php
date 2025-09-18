@@ -7,100 +7,100 @@
  */
 
 if ( ! defined( 'WPINC' ) ) {
-    die;
+	die;
 }
 
 class Blok45_Modules_Images {
-    /**
-     * Use this method instead of constructor to avoid multiple hook setting
-     */
-    public static function load_module() {
-        add_action( 'after_setup_theme', array( __CLASS__, 'add_image_sizes' ) );
-        add_action( 'template_redirect', array( __CLASS__, 'redirect_attachments' ) );
-        add_filter( 'max_srcset_image_width', array( __CLASS__, 'set_srcset_width' ) );
-        add_filter( 'jpeg_quality', array( __CLASS__, 'improve_jpeg' ) );
+	/**
+	 * Use this method instead of constructor to avoid multiple hook setting
+	 */
+	public static function load_module() {
+		add_action( 'after_setup_theme', array( __CLASS__, 'add_image_sizes' ) );
+		add_action( 'template_redirect', array( __CLASS__, 'redirect_attachments' ) );
+		add_filter( 'max_srcset_image_width', array( __CLASS__, 'set_srcset_width' ) );
+		add_filter( 'jpeg_quality', array( __CLASS__, 'improve_jpeg' ) );
 
-        add_filter( 'wp_generate_attachment_metadata', array( __CLASS__, 'compress_original_image' ), 10, 2 );
-        add_filter( 'wp_image_editors', array( __CLASS__, 'change_image_editor' ) );
-        add_filter( 'big_image_size_threshold', array( __CLASS__, 'change_big_image_size' ) );
-    }
+		add_filter( 'wp_generate_attachment_metadata', array( __CLASS__, 'compress_original_image' ), 10, 2 );
+		add_filter( 'wp_image_editors', array( __CLASS__, 'change_image_editor' ) );
+		add_filter( 'big_image_size_threshold', array( __CLASS__, 'change_big_image_size' ) );
+	}
 
-    /**
-     * Change max image size
-     */
-    public static function change_big_image_size() {
-        return 1600;
-    }
+	/**
+	 * Change max image size
+	 */
+	public static function change_big_image_size() {
+		return 1600;
+	}
 
-    /**
-     * Compress images with GD instead of Imagick
-     * Try to fix 504 error on image uploading
-     */
-    public static function change_image_editor() {
-        return array( 'WP_Image_Editor_GD', 'WP_Image_Editor_Imagick' );
-    }
+	/**
+	 * Compress images with GD instead of Imagick
+	 * Try to fix 504 error on image uploading
+	 */
+	public static function change_image_editor() {
+		return array( 'WP_Image_Editor_GD', 'WP_Image_Editor_Imagick' );
+	}
 
-    /**
-     * Compress original jpg image
-     */
-    public static function compress_original_image( $metadata, $attachment_id ) {
-        $file = get_attached_file( $attachment_id );
-        $type = get_post_mime_type( $attachment_id );
+	/**
+	 * Compress original jpg image
+	 */
+	public static function compress_original_image( $metadata, $attachment_id ) {
+		$file = get_attached_file( $attachment_id );
+		$type = get_post_mime_type( $attachment_id );
 
-        if ( in_array( $type, array( 'image/jpg', 'image/jpeg' ), true ) ) {
-            $editor = wp_get_image_editor( $file );
+		if ( in_array( $type, array( 'image/jpg', 'image/jpeg' ), true ) ) {
+			$editor = wp_get_image_editor( $file );
 
-            if ( ! is_wp_error( $editor ) ) {
-                $result = $editor->set_quality( 90 );
+			if ( ! is_wp_error( $editor ) ) {
+				$result = $editor->set_quality( 90 );
 
-                if ( ! is_wp_error( $result ) ) {
-                    $editor->save( $file );
-                }
-            }
-        }
+				if ( ! is_wp_error( $result ) ) {
+					$editor->save( $file );
+				}
+			}
+		}
 
-        return $metadata;
-    }
+		return $metadata;
+	}
 
-    /**
-     * Add custom image sizes
-     */
-    public static function add_image_sizes() {
-        add_theme_support( 'post-thumbnails' );
-        set_post_thumbnail_size( 300, 300, true );
+	/**
+	 * Add custom image sizes
+	 */
+	public static function add_image_sizes() {
+		add_theme_support( 'post-thumbnails' );
+		set_post_thumbnail_size( 300, 300, true );
 
-        add_image_size( 'card', 640, 480, false );
-        add_image_size( 'wide', 1280, 640, false );
-        add_image_size( 'single', 960, 600, false );
-    }
+		add_image_size( 'card', 640, 480, false );
+		add_image_size( 'wide', 1280, 640, false );
+		add_image_size( 'single', 960, 600, false );
+	}
 
-    /**
-     * Little bit increase jpeg quality
-     */
-    public static function improve_jpeg() {
-        return 80;
-    }
+	/**
+	 * Little bit increase jpeg quality
+	 */
+	public static function improve_jpeg() {
+		return 80;
+	}
 
-    /**
-     * Filters the maximum image width to be included in a 'srcset' attribute
-     */
-    public static function set_srcset_width() {
-        return 1280;
-    }
+	/**
+	 * Filters the maximum image width to be included in a 'srcset' attribute
+	 */
+	public static function set_srcset_width() {
+		return 1280;
+	}
 
-    /**
-     * Disable post attachment pages
-     */
-    public static function redirect_attachments() {
-        if ( ! is_attachment() ) {
-            return;
-        }
+	/**
+	 * Disable post attachment pages
+	 */
+	public static function redirect_attachments() {
+		if ( ! is_attachment() ) {
+			return;
+		}
 
-        global $wp_query;
+		global $wp_query;
 
-        $wp_query->set_404();
-        status_header( 404 );
-    }
+		$wp_query->set_404();
+		status_header( 404 );
+	}
 }
 
 /**

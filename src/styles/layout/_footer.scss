@@ -1,136 +1,17 @@
 @use '../config/mixins';
 
 .footer {
-  display: flex;
-  flex-flow: column wrap;
-  align-items: center;
-  justify-content: center;
+  @include mixins.container;
 
-  position: relative;
-  width: 100%;
-  margin: 2.25rem 0 3.5rem;
-
-  @media screen and (max-width: 1023px) {
-    margin: 2.25rem 0 3rem;
-  }
-
-  .footer__inner {
-    @include mixins.container;
-
-    & {
-      display: grid;
-      grid-template-areas: "about navbar copy";
-      grid-template-columns: 1.5fr 0.65fr 1.85fr;
-      gap: 2rem;
-      padding: 0 1rem;
-
-      @media screen and (max-width: 767px) {
-        padding: 0;
-      }
-    }
-
-    @media screen and (max-width: 1023px) {
-      grid-template-areas: "navbar" "copy";
-      grid-template-columns: 1fr;
-    }
-
-    @media screen and (max-width: 767px) {
-      gap: 1.25rem;
-    }
-  }
-
-  .footer__about {
-    grid-area: about;
-
+  & {
     display: flex;
-    flex-flow: column nowrap;
-    gap: 1rem;
+    align-items: center;
+    justify-content: flex-start;
+    height: 5rem;
+    margin: 0 auto;
 
-    .footer__about-description {
-      display: block;
-
-      font-size: 0.875rem;
-      font-weight: 400;
-      line-height: 1.175;
-    }
-
-    @media screen and (max-width: 1023px) {
-      display: none;
-    }
-  }
-
-  .footer__navbar {
-    grid-area: navbar;
-
-    display: flex;
-    gap: 1.25rem;
-    flex-flow: column nowrap;
-    position: relative;
-
-    .footer__navbar-menu {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 0.5rem;
-
-      @media screen and (max-width: 1023px) {
-        display: flex;
-        flex-flow: row wrap;
-        gap: 0;
-
-        .menu__item::after {
-          content: '•';
-
-          display: block;
-          margin: 0 0.5rem;
-        }
-
-        .menu__item:last-child::after {
-          display: none;
-        }
-      }
-    }
-
-    .footer__navbar-social {
-      margin-top: auto;
-      justify-content: flex-start;
-
-      .social__item-icon {
-        fill: var(--color-accent);
-      }
-
-      @media screen and (max-width: 479px) {
-        margin: 0 auto;
-      }
-    }
-
-    @media screen and (max-width: 1023px) {
-      flex-flow: row wrap;
-      justify-content: space-between;
-    }
-
-    @media screen and (max-width: 479px) {
-      justify-content: center;
-    }
-  }
-
-  .footer__copy {
-    grid-area: copy;
-    display: block;
-
-    font-size: 0.875rem;
-    font-weight: 400;
-    line-height: 1.175;
-
-    p {
-      margin-bottom: 0.875rem;
-
-      &:last-child {
-        margin-bottom: 0;
-      }
-    }
-
-    a {
-      @include mixins.default-link;
-    }
+    text-align: right;
+    font-size: 0.75rem;
+    color: var(--color-primary);
   }
 }

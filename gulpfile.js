@@ -7,6 +7,28 @@ const uglify = require( 'gulp-uglify' );
 const plumber = require( 'gulp-plumber' );
 const prefix = require( 'gulp-autoprefixer' );
 const webpack = require( 'webpack-stream' );
+const fs = require( 'fs' );
+const path = require( 'path' );
+
+function getScriptEntries() {
+	const dir = path.join( __dirname, 'src', 'scripts' );
+	let files = [];
+
+	try {
+		files = fs.readdirSync( dir ).filter( ( f ) => f.endsWith( '.js' ) );
+	} catch ( e ) {
+		files = [ 'index.js' ];
+	}
+
+	const entries = {};
+	files.forEach( ( f ) => {
+		const base = path.basename( f, '.js' );
+		const name = base === 'index' ? 'scripts' : base; // keep main bundle name
+		entries[ name ] = './src/scripts/' + f;
+	} );
+
+	return entries;
+}
 
 gulp.task( 'styles', ( done ) => {
 	gulp
@@ -33,20 +55,22 @@ gulp.task( 'styles', ( done ) => {
 
 gulp.task( 'scripts', ( done ) => {
 	gulp
-		.src( 'src/scripts/index.js' )
+		.src( 'src/scripts/*.js' )
 		.pipe( plumber() )
 		.pipe(
 			webpack( {
 				...require( './webpack.config.js' ),
-				entry: './src/scripts/index.js',
+				entry: getScriptEntries(),
+				output: { filename: '[name].min.js' },
 			} )
 		)
 		.pipe( uglify() )
-		.pipe( concat( 'scripts.min.js' ) )
 		.pipe( gulp.dest( 'public/assets/' ) );
 
 	done();
 } );
+
+// Standalone bundles are covered by generic 'scripts' task using entries
 
 gulp.task( 'images', ( done ) => {
 	gulp.src( 'src/images/**/*' ).pipe( gulp.dest( 'public/assets/images/' ) );
@@ -68,7 +92,7 @@ gulp.task( 'fonts', ( done ) => {
 
 gulp.task( 'watch', () => {
 	gulp.watch( 'src/styles/**/*', gulp.series( 'styles' ) );
-	gulp.watch( 'src/scripts/**/*', gulp.series( 'scripts' ) );
+	gulp.watch( [ 'src/scripts/**/*' ], gulp.series( 'scripts' ) );
 } );
 
 gulp.task( 'build', gulp.parallel( 'styles', 'scripts', 'images', 'icons', 'fonts' ) );

@@ -1,19 +1,14 @@
-@use '../config/mixins';
+@use '../config/mixins' as mixins;
 
 .content {
   @include mixins.container;
-
-  body.is-wide & {
-    max-width: 100%;
-    width: 100%;
-  }
 
   & {
     display: block;
     margin: 0 auto;
   }
 
-  @media screen and (max-width: 767px) {
-    width: 100%;
+  .card {
+    padding-top: 33.33%;
   }
 }

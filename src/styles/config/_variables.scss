@@ -1,29 +1,24 @@
 :root {
-  --width-site: 67rem;
-  --width-content: 42.625rem;
-  --width-narrow: 35.5rem;
+  --width-site: 90rem;
+  --radius-frame: 0.5rem;
 
-  --radius-frame: 0.25rem;
-
-  --color-primary: #1d218c;
-  --color-secondary: #eeff01;
-  --color-accent: #ff5741;
-  --color-background: #efeded;
-  --color-quote: #F6F5F1;
-  --color-disclaimer: #8C8C8C;
-  --color-additional: #FEF4E4;
-  --color-promo: #BFFB4F;
-  --color-chat-left: #E4F5FC;
-  --color-chat-right: #FEF4E4;
+  --color-primary: #b6b8be;
+  --color-secondary: #7170ff;
+  --color-background: #000;
+  --color-sheet: #28282c;
+  --color-button: #2c2c2c;
+  --color-border: rgba(255,255,255,0.125);
 
   --color-dark: #000;
-  --color-light: #fff;
+  --color-light: #f7f8f8;
 
-  --color-border: #d8dae2;
-  --color-meta: #111;
-  --color-transparent: #ffff;
+  --shadow-light: rgba(255, 255, 255, 0.25);
 
-  --font-regular: "Struve", sans-serif;
-  --font-content: "Booklet Serif", serif;
+  --gradient-card: linear-gradient(-180deg, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0.65) 100%);
+  --gradient-pin: radial-gradient(circle at 50% 50%, #000 0 0.1875rem, transparent 0.1875rem),
+  radial-gradient(circle at 50% 50%, var(--color-secondary) 0 0.375rem, transparent 0.375rem),
+  radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--color-secondary) 28%, transparent) 0 0.625rem, transparent 0.625rem);
+
+  --font-regular: "Inter", sans-serif;
   --font-monospace: "Monaco", "Roboto Mono", "Courier", monospace;
 }

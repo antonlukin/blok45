@@ -1,182 +1,124 @@
 <?php
 /**
- * Loadmore actions
- * Add Rest API routes for loadmore posts in category archives
+ * Load more (infinite scroll) for front page
+ * - Enqueues a standalone JS bundle for the front page
+ * - Exposes REST endpoint returning rendered cards HTML by page
  *
  * @package blok45
  * @since 1.0
  */
 
 if ( ! defined( 'WPINC' ) ) {
-    die;
+	die;
 }
 
-class Blok45_Modules_Loadmore {
-    /**
-     * Use this method instead of constructor to avoid multiple hook setting
-     */
-    public static function load_module() {
-        add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
-    }
+class Blok45_Modules_LoadMore {
+	/**
+	 * Init hooks
+	 */
+	public static function load_module() {
+		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
+		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
+	}
 
-    /**
-     * Register loadmore routers
-     */
-    public static function register_rest_routes() {
-        register_rest_route(
-            'blok45-loadmore/v1',
-            '/(?<archive>.+?)/(?<slug>.+)',
-            array(
-                'methods'             => WP_REST_Server::READABLE,
-                'callback'            => array( __CLASS__, 'show_archive_posts' ),
-                'permission_callback' => '__return_true',
-                'args'                => array(
-                    'archive' => array(
-                        'required'          => true,
-                        'sanitize_callback' => 'sanitize_text_field',
-                    ),
-                    'slug'    => array(
-                        'required'          => true,
-                        'sanitize_callback' => array( __CLASS__, 'sanitize_slug' ),
-                    ),
-                    'page'    => array(
-                        'default'           => 1,
-                        'type'              => 'integer',
-                        'required'          => false,
-                        'sanitize_callback' => 'absint',
-                    ),
-                ),
-            )
-        );
-    }
+	/**
+	 * Enqueue standalone bundle on front page only
+	 */
+	public static function enqueue_assets() {
+		if ( ! is_front_page() ) {
+			return;
+		}
 
-    /**
-     * Sanitize slug field
-     */
-    public static function sanitize_slug( $slug ) {
-        return sanitize_text_field( urldecode( $slug ) );
-    }
+		wp_enqueue_script(
+			'blok45-loadmore',
+			get_template_directory_uri() . '/assets/loadmore.min.js',
+			array(),
+			filemtime( get_template_directory() . '/assets/loadmore.min.js' ),
+			true
+		);
 
-    /**
-     * Show archive posts
-     */
-    public static function show_archive_posts( $request ) {
-        $slug = $request->get_param( 'slug' );
-        $page = $request->get_param( 'page' );
+		$settings = array(
+			'endpoint'  => esc_url_raw( rest_url( 'b45/v1/more' ) ),
+			'startPage' => max( 2, (int) get_query_var( 'paged' ) + 1 ),
+		);
 
-        if ( empty( $page ) ) {
-            $page = 1;
-        }
+		wp_localize_script( 'blok45-loadmore', 'blok45_more', $settings );
+	}
 
-        $archive = $request->get_param( 'archive' );
+	/**
+	 * Register REST API route for fetching more posts (paged)
+	 */
+	public static function register_rest_routes() {
+		register_rest_route(
+			'b45/v1',
+			'/more',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'permission_callback' => '__return_true',
+				'args'                => array(
+					'page' => array(
+						'required' => true,
+						'type'     => 'integer',
+						'minimum'  => 1,
+					),
+				),
+				'callback'            => array( __CLASS__, 'rest_get_more' ),
+			)
+		);
+	}
 
-        if ( $archive === 'search' ) {
-            return self::show_search_posts( $slug, $page );
-        }
+	/**
+	 * Callback: returns rendered cards HTML for requested page
+	 */
+	public static function rest_get_more( WP_REST_Request $req ) {
+		$page = max( 1, absint( $req->get_param( 'page' ) ) );
 
-        if ( taxonomy_exists( $archive ) ) {
-            return self::show_taxonomy_posts( $archive, $slug, $page );
-        }
-    }
+		$args = array(
+			'post_type'      => 'post',
+			'post_status'    => 'publish',
+			'paged'          => $page,
+			'posts_per_page' => (int) get_option( 'posts_per_page', 10 ),
+			'no_found_rows'  => false,
+		);
 
-    /**
-     * Show posts only for search page
-     */
-    private static function show_search_posts( $slug, $page ) {
-        $query = new WP_Query(
-            array(
-                'paged'               => $page,
-                's'                   => $slug,
-                'post_status'         => 'any',
-                'ignore_sticky_posts' => true,
-            )
-        );
+		$query = new WP_Query( $args );
 
-        if ( ! $query->have_posts() ) {
-            return new WP_REST_Response( array( 'message' => esc_html__( 'Ничего не найдено', 'blok45' ) ), 400 );
-        }
+		sleep( 1 ); // Simulate loading delay
 
-        ob_start();
+		if ( ! $query->have_posts() ) {
+			return new WP_REST_Response(
+				array(
+					'html'     => '',
+					'has_more' => false,
+				),
+				200
+			);
+		}
 
-        while ( $query->have_posts() ) {
-            $query->the_post();
-            get_template_part( 'templates/frame', 'search' );
-        }
+		ob_start();
+		while ( $query->have_posts() ) {
+			$query->the_post();
+			get_template_part( 'template-parts/card' );
+		}
+		wp_reset_postdata();
 
-        wp_reset_postdata();
+		$output = ob_get_clean();
 
-        $results = array(
-            'output' => ob_get_clean(),
-            'pages'  => array(
-                'current' => $page,
-                'total'   => $query->max_num_pages,
-            ),
-        );
+		// Check if there are more pages
+		$has_more = ( $page < (int) $query->max_num_pages );
 
-        return new WP_REST_Response( $results, 200 );
-    }
-
-    /**
-     * Show posts only for taxonomy archives
-     */
-    private static function show_taxonomy_posts( $taxonomy, $slug, $page ) {
-        $query = new WP_Query(
-            array(
-                'paged'       => $page,
-                'post_type'   => 'post',
-                'post_status' => 'publish',
-                'tax_query'   => array( // phpcs:ignore
-                    array(
-                        'taxonomy' => $taxonomy,
-                        'terms'    => $slug,
-                        'field'    => 'slug',
-                    ),
-                ),
-            )
-        );
-
-        if ( ! $query->have_posts() ) {
-            return new WP_REST_Response( array( 'message' => esc_html__( 'Ничего не найдено', 'blok45' ) ), 400 );
-        }
-
-        list( $partial, $options ) = self::get_taxonomy_template( $taxonomy, $slug );
-
-        ob_start();
-
-        while ( $query->have_posts() ) {
-            $query->the_post();
-            get_template_part( 'templates/frame', $partial, $options );
-        }
-
-        wp_reset_postdata();
-
-        $results = array(
-            'output' => ob_get_clean(),
-            'pages'  => array(
-                'current' => $page,
-                'total'   => $query->max_num_pages,
-            ),
-        );
-
-        return new WP_REST_Response( $results, 200 );
-    }
-
-    /**
-     * Get taxonomy template part options by slug
-     */
-    public static function get_taxonomy_template( $taxonomy, $slug ) {
-        $template = array( 'double', array() );
-
-        // Check for news archive template
-        if ( $taxonomy === 'category' && $slug === 'news' ) {
-            $template = array( 'news', array( 'class' => 'common' ) );
-        }
-
-        return $template;
-    }
+		return rest_ensure_response(
+			array(
+				'html'     => $output,
+				'has_more' => (bool) $has_more,
+				'page'     => $page,
+			),
+			200
+		);
+	}
 }
 
 /**
  * Load current module environment
  */
-Blok45_Modules_Loadmore::load_module();
+Blok45_Modules_LoadMore::load_module();

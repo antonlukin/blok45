@@ -1,0 +1,12 @@
+@use '../config/mixins';
+
+.sidebar {
+  display: flex;
+  flex-flow: column nowrap;
+  gap: 1rem;
+  position: sticky;
+  top: 1rem;
+
+  min-width: 24rem;
+  min-height: calc(100vh - 6rem);
+}

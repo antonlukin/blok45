@@ -6,14 +6,13 @@
   & {
     display: block;
     margin: 0 auto;
-    background-color: var(--color-light);
   }
 
   &.archive--front {
-    padding-top: 1rem;
-  }
-
-  @media screen and (max-width: 767px) {
-    width: 100%;
+    display: grid;
+    grid-template-columns: 3fr 1.5fr;
+    align-items: flex-start;
+    gap: 1rem;
+    position: relative;
   }
 }

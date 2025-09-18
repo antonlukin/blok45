@@ -8,9 +8,6 @@
   margin: 0 auto;
   padding-top: 1rem;
 
-  color: var(--color-dark);
-  background-color: var(--color-light);
-
   body.is-quiz & {
     max-width: var(--width-narrow);
     margin-top: 1rem;
@@ -30,3 +27,4 @@
     background-color: transparent;
   }
 }
+

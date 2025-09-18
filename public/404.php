@@ -9,7 +9,7 @@
 get_header(); ?>
 
 <section class="archive">
-    <?php get_template_part( 'templates/content', 'none' ); ?>
+	<?php get_template_part( 'template-parts/message' ); ?>
 </section>
 
 <?php

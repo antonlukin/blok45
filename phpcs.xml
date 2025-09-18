@@ -6,7 +6,6 @@
         <exclude name="WordPress.Files.FileName.InvalidClassFileName"/>
         <exclude name="WordPress.PHP.YodaConditions"/>
         <exclude name="WordPress.WP.I18n.MissingTranslatorsComment"/>
-        <exclude name="WordPress.Security.NonceVerification"/>
     </rule>
     <exclude-pattern>external/*</exclude-pattern>
 </ruleset>

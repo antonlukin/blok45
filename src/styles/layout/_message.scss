@@ -4,13 +4,14 @@
   display: flex;
   flex-flow: column nowrap;
   align-items: center;
+  justify-content: center;
   position: relative;
 
   width: 100%;
   max-width: calc(var(--width-content) + 2rem);
   margin: 0 auto;
   padding: 2rem 1rem;
-  min-height: calc(100vh - 24rem);
+  min-height: 50vh;
 
   text-align: center;
 
@@ -21,17 +22,17 @@
     max-width: 32rem;
     margin-bottom: 1.5rem;
 
-    font-size: 3rem;
-    font-weight: 700;
+    font-size: 2rem;
+    font-weight: 400;
     line-height: 1.125;
 
     @media screen and (max-width: 767px) {
-      font-size: 2rem;
+      font-size: 1.75rem;
       line-height: 1.125;
     }
 
     @media screen and (max-width: 479px) {
-      font-size: 1.75rem;
+      font-size: 1.5rem;
     }
   }
 
@@ -40,31 +41,7 @@
 
     width: 100%;
     max-width: 32rem;
-    font-size: 1.25rem;
-    line-height: 1.25;
+    font-size: 1rem;
     font-weight: 400;
-  }
-
-  .message__notes {
-    display: flex;
-    flex-flow: column nowrap;
-    align-items: center;
-    width: 100%;
-    max-width: 42rem;
-    margin-top: 1.5rem;
-    padding-top: 1.5rem;
-
-    font-size: 0.875rem;
-    border-top: solid 0.0625rem var(--color-border);
-
-    p {
-      display: block;
-      width: 100%;
-      max-width: 32rem;
-    }
-
-    a {
-      @include mixins.default-link;
-    }
   }
 }

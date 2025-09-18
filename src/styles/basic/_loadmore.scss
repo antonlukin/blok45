@@ -1,0 +1,24 @@
+.loadmore {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  grid-column: 1 / -1;
+
+  &::after {
+    content: '';
+
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 50%;
+    border: 0.1875rem solid var(--color-border);
+    border-top-color: var(--color-secondary);
+    animation: spinner 1s linear infinite;
+  }
+
+  .loadmore__sentinel {
+    grid-column: 1 / -1;
+  }
+}
+
+

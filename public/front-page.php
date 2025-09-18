@@ -9,17 +9,25 @@
 get_header();
 ?>
 
-<section class="archive archive--front">
-    <nav class="navigate">
-        <?php
-        printf(
-            '<a class="navigate__button" href="%s">%s</a>',
-            esc_url( home_url( '/articles/' ) ),
-            esc_html__( 'Все статьи «Пчелы»', 'blok45' )
-        );
-        ?>
-    </nav>
-</section>
+<?php if ( have_posts() ) : ?>
+	<main class="archive archive--front">
+		<section class="list">
+			<?php
+			while ( have_posts() ) :
+				the_post();
+				get_template_part( 'template-parts/card' );
+			endwhile;
+			?>
+		</section>
+
+        <aside class="sidebar">
+            <?php get_template_part( 'template-parts/filters' ); ?>
+            <?php get_template_part( 'template-parts/map' ); ?>
+        </aside>
+	</main>
+<?php else : ?>
+	<?php get_template_part( 'template-parts/message' ); ?>
+<?php endif; ?>
 
 <?php
 get_footer();

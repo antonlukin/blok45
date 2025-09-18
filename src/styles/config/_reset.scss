@@ -5,6 +5,7 @@ html {
 *,
 *:before,
 *:after {
+  outline: none;
   box-sizing: inherit;
   -webkit-tap-highlight-color: transparent;
 }

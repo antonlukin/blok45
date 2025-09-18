@@ -1,0 +1,75 @@
+@use '../config/mixins' as mixins;
+
+.frame-feature {
+  display: block;
+  position: relative;
+
+  margin: 2rem auto;
+
+  &:hover .frame-feature__image-thumbnail {
+    transform: scale(1.025);
+  }
+
+  .frame-feature__wrapper {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: flex-end;
+    position: relative;
+
+    width: 100%;
+    min-height: 30rem;
+    overflow: hidden;
+
+    color: var(--color-light);
+    border-radius: var(--radius-frame);
+  }
+
+  .frame-feature__image {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+
+    .frame-feature__image-thumbnail {
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+
+      width: 100%;
+      height: 100%;
+
+      object-fit: cover;
+      object-position: center;
+      transition: transform 0.5s;
+
+      -webkit-backface-visibility: hidden;
+    }
+  }
+
+  .frame-feature__content {
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: center;
+    z-index: 1;
+
+    width: 100%;
+    padding: 1rem;
+  }
+
+  .frame-feature__link {
+    display: block;
+
+    width: 100%;
+    margin-top: 0.5rem;
+
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.125;
+
+    @include mixins.full-after(1);
+  }
+}
