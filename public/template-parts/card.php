@@ -32,8 +32,7 @@
 
 	<div class="card__content">
 			<?php
-			blok45_theme_info(
-				'meta',
+			blok45_display_meta(
 				'<div class="card__meta">',
 				'</div>'
 			);

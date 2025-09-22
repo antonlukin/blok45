@@ -17,16 +17,15 @@ if ( ! isset( $content_width ) ) {
 	$content_width = 1040;
 }
 
-if ( ! function_exists( 'blok45_theme_info' ) ) :
+if ( ! function_exists( 'blok45_display_meta' ) ) :
 	/**
 	 * Public template function to show post info
 	 */
-	function blok45_theme_info( $option, $before = '', $after = '' ) {
-		$output = null;
-		$method = 'get_' . $option;
+	function blok45_display_meta( $before = '', $after = '' ) {
+		$output = '';
 
-		if ( method_exists( 'Blok45_Modules_Postinfo', $method ) ) {
-			$output = Blok45_Modules_Postinfo::$method();
+		if ( method_exists( 'Blok45_Modules_Filters', 'get_meta' ) ) {
+			$output = Blok45_Modules_Filters::get_meta();
 		}
 
 		if ( ! empty( $output ) ) {
@@ -34,6 +33,23 @@ if ( ! function_exists( 'blok45_theme_info' ) ) :
 
 			echo $output; // phpcs:ignore WordPress.Security.EscapeOutput
 		}
+	}
+endif;
+
+if ( ! function_exists( 'blok45_year_ranges' ) ) :
+	/**
+	 * Public template function to show post info
+	 */
+	function blok45_year_ranges() {
+		$output = array();
+
+		if ( ! method_exists( 'Blok45_Modules_Filters', 'get_year_ranges' ) ) {
+			return $output;
+		}
+
+		$output = Blok45_Modules_Filters::get_year_ranges();
+
+		return $output;
 	}
 endif;
 
@@ -56,11 +72,9 @@ require_once get_template_directory() . '/modules/blocks.php';
 require_once get_template_directory() . '/modules/comments.php';
 require_once get_template_directory() . '/modules/images.php';
 require_once get_template_directory() . '/modules/menu.php';
-require_once get_template_directory() . '/modules/postinfo.php';
 require_once get_template_directory() . '/modules/reactions.php';
 require_once get_template_directory() . '/modules/search.php';
 require_once get_template_directory() . '/modules/sitemeta.php';
 require_once get_template_directory() . '/modules/translit.php';
 require_once get_template_directory() . '/modules/filters.php';
 require_once get_template_directory() . '/modules/map.php';
-require_once get_template_directory() . '/modules/loadmore.php';

@@ -43,4 +43,8 @@
       background-color: var(--color-secondary);
     }
   }
+
+  &.filters--busy .filters__item {
+    pointer-events: none;
+  }
 }

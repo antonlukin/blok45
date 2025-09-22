@@ -21,6 +21,7 @@ class Blok45_Modules_Global {
 
 		add_action( 'after_switch_theme', 'flush_rewrite_rules' );
 		add_action( 'after_setup_theme', array( __CLASS__, 'update_theme_settings' ) );
+		add_action( 'init', array( __CLASS__, 'disable_default_taxonomies' ), 100 );
 
 		add_filter( 'get_the_archive_title', array( __CLASS__, 'update_archive_title' ) );
 		add_filter( 'body_class', array( __CLASS__, 'update_body_classes' ) );
@@ -59,6 +60,14 @@ class Blok45_Modules_Global {
 		// Disables the block editor from managing widgets in the Gutenberg plugin.
 		add_filter( 'gutenberg_use_widgets_block_editor', '__return_false' );
 		add_filter( 'use_widgets_block_editor', '__return_false' );
+	}
+
+	/**
+	 * Disable default post categories and tags for the site.
+	 */
+	public static function disable_default_taxonomies() {
+		unregister_taxonomy_for_object_type( 'category', 'post' );
+		unregister_taxonomy_for_object_type( 'post_tag', 'post' );
 	}
 
 	/**
