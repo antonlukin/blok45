@@ -115,14 +115,16 @@
   position: absolute;
   right: 0.25rem;
   top: 0.25rem;
-  z-index: 2;
+  z-index: 3;
 
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 0.375rem;
 
   padding: 0.375rem 0.5rem;
   border-radius: 50rem;
+
+  font-variant-numeric: tabular-nums;
 
   background:rgba(0,0,0,0.75);
   color: var(--stroke);
@@ -142,4 +144,21 @@
 .card__like-count{
   font-size: 0.6875rem;
   font-weight: 600;
+}
+
+.card__like--busy{
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.card__like-icon--active{
+  display: none;
+}
+
+.card__like--active .card__like-icon--default{
+  display: none;
+}
+
+.card__like--active .card__like-icon--active{
+  display: block;
 }

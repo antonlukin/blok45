@@ -6,16 +6,24 @@
 	const endpoint = settings.endpoint || '/wp-json/b45/v1/filter';
 
 	const filtersRoot = document.querySelector( '.filters' );
-	const listRoot = document.querySelector( '.archive--front .list' );
+	const listRoot = document.querySelector( '.list' );
+	const sortList = filtersRoot ? filtersRoot.querySelector( '.filters__list[data-role="sort"]' ) : null;
 
 	if ( ! filtersRoot || ! listRoot ) {
 		return;
 	}
 
 	const selections = Object.create( null );
+	let currentSort = '';
 	let isFetching = false;
 	let nextPage = Number( settings.startPage || 2 );
 	let hasMore = settings.hasMore !== undefined ? Boolean( settings.hasMore ) : true;
+
+	if ( sortList ) {
+		const activeSortButton = sortList.querySelector( '.filters__item--active[data-sort]' );
+		const initialSort = activeSortButton ? ( activeSortButton.dataset.sort || '' ) : '';
+		currentSort = initialSort === 'oldest' || initialSort === 'newest' ? initialSort : '';
+	}
 
 	const loader = document.createElement( 'div' );
 	loader.className = 'loadmore';
@@ -84,6 +92,14 @@
 		return query ? '?' + query : '';
 	}
 
+	function getSortParam() {
+		if ( currentSort === 'oldest' || currentSort === 'newest' ) {
+			return currentSort;
+		}
+
+		return '';
+	}
+
 	function setBusy( state ) {
 		filtersRoot.classList.toggle( 'filters--busy', state );
 		filtersRoot.setAttribute( 'aria-busy', state ? 'true' : 'false' );
@@ -140,6 +156,14 @@
 		observer.observe( sentinel );
 	}
 
+	function scrollListToTop() {
+		window.scrollTo( {
+			top: 0,
+			left: 0,
+			behavior: 'smooth',
+		} );
+	}
+
 	async function fetchPage( options = {} ) {
 		const page = options.page || 1;
 
@@ -159,7 +183,7 @@
 		}
 
 		try {
-			const query = buildQuery( { page } );
+			const query = buildQuery( { page, sort: getSortParam() } );
 			const response = await fetch( endpoint + query );
 
 			if ( ! response.ok ) {
@@ -175,6 +199,8 @@
 				listRoot.innerHTML = html;
 				ensureHelpers();
 			}
+
+			window.dispatchEvent( new CustomEvent( 'b45:cards-updated' ) );
 
 			const resolvedPage = Number( data?.page ) || page;
 			hasMore = Boolean( data?.has_more );
@@ -200,6 +226,30 @@
 		fetchPage( { page: nextPage, append: true } );
 	}
 
+	function applySortSelection( button, listWrap ) {
+		const rawSort = ( button.dataset.sort || '' ).trim();
+		const nextSort = rawSort === 'oldest' || rawSort === 'newest' ? rawSort : '';
+
+		if ( nextSort === currentSort ) {
+			return;
+		}
+
+		listWrap.querySelectorAll( '.filters__item' ).forEach( function( item ) {
+			item.classList.remove( 'filters__item--active' );
+			item.setAttribute( 'aria-pressed', 'false' );
+		} );
+
+		button.classList.add( 'filters__item--active' );
+		button.setAttribute( 'aria-pressed', 'true' );
+
+		currentSort = nextSort;
+		nextPage = 2;
+		hasMore = false;
+
+		scrollListToTop();
+		fetchPage( { page: 1, append: false } );
+	}
+
 	filtersRoot.addEventListener( 'click', function( event ) {
 		if ( isFetching ) {
 			return;
@@ -216,9 +266,20 @@
 		}
 
 		const tax = listWrap.getAttribute( 'data-tax' );
+		const role = listWrap.getAttribute( 'data-role' );
+
+		if ( role === 'sort' ) {
+			applySortSelection( button, listWrap );
+			return;
+		}
+
+		if ( ! tax ) {
+			return;
+		}
+
 		const values = parseValues( button );
 
-		if ( ! tax || values.length === 0 ) {
+		if ( values.length === 0 ) {
 			return;
 		}
 
@@ -228,6 +289,7 @@
 		nextPage = 2;
 		hasMore = false;
 
+		scrollListToTop();
 		fetchPage( { page: 1, append: false } );
 	} );
 

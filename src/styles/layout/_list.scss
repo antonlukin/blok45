@@ -2,6 +2,10 @@
 
 .list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
   grid-gap: 1rem;
+
+  .is-front & {
+    grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+  }
 }

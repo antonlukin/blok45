@@ -10,7 +10,7 @@ get_header();
 ?>
 
 <?php if ( have_posts() ) : ?>
-	<main class="archive archive--front">
+	<main class="archive">
 		<section class="list">
 			<?php
 			while ( have_posts() ) :
@@ -20,10 +20,10 @@ get_header();
 			?>
 		</section>
 
-        <aside class="sidebar">
-            <?php get_template_part( 'template-parts/filters' ); ?>
-            <?php get_template_part( 'template-parts/map' ); ?>
-        </aside>
+		<aside class="sidebar">
+			<?php get_template_part( 'template-parts/filters' ); ?>
+			<?php get_template_part( 'template-parts/map' ); ?>
+		</aside>
 	</main>
 <?php else : ?>
 	<?php get_template_part( 'template-parts/message' ); ?>
