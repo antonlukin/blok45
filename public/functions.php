@@ -71,7 +71,6 @@ require_once get_template_directory() . '/modules/global.php';
 require_once get_template_directory() . '/modules/blocks.php';
 require_once get_template_directory() . '/modules/comments.php';
 require_once get_template_directory() . '/modules/images.php';
-require_once get_template_directory() . '/modules/menu.php';
 require_once get_template_directory() . '/modules/reactions.php';
 require_once get_template_directory() . '/modules/search.php';
 require_once get_template_directory() . '/modules/sitemeta.php';

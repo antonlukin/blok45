@@ -2,7 +2,7 @@
   display: flex;
   flex-flow: row wrap;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.25rem;
 
   font-size: 0.875rem;
   font-weight: 500;
@@ -11,23 +11,18 @@
 
   .menu__item {
     display: inline-flex;
+    align-items: center;
+    height: 2.25rem;
     margin: 0;
+    padding: 0 0.75rem;
 
-    .menu__item-link {
-      display: inline-flex;
-      align-items: center;
-      height: 2.25rem;
-      margin: 0;
-      padding: 0 0.75rem;
+    color: var(--color-primary);
 
-      color: var(--color-primary);
+    border-radius: var(--radius-frame);
+    transition: color 0.375s;
 
-      border-radius: var(--radius-frame);
-      transition: color 0.375s;
-
-      &:hover {
-        color: var(--color-light);
-      }
+    &:hover {
+      color: var(--color-light);
     }
   }
 }
