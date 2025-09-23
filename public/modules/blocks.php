@@ -22,6 +22,7 @@ class Blok45_Modules_Blocks {
 		add_filter( 'allowed_block_types_all', array( __CLASS__, 'disable_core_blocks' ), 20 );
 		add_filter( 'block_type_metadata_settings', array( __CLASS__, 'remove_gallery_gaps' ) );
 		add_filter( 'register_block_type_args', array( __CLASS__, 'modify_image_block_support' ), 10, 2 );
+		add_filter( 'the_content', array( __CLASS__, 'strip_media_blocks_from_posts' ), 5 );
 	}
 
 	/**
@@ -97,23 +98,13 @@ class Blok45_Modules_Blocks {
 
 		// Allowed core blocks
 		$allowed = array(
-			'core/paragraph',
 			'core/image',
-			'core/embed',
-			'core/separator',
-			'core/spacer',
+			'core/gallery',
+			'core/paragraph',
 			'core/html',
-			'core/code',
-			'core/video',
-			'core/audio',
-			'core/details',
 			'core/list',
 			'core/list-item',
-			'core/gallery',
-			'core/heading',
 			'core/block',
-			'core/buttons',
-			'core/button',
 		);
 
 		$whitelist = array();
@@ -127,6 +118,56 @@ class Blok45_Modules_Blocks {
 		}
 
 		return $whitelist;
+	}
+
+	/**
+	 * Remove gallery and image blocks from single post content.
+	 *
+	 * @param string $content Post content.
+	 */
+	public static function strip_media_blocks_from_posts( $content ) {
+		if ( ! is_singular( 'post' ) ) {
+			return $content;
+		}
+
+		if ( ! has_blocks( $content ) ) {
+			return $content;
+		}
+
+		$blocks   = parse_blocks( $content );
+		$filtered = self::filter_blocks_recursive( $blocks );
+
+		return serialize_blocks( $filtered );
+	}
+
+	/**
+	 * Recursively remove image/gallery blocks from block array.
+	 *
+	 * @param array $blocks Blocks to filter.
+	 *
+	 * @return array
+	 */
+	protected static function filter_blocks_recursive( $blocks ) {
+		$allowed = array();
+
+		foreach ( (array) $blocks as $block ) {
+			if ( empty( $block['blockName'] ) ) {
+				$allowed[] = $block;
+				continue;
+			}
+
+			if ( in_array( $block['blockName'], array( 'core/image', 'core/gallery' ), true ) ) {
+				continue;
+			}
+
+			if ( ! empty( $block['innerBlocks'] ) ) {
+				$block['innerBlocks'] = self::filter_blocks_recursive( $block['innerBlocks'] );
+			}
+
+			$allowed[] = $block;
+		}
+
+		return $allowed;
 	}
 }
 

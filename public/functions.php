@@ -64,6 +64,23 @@ if ( ! function_exists( 'blok45_get_icon' ) ) :
 	}
 endif;
 
+if ( ! function_exists( 'blok45_get_gallery_items' ) ) :
+	/**
+	 * Return gallery items extracted from the first Gutenberg gallery block.
+	 *
+	 * @param int|WP_Post|null $post Optional post object or ID.
+	 *
+	 * @return array
+	 */
+	function blok45_get_gallery_items( $post = null ) {
+		if ( ! class_exists( 'Blok45_Modules_Gallery' ) ) {
+			return array();
+		}
+
+		return Blok45_Modules_Gallery::get_gallery_items( $post );
+	}
+endif;
+
 /**
  * Include theme core modules
  */
@@ -76,3 +93,4 @@ require_once get_template_directory() . '/modules/sitemeta.php';
 require_once get_template_directory() . '/modules/translit.php';
 require_once get_template_directory() . '/modules/filters.php';
 require_once get_template_directory() . '/modules/map.php';
+require_once get_template_directory() . '/modules/gallery.php';

@@ -89,6 +89,33 @@
 			} );
 		}
 
+		const staticCoords = block.dataset.coords ? parseCoords( block.dataset.coords ) : null;
+		const staticZoom = block.dataset.zoom ? parseFloat( block.dataset.zoom ) : null;
+		const staticLabel = block.dataset.label ? String( block.dataset.label ) : '';
+
+		if ( staticCoords ) {
+			const markerEl = document.createElement( 'div' );
+			markerEl.className = 'map__pin';
+			if ( staticLabel ) {
+				markerEl.setAttribute( 'title', staticLabel );
+			}
+
+			const lngLat = [ staticCoords.lng, staticCoords.lat ];
+
+			map.once( 'load', function() {
+				map.jumpTo( {
+					center: lngLat,
+					zoom: Number.isFinite( staticZoom ) ? staticZoom : Number( settings.zoom || 14 ),
+				} );
+			} );
+
+			new window.mapboxgl.Marker( { element: markerEl } )
+				.setLngLat( lngLat )
+				.addTo( map );
+
+			return;
+		}
+
 		// Load points and add markers
 		try {
 			const response = await fetch( endpoints.coords || '/wp-json/b45/v1/coords' );

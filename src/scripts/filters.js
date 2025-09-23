@@ -157,8 +157,18 @@
 	}
 
 	function scrollListToTop() {
+		const container = listRoot.closest( '.archive' ) || listRoot;
+
+		if ( ! container ) {
+			return;
+		}
+
+		const rect = container.getBoundingClientRect();
+		const currentOffset = window.pageYOffset || document.documentElement.scrollTop || 0;
+		const target = Math.max( rect.top + currentOffset - 24, 0 );
+
 		window.scrollTo( {
-			top: 0,
+			top: target,
 			left: 0,
 			behavior: 'smooth',
 		} );

@@ -22,14 +22,6 @@ class Blok45_Modules_Images {
 
 		add_filter( 'wp_generate_attachment_metadata', array( __CLASS__, 'compress_original_image' ), 10, 2 );
 		add_filter( 'wp_image_editors', array( __CLASS__, 'change_image_editor' ) );
-		add_filter( 'big_image_size_threshold', array( __CLASS__, 'change_big_image_size' ) );
-	}
-
-	/**
-	 * Change max image size
-	 */
-	public static function change_big_image_size() {
-		return 1600;
 	}
 
 	/**
@@ -70,8 +62,7 @@ class Blok45_Modules_Images {
 		set_post_thumbnail_size( 300, 300, true );
 
 		add_image_size( 'card', 640, 480, false );
-		add_image_size( 'wide', 1280, 640, false );
-		add_image_size( 'single', 960, 600, false );
+		add_image_size( 'single', 1920, 1080, false );
 	}
 
 	/**
