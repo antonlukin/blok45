@@ -20,8 +20,9 @@ class Blok45_Modules_Global {
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_scripts' ) );
 
 		add_action( 'after_switch_theme', 'flush_rewrite_rules' );
-		add_action( 'after_setup_theme', array( __CLASS__, 'update_theme_settings' ) );
+		add_action( 'after_setup_theme', array( __CLASS__, 'update_theme_settings' ), 12 );
 		add_action( 'init', array( __CLASS__, 'disable_default_taxonomies' ), 100 );
+		add_action( 'admin_menu', array( __CLASS__, 'remove_fse_menu' ), 12 );
 
 		add_filter( 'get_the_archive_title', array( __CLASS__, 'update_archive_title' ) );
 		add_filter( 'body_class', array( __CLASS__, 'update_body_classes' ) );
@@ -79,7 +80,16 @@ class Blok45_Modules_Global {
 		add_theme_support( 'customize-selective-refresh-widgets' );
 
 		remove_theme_support( 'core-block-patterns' );
+		remove_theme_support( 'block-templates' );
+
 		add_filter( 'should_load_remote_block_patterns', '__return_false' );
+	}
+
+	/**
+	 * Remove Full Site Editing menu for non-admin users
+	 */
+	public static function remove_fse_menu() {
+		remove_submenu_page( 'themes.php', 'site-editor.php' );
 	}
 
 	/**

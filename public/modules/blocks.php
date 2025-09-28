@@ -19,7 +19,7 @@ class Blok45_Modules_Blocks {
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'remove_block_styles' ), 20 );
 		add_action( 'wp_footer', array( __CLASS__, 'remove_footer_styles' ), 5 );
 
-		add_filter( 'allowed_block_types_all', array( __CLASS__, 'disable_core_blocks' ), 20 );
+		add_filter( 'allowed_block_types_all', array( __CLASS__, 'disable_core_blocks' ), 20, 2 );
 		add_filter( 'block_type_metadata_settings', array( __CLASS__, 'remove_gallery_gaps' ) );
 		add_filter( 'register_block_type_args', array( __CLASS__, 'modify_image_block_support' ), 10, 2 );
 		add_filter( 'the_content', array( __CLASS__, 'strip_media_blocks_from_posts' ), 5 );
@@ -93,8 +93,10 @@ class Blok45_Modules_Blocks {
 	/**
 	 * Disable some core blocks
 	 */
-	public static function disable_core_blocks( $allowed ) {
+	public static function disable_core_blocks( $allowed, $editor_context ) {
 		$blocks = array_keys( WP_Block_Type_Registry::get_instance()->get_all_registered() );
+
+		// print_r($editor_context); exit;
 
 		// Allowed core blocks
 		$allowed = array(

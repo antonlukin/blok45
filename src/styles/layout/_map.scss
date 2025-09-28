@@ -8,7 +8,7 @@
   min-height: 20rem;
 
   border-radius: var(--radius-frame);
-  box-shadow: 0 0 0.25rem var(--shadow-light);
+  border: 0.0625rem solid var(--color-border);
 
   .map__canvas {
     position: absolute;

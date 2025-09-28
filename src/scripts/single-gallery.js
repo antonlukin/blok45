@@ -41,8 +41,8 @@
 		return request;
 	}
 
-	document.querySelectorAll( '.gallery' ).forEach( function( root ) {
-		const topEl = root.querySelector( '[data-gallery="main"]' );
+	document.querySelectorAll( '[data-single-swiper]' ).forEach( function( root ) {
+		const topEl = root.querySelector( '[data-swiper="main"]' );
 
 		if ( ! topEl ) {
 			return;
@@ -52,7 +52,7 @@
 		const hasMultiple = slidesCount > 1;
 		let thumbsSwiper = null;
 
-		const thumbsEl = root.querySelector( '[data-gallery="thumbs"]' );
+		const thumbsEl = root.querySelector( '[data-swiper="thumbs"]' );
 
 		if ( thumbsEl && hasMultiple ) {
 			thumbsSwiper = new Swiper( thumbsEl, {
@@ -113,37 +113,84 @@
 			config.thumbs = { swiper: thumbsSwiper };
 		}
 
-		let sidebar = null;
-		let current = root.parentElement;
+		const overlay = topEl.querySelector( '[data-swiper-exif-panel]' );
+		const exifFields = overlay ? Array.from( overlay.querySelectorAll( '[data-swiper-exif-field]' ) ) : [];
+		const emptyNotice = overlay ? overlay.querySelector( '[data-swiper-exif-empty]' ) : null;
+		const closeButton = overlay ? overlay.querySelector( '[data-swiper-exif-close]' ) : null;
+		const placeholder = overlay ? overlay.getAttribute( 'data-swiper-exif-placeholder' ) || '—' : '—';
+		const exifTrigger = topEl.querySelector( '[data-swiper-exif-trigger]' );
+		const downloadLink = topEl.querySelector( '[data-swiper-download]' );
+		let currentAttachment = 0;
+		let currentDownloadUrl = '';
+		let currentDownloadName = '';
 
-		while ( current && ! sidebar ) {
-			sidebar = current.querySelector( '[data-gallery-sidebar]' );
-			current = current.parentElement;
+		function getSlideByIndex( index ) {
+			return root.querySelector( '[data-swiper="main"] .swiper-slide[data-index="' + index + '"]:not(.swiper-slide-duplicate)' );
 		}
 
-		const exifFields = sidebar ? Array.from( sidebar.querySelectorAll( '[data-exif-field]' ) ) : [];
-		const emptyNotice = sidebar ? sidebar.querySelector( '[data-exif-empty]' ) : null;
-		const placeholder = sidebar ? ( sidebar.getAttribute( 'data-exif-placeholder' ) || '—' ) : '—';
+		function setDownloadLink() {
+			if ( ! downloadLink ) {
+				return;
+			}
+
+			if ( ! currentDownloadUrl ) {
+				downloadLink.setAttribute( 'aria-disabled', 'true' );
+				downloadLink.setAttribute( 'tabindex', '-1' );
+				downloadLink.classList.add( 'is-disabled' );
+				downloadLink.removeAttribute( 'href' );
+				downloadLink.removeAttribute( 'download' );
+				return;
+			}
+
+			downloadLink.classList.remove( 'is-disabled' );
+			downloadLink.removeAttribute( 'aria-disabled' );
+			downloadLink.removeAttribute( 'tabindex' );
+			downloadLink.setAttribute( 'href', currentDownloadUrl );
+
+			if ( currentDownloadName ) {
+				downloadLink.setAttribute( 'download', currentDownloadName );
+			} else {
+				downloadLink.removeAttribute( 'download' );
+			}
+		}
+
+		function closeOverlay() {
+			if ( ! overlay ) {
+				return;
+			}
+
+			overlay.hidden = true;
+			overlay.setAttribute( 'aria-hidden', 'true' );
+			overlay.classList.remove( 'is-visible' );
+
+			if ( exifTrigger ) {
+				exifTrigger.setAttribute( 'aria-expanded', 'false' );
+				exifTrigger.classList.remove( 'is-open' );
+			}
+		}
 
 		function applyExifMeta( meta ) {
-			if ( ! sidebar || exifFields.length === 0 ) {
+			if ( ! overlay || exifFields.length === 0 ) {
 				return;
 			}
 
 			let hasData = false;
 
 			exifFields.forEach( function( field ) {
-				const key = field.getAttribute( 'data-exif-field' );
+				const key = field.getAttribute( 'data-swiper-exif-field' );
 				const value = key && meta[ key ] ? meta[ key ] : placeholder;
 
 				field.textContent = value;
 
-				if ( field.parentElement ) {
-					const isEmpty = value === placeholder;
-					field.parentElement.classList.toggle( 'is-empty', isEmpty );
-					if ( ! isEmpty ) {
-						hasData = true;
-					}
+				const row = field.closest( '[data-swiper-exif-row]' );
+				const isEmpty = value === placeholder;
+
+				if ( row ) {
+					row.classList.toggle( 'is-empty', isEmpty );
+				}
+
+				if ( ! isEmpty ) {
+					hasData = true;
 				}
 			} );
 
@@ -152,27 +199,88 @@
 			}
 		}
 
-		function updateExifSidebar( index ) {
-			if ( ! sidebar || exifFields.length === 0 ) {
+		function resetExifContent() {
+			applyExifMeta( {} );
+		}
+
+		function setTriggerState( disabled ) {
+			if ( ! exifTrigger ) {
 				return;
 			}
 
-			const slide = root.querySelector( '[data-gallery="main"] .swiper-slide[data-index="' + index + '"]:not(.swiper-slide-duplicate)' );
+			if ( disabled ) {
+				exifTrigger.classList.add( 'is-disabled' );
+				exifTrigger.setAttribute( 'aria-disabled', 'true' );
+			} else {
+				exifTrigger.classList.remove( 'is-disabled' );
+				exifTrigger.removeAttribute( 'aria-disabled' );
+			}
+		}
+
+		function updateSlideState( index ) {
+			const slide = getSlideByIndex( index );
 
 			if ( ! slide ) {
-				applyExifMeta( {} );
+				currentAttachment = 0;
+				currentDownloadUrl = '';
+				currentDownloadName = '';
+				setTriggerState( true );
+				slipReset();
 				return;
 			}
 
-			const attachment = Number( slide.getAttribute( 'data-attachment' ) || 0 );
+			currentAttachment = Number( slide.getAttribute( 'data-attachment' ) || 0 );
+			currentDownloadUrl = slide.getAttribute( 'data-full' ) || '';
+			const img = slide.querySelector( 'img' );
+			const alt = img ? img.getAttribute( 'alt' ) : '';
 
-			if ( attachment > 0 ) {
-				applyExifMeta( {} );
+			if ( currentDownloadUrl ) {
+				try {
+					const url = new URL( currentDownloadUrl, window.location.origin );
+					const path = url.pathname ? url.pathname.split( '/' ).pop() : '';
+					currentDownloadName = path || alt || '';
+				} catch ( error ) {
+					currentDownloadName = alt || '';
+				}
+			} else {
+				currentDownloadName = '';
+			}
 
+			setDownloadLink();
+			setTriggerState( currentAttachment <= 0 );
+			closeOverlay();
+			resetExifContent();
+
+			if ( exifTrigger ) {
+				exifTrigger.classList.remove( 'is-loading' );
+				exifTrigger.removeAttribute( 'aria-busy' );
+			}
+		}
+
+		function slipReset() {
+			closeOverlay();
+			resetExifContent();
+			setDownloadLink();
+
+			if ( exifTrigger ) {
+				exifTrigger.classList.remove( 'is-loading' );
+				exifTrigger.removeAttribute( 'aria-busy' );
+			}
+		}
+
+		function openOverlay() {
+			if ( ! overlay ) {
 				return;
 			}
 
-			applyExifMeta( {} );
+			overlay.hidden = false;
+			overlay.setAttribute( 'aria-hidden', 'false' );
+			overlay.classList.add( 'is-visible' );
+
+			if ( exifTrigger ) {
+				exifTrigger.setAttribute( 'aria-expanded', 'true' );
+				exifTrigger.classList.add( 'is-open' );
+			}
 		}
 
 		const mainSwiper = new Swiper( topEl, config );
@@ -183,9 +291,66 @@
 			} );
 		}
 
-		updateExifSidebar( mainSwiper.realIndex || 0 );
+		updateSlideState( mainSwiper.realIndex || 0 );
 		mainSwiper.on( 'slideChange', function() {
-			updateExifSidebar( mainSwiper.realIndex );
+			updateSlideState( mainSwiper.realIndex );
+		} );
+
+		if ( exifTrigger ) {
+			exifTrigger.addEventListener( 'click', function( event ) {
+				event.preventDefault();
+
+				if ( exifTrigger.classList.contains( 'is-disabled' ) || currentAttachment <= 0 ) {
+					return;
+				}
+
+				if ( overlay && overlay.classList.contains( 'is-visible' ) ) {
+					closeOverlay();
+					return;
+				}
+
+				const reveal = function( meta ) {
+					applyExifMeta( meta || {} );
+					openOverlay();
+				};
+
+				if ( exifCache.has( currentAttachment ) ) {
+					reveal( exifCache.get( currentAttachment ) );
+					return;
+				}
+
+				exifTrigger.classList.add( 'is-loading' );
+				exifTrigger.setAttribute( 'aria-busy', 'true' );
+
+				fetchExif( currentAttachment )
+					.then( reveal )
+					.finally( function() {
+						exifTrigger.classList.remove( 'is-loading' );
+						exifTrigger.removeAttribute( 'aria-busy' );
+					} );
+			} );
+		}
+
+		if ( closeButton ) {
+			closeButton.addEventListener( 'click', function( event ) {
+				event.preventDefault();
+				closeOverlay();
+			} );
+		}
+
+		if ( overlay ) {
+			overlay.addEventListener( 'click', function( event ) {
+				if ( event.target === overlay ) {
+					closeOverlay();
+				}
+			} );
+		}
+
+		topEl.addEventListener( 'keydown', function( event ) {
+			if ( 'Escape' === event.key && overlay && overlay.classList.contains( 'is-visible' ) ) {
+				event.stopPropagation();
+				closeOverlay();
+			}
 		} );
 	} );
 }() );

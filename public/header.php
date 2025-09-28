@@ -26,10 +26,9 @@
 
 	<div class="header__navbar">
 		<div class="header__navbar-menu menu">
-			<a href="" class="menu__item">Search</a>
 			<a href="" class="menu__item">About</a>
-
-			<div class="menu__item">SR</div>
+			<a href="" class="menu__item">Instagram</a>
+			<a href="" class="menu__item">Submit &rarr;</a>
 		</div>
 	</div>
 </header>

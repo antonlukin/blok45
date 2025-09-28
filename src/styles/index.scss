@@ -6,12 +6,14 @@
 html {
   color: var(--color-primary);
   background-color: var(--color-background);
+  font-size: 100%;
 }
 
 body {
   display: block;
 
   line-height: 1.375;
+  font-size: 1rem;
   font-weight: normal;
   font-family: var(--font-regular);
   font-feature-settings: 'cv11' on, 'cv05' on, 'cv01' on, 'cv09' on, 'dlig' on;

@@ -11,7 +11,7 @@
   color: var(--color-light);
   border-radius: var(--radius-frame);
 
-  box-shadow: 0 0 0.25rem var(--shadow-light);
+  border: 0.0625rem solid var(--color-border);
 
   &:hover .card__thumbnail {
     transform: scale(1.025);
@@ -129,10 +129,13 @@
   background:rgba(0,0,0,0.75);
   color: var(--stroke);
   border: 1px solid rgba(255,255,255,.08);
-  box-shadow: 0 4px 22px rgba(0,0,0,.28);
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   color: var(--color-primary);
+
+  &:hover .card__like-icon {
+    transform: scale(110%);
+  }
 }
 
 .card__like-icon{
@@ -140,6 +143,8 @@
   height: 0.8125rem;
   display: block;
   fill: var(--color-primary);
+
+  transition: transform 0.125s;
 }
 .card__like-count{
   font-size: 0.6875rem;
@@ -161,4 +166,5 @@
 
 .card__like--active .card__like-icon--active{
   display: block;
+  fill: var(--color-light);
 }
