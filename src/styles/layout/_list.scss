@@ -8,4 +8,10 @@
   .is-front & {
     grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
   }
+
+  &.list--loading {
+    .card:not(.card--skeleton) {
+      display: none;
+    }
+  }
 }

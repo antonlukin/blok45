@@ -36,6 +36,54 @@
 	listRoot.insertAdjacentElement( 'beforeend', loader );
 
 	let observer = null;
+	const skeletonMinCount = Math.max( Number( settings.skeletonCount || 0 ), 6 );
+
+	function createSkeletonCard() {
+		const card = document.createElement( 'div' );
+		card.className = 'card card--skeleton';
+		card.setAttribute( 'aria-hidden', 'true' );
+		card.innerHTML = [
+			'<div class="card__skeleton-image"></div>',
+			'<div class="card__skeleton-like"></div>',
+			'<div class="card__skeleton-footer">',
+			'<span class="card__skeleton-line card__skeleton-line--title card__skeleton-line--short"></span>',
+			'</div>',
+		].join( '' );
+		return card;
+	}
+
+	function showSkeletonCards() {
+		const currentCards = listRoot.querySelectorAll( '.card' ).length;
+		const targetCount = currentCards > 0 ? currentCards : skeletonMinCount;
+
+		listRoot.querySelectorAll( '.card--skeleton' ).forEach( function( node ) {
+			node.remove();
+		} );
+
+		ensureHelpers();
+
+		const fragment = document.createDocumentFragment();
+		for ( let index = 0; index < targetCount; index += 1 ) {
+			fragment.appendChild( createSkeletonCard() );
+		}
+
+		const insertBeforeNode = sentinel.parentNode === listRoot ? sentinel : null;
+
+		if ( insertBeforeNode ) {
+			listRoot.insertBefore( fragment, insertBeforeNode );
+		} else {
+			listRoot.appendChild( fragment );
+		}
+
+		listRoot.classList.add( 'list--loading' );
+	}
+
+	function clearSkeletonCards() {
+		listRoot.classList.remove( 'list--loading' );
+		listRoot.querySelectorAll( '.card--skeleton' ).forEach( function( node ) {
+			node.remove();
+		} );
+	}
 
 	function parseValues( button ) {
 		const raw = ( button.dataset.value || '' ).trim();
@@ -163,12 +211,8 @@
 			return;
 		}
 
-		const rect = container.getBoundingClientRect();
-		const currentOffset = window.pageYOffset || document.documentElement.scrollTop || 0;
-		const target = Math.max( rect.top + currentOffset - 24, 0 );
-
 		window.scrollTo( {
-			top: target,
+			top: 0,
 			left: 0,
 			behavior: 'smooth',
 		} );
@@ -190,6 +234,7 @@
 		} else {
 			setBusy( true );
 			showLoader();
+			showSkeletonCards();
 		}
 
 		try {
@@ -221,6 +266,7 @@
 			hideLoader();
 			if ( ! append ) {
 				setBusy( false );
+				clearSkeletonCards();
 			}
 			isFetching = false;
 			ensureHelpers();
@@ -275,13 +321,14 @@
 			return;
 		}
 
-		const tax = listWrap.getAttribute( 'data-tax' );
 		const role = listWrap.getAttribute( 'data-role' );
 
 		if ( role === 'sort' ) {
 			applySortSelection( button, listWrap );
 			return;
 		}
+
+		const tax = listWrap.getAttribute( 'data-tax' );
 
 		if ( ! tax ) {
 			return;
