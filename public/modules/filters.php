@@ -72,6 +72,11 @@ class Blok45_Modules_Filters {
 							return absint( $value ) >= 1;
 						},
 					),
+					'sort'   => array(
+						'required'          => false,
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_key',
+					),
 				),
 				'callback'            => array( __CLASS__, 'rest_filter_posts' ),
 			)
@@ -123,7 +128,7 @@ class Blok45_Modules_Filters {
 		$tax_query = array( 'relation' => 'AND' );
 		$page      = max( 1, absint( $request->get_param( 'page' ) ) );
 
-		sleep( 1 );
+		// sleep( 1 );
 
 		foreach ( array( 'artist', 'years' ) as $tax ) {
 			$csv = trim( (string) $request->get_param( $tax ) );
@@ -171,6 +176,34 @@ class Blok45_Modules_Filters {
 			'no_found_rows'  => false,
 			'paged'          => $page,
 		);
+
+		$sort = sanitize_key( $request->get_param( 'sort' ) );
+
+		switch ( $sort ) {
+			case 'newest':
+				$args['orderby'] = 'date';
+				$args['order']   = 'DESC';
+				break;
+
+			case 'oldest':
+				$args['orderby'] = 'date';
+				$args['order']   = 'ASC';
+				break;
+
+			case 'rating':
+				$meta_key = class_exists( 'Blok45_Modules_Rating' ) ? Blok45_Modules_Rating::META_KEY : 'b45_rating';
+
+				$args['meta_key']   = $meta_key;
+				$args['meta_type']  = 'NUMERIC';
+				$args['orderby']    = array(
+					'meta_value_num' => 'DESC',
+					'date'           => 'DESC',
+				);
+				break;
+
+			default:
+				break;
+		}
 
 		if ( count( $tax_query ) > 1 ) {
 			$args['tax_query'] = $tax_query; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query

@@ -171,11 +171,11 @@
 
 @keyframes card-skeleton-shimmer {
   0% {
-    background-position: -200% 0;
+    background-position: 200% 0;
   }
 
   100% {
-    background-position: 200% 0;
+    background-position: -200% 0;
   }
 }
 
@@ -186,16 +186,17 @@
   border-color: rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.02);
 
-  .card__skeleton-image,
+  .card__skeleton-image {
+    display: block;
+    background: rgba(255, 255, 255, 0.1);
+  }
+
   .card__skeleton-like,
   .card__skeleton-line {
     display: block;
     background: linear-gradient(90deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.08));
     background-size: 200% 100%;
-  }
-
-  .card__skeleton-image {
-    animation: card-skeleton-shimmer 2s ease-in-out infinite;
+    animation: card-skeleton-shimmer 3s ease-in-out infinite;
   }
 
   .card__skeleton-image {
@@ -212,7 +213,7 @@
     top: 0.5rem;
     right: 0.5rem;
     width: 2.5rem;
-    height: 1.5rem;
+    height: 1.625rem;
     border-radius: 999px;
   }
 
@@ -229,7 +230,7 @@
   }
 
   .card__skeleton-line {
-    height: 0.75rem;
+    height: 1rem;
     border-radius: 0.5rem;
   }
 

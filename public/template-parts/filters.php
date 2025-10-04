@@ -70,20 +70,20 @@
 		);
 		?>
 
-		<div class="filters__list" role="list">
+		<div class="filters__list" role="list" data-role="sort">
 			<?php
 			printf(
-				'<button class="filters__item filters__item--active" role="listitem">%s</button>',
+				'<button class="filters__item filters__item--active" role="listitem" aria-pressed="true">%s</button>',
+				esc_html__( 'By default', 'blok45' )
+			);
+
+			printf(
+				'<button class="filters__item" role="listitem" data-sort="rating" aria-pressed="false">%s</button>',
 				esc_html__( 'Highest Rated', 'blok45' )
 			);
 
 			printf(
-				'<button class="filters__item" role="listitem">%s</button>',
-				esc_html__( 'Oldest First', 'blok45' )
-			);
-
-			printf(
-				'<button class="filters__item" role="listitem">%s</button>',
+				'<button class="filters__item" role="listitem" data-sort="newest" aria-pressed="false">%s</button>',
 				esc_html__( 'Newest First', 'blok45' )
 			);
 			?>

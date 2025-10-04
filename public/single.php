@@ -15,27 +15,16 @@ get_header(); ?>
 
 		$items = blok45_get_gallery_items( get_the_ID() );
 
-		if ( empty( $items ) ) :
-			printf(
-				'<p class="single__empty">%s</p>',
-				esc_html__( 'No gallery images were found for this post.', 'blok45' )
-			);
-			continue;
-		endif;
-
 		$count         = count( $items );
 		$has_thumbs    = ( $count > 1 );
-		$meta_labels   = array(
-			'camera'        => __( 'Camera', 'blok45' ),
-			'lens'          => __( 'Lens', 'blok45' ),
-			'focal_length'  => __( 'Focal Length', 'blok45' ),
-			'aperture'      => __( 'Aperture', 'blok45' ),
-			'shutter_speed' => __( 'Shutter Speed', 'blok45' ),
-			'iso'           => __( 'ISO', 'blok45' ),
-			'dimensions'    => __( 'Dimensions', 'blok45' ),
-			'created'       => __( 'Captured', 'blok45' ),
-		);
 
+		$rating_value = 0;
+
+		if ( class_exists( 'Blok45_Modules_Rating' ) ) {
+			$rating_value = Blok45_Modules_Rating::get_post_rating_value( get_the_ID() );
+		}
+
+		$rating_display       = number_format_i18n( $rating_value );
 		$raw_coords            = trim( (string) get_post_meta( get_the_ID(), 'b45_coords', true ) );
 		$main_swiper_classes   = 'swiper swiper--main' . ( $has_thumbs ? ' swiper--with-thumbs' : '' );
 		$thumbs_swiper_classes = 'swiper swiper--thumbs';
@@ -46,21 +35,25 @@ get_header(); ?>
 					<div class="swiper__actions" data-swiper-actions>
 						<button
 							type="button"
-							class="swiper__action swiper__action--exif"
-							data-swiper-exif-trigger
-							aria-expanded="false"
-							aria-haspopup="dialog"
+							class="card__like card__like--inline"
+							data-post="<?php echo esc_attr( get_the_ID() ); ?>"
+							data-rating="<?php echo esc_attr( $rating_value ); ?>"
+							aria-label="<?php echo esc_attr__( 'Toggle rating', 'blok45' ); ?>"
+							aria-pressed="false"
 						>
-							<?php esc_html_e( 'Show EXIF', 'blok45' ); ?>
+							<?php
+							printf(
+								'<svg class="card__like-icon card__like-icon--default" aria-hidden="true"><use xlink:href="%1$s" href="%1$s"></use></svg>',
+								esc_url( blok45_get_icon( 'like' ) )
+							);
+
+							printf(
+								'<svg class="card__like-icon card__like-icon--active" aria-hidden="true"><use xlink:href="%1$s" href="%1$s"></use></svg>',
+								esc_url( blok45_get_icon( 'liked' ) )
+							);
+							?>
+							<span class="card__like-count" aria-live="polite"><?php echo esc_html( $rating_display ); ?></span>
 						</button>
-						<a
-							href="#"
-							class="swiper__action swiper__action--download"
-							data-swiper-download
-							rel="noopener"
-						>
-							<?php esc_html_e( 'Download original', 'blok45' ); ?>
-						</a>
 					</div>
 					<div class="swiper-wrapper">
 						<?php foreach ( $items as $index => $item ) :
@@ -92,29 +85,35 @@ get_header(); ?>
 						<?php endforeach; ?>
 					</div>
 
-					<div class="swiper__exif-overlay" data-swiper-exif-panel data-swiper-exif-placeholder="<?php esc_attr_e( '—', 'blok45' ); ?>" hidden aria-hidden="true" role="dialog" aria-modal="false">
-						<div class="swiper__exif-overlay-content">
-							<header class="swiper__exif-overlay-header">
-								<h3 class="swiper__exif-overlay-title"><?php esc_html_e( 'Photo EXIF', 'blok45' ); ?></h3>
-								<button type="button" class="swiper__exif-overlay-close" data-swiper-exif-close aria-label="<?php esc_attr_e( 'Close EXIF panel', 'blok45' ); ?>">
-									<span aria-hidden="true">&times;</span>
-								</button>
-							</header>
-							<dl class="swiper__exif-grid">
-								<?php foreach ( $meta_labels as $meta_key => $meta_label ) : ?>
-									<div class="swiper__exif-grid-row" data-swiper-exif-row>
-										<dt><?php echo esc_html( $meta_label ); ?></dt>
-										<dd data-swiper-exif-field="<?php echo esc_attr( $meta_key ); ?>"><?php esc_html_e( '—', 'blok45' ); ?></dd>
-									</div>
-								<?php endforeach; ?>
-							</dl>
-							<p class="swiper__exif-empty" data-swiper-exif-empty><?php esc_html_e( 'No EXIF data available for this image.', 'blok45' ); ?></p>
-						</div>
-					</div>
-
 					<?php if ( $has_thumbs ) : ?>
-						<div class="swiper-button-prev" aria-label="<?php esc_attr_e( 'Show previous image', 'blok45' ); ?>"></div>
-						<div class="swiper-button-next" aria-label="<?php esc_attr_e( 'Show next image', 'blok45' ); ?>"></div>
+						<div class="swiper__nav">
+							<button
+								type="button"
+								class="swiper__nav-button swiper__nav-button--prev"
+								data-swiper-nav="prev"
+								aria-label="<?php esc_attr_e( 'Show previous image', 'blok45' ); ?>"
+							>
+								<?php
+								printf(
+									'<svg class="swiper__nav-icon" aria-hidden="true"><use xlink:href="%1$s" href="%1$s"></use></svg>',
+									esc_url( blok45_get_icon( 'left' ) )
+								);
+								?>
+							</button>
+							<button
+								type="button"
+								class="swiper__nav-button swiper__nav-button--next"
+								data-swiper-nav="next"
+								aria-label="<?php esc_attr_e( 'Show next image', 'blok45' ); ?>"
+							>
+								<?php
+								printf(
+									'<svg class="swiper__nav-icon" aria-hidden="true"><use xlink:href="%1$s" href="%1$s"></use></svg>',
+									esc_url( blok45_get_icon( 'left' ) )
+								);
+								?>
+							</button>
+						</div>
 					<?php endif; ?>
 				</div>
 

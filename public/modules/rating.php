@@ -22,6 +22,7 @@ class Blok45_Modules_Rating {
 		add_action( 'init', array( __CLASS__, 'register_meta' ) );
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_public_assets' ) );
+		add_action( 'save_post_post', array( __CLASS__, 'ensure_default_rating_meta' ), 10, 3 );
 	}
 
 	/**
@@ -101,6 +102,25 @@ class Blok45_Modules_Rating {
 				'storageKey' => self::STORAGE_KEY,
 			)
 		);
+	}
+
+	/**
+	 * Ensure new posts always have a rating meta entry.
+	 *
+	 * @param int     $post_id Post identifier.
+	 * @param WP_Post $post    Post instance.
+	 * @param bool    $update  Whether this is an existing post being updated.
+	 */
+	public static function ensure_default_rating_meta( $post_id, $post, $update ) {
+		if ( wp_is_post_revision( $post_id ) || 'auto-draft' === $post->post_status ) {
+			return;
+		}
+
+		if ( metadata_exists( 'post', $post_id, self::META_KEY ) ) {
+			return;
+		}
+
+		update_post_meta( $post_id, self::META_KEY, 0 );
 	}
 
 	/**

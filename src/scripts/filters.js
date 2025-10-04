@@ -8,6 +8,7 @@
 	const filtersRoot = document.querySelector( '.filters' );
 	const listRoot = document.querySelector( '.list' );
 	const sortList = filtersRoot ? filtersRoot.querySelector( '.filters__list[data-role="sort"]' ) : null;
+	const ALLOWED_SORTS = new Set( [ 'oldest', 'newest', 'rating' ] );
 
 	if ( ! filtersRoot || ! listRoot ) {
 		return;
@@ -21,8 +22,8 @@
 
 	if ( sortList ) {
 		const activeSortButton = sortList.querySelector( '.filters__item--active[data-sort]' );
-		const initialSort = activeSortButton ? ( activeSortButton.dataset.sort || '' ) : '';
-		currentSort = initialSort === 'oldest' || initialSort === 'newest' ? initialSort : '';
+		const initialSort = activeSortButton ? ( activeSortButton.dataset.sort || '' ).trim() : '';
+		currentSort = ALLOWED_SORTS.has( initialSort ) ? initialSort : '';
 	}
 
 	const loader = document.createElement( 'div' );
@@ -141,11 +142,7 @@
 	}
 
 	function getSortParam() {
-		if ( currentSort === 'oldest' || currentSort === 'newest' ) {
-			return currentSort;
-		}
-
-		return '';
+		return ALLOWED_SORTS.has( currentSort ) ? currentSort : '';
 	}
 
 	function setBusy( state ) {
@@ -284,7 +281,7 @@
 
 	function applySortSelection( button, listWrap ) {
 		const rawSort = ( button.dataset.sort || '' ).trim();
-		const nextSort = rawSort === 'oldest' || rawSort === 'newest' ? rawSort : '';
+		const nextSort = ALLOWED_SORTS.has( rawSort ) ? rawSort : '';
 
 		if ( nextSort === currentSort ) {
 			return;

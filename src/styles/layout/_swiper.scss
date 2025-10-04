@@ -1,4 +1,7 @@
 .swiper {
+  --swiper-theme-color: var(--color-light);
+  --swiper-navigation-size: 1.75rem;
+
   &.swiper--main {
     position: relative;
     width: 100%;
@@ -65,152 +68,28 @@
     transition: background 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
     white-space: nowrap;
 
-    .swiper:hover,
-    .swiper:focus {
+    &:hover,
+    &:focus {
       background: rgba(255, 255, 255, 0.14);
       border-color: rgba(255, 255, 255, 0.35);
     }
 
-    .swiper:focus {
+    &:focus {
       outline: none;
       box-shadow: 0 0 0 0.125rem rgba(255, 255, 255, 0.25);
     }
 
-    .swiper.is-disabled {
+    &.is-disabled {
       opacity: 0.4;
       pointer-events: none;
     }
 
-    .swiper.is-loading {
+    &.is-loading {
       cursor: progress;
     }
   }
 
-  .swiper__exif-overlay {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 2rem;
-    background: rgba(10, 10, 14, 0.75);
-    backdrop-filter: blur(0.25rem);
-    border-radius: inherit;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.25s ease;
-    z-index: 3;
-
-    .swiper.is-visible {
-      opacity: 1;
-      pointer-events: auto;
-    }
-  }
-
-  .swiper__exif-overlay-content {
-    width: min(38rem, 100%);
-    background: rgba(18, 18, 22, 0.95);
-    border-radius: var(--radius-frame);
-    padding: 1.5rem 1.75rem;
-    box-shadow: 0 1.5rem 3.5rem rgba(0, 0, 0, 0.45);
-    border: 0.0625rem solid rgba(255, 255, 255, 0.1);
-    position: relative;
-    color: #fff;
-    max-height: calc(100% - 4rem);
-    overflow-y: auto;
-  }
-
-  .swiper__exif-overlay-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    margin-bottom: 1.25rem;
-  }
-
-  .swiper__exif-overlay-title {
-    margin: 0;
-    font-size: 0.95rem;
-    font-weight: 600;
-    letter-spacing: 0.02em;
-  }
-
-  .swiper__exif-overlay-close {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 2rem;
-    height: 2rem;
-    border-radius: 50%;
-    border: 0.0625rem solid rgba(255, 255, 255, 0.25);
-    background: rgba(12, 12, 15, 0.6);
-    color: #fff;
-    font-size: 1.25rem;
-    line-height: 1;
-    cursor: pointer;
-    transition: background 0.2s ease, border-color 0.2s ease;
-
-    span {
-      line-height: 1;
-    }
-
-    .swiper:hover,
-    .swiper:focus {
-      background: rgba(255, 255, 255, 0.12);
-      border-color: rgba(255, 255, 255, 0.35);
-    }
-
-    .swiper:focus {
-      outline: none;
-      box-shadow: 0 0 0 0.125rem rgba(255, 255, 255, 0.25);
-    }
-  }
-
-  .swiper__exif-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.75rem 2rem;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .swiper__exif-grid-row {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, auto);
-    gap: 0.5rem;
-    padding-bottom: 0.75rem;
-    border-bottom: 0.0625rem solid rgba(255, 255, 255, 0.08);
-
-    dt {
-      margin: 0;
-      font-size: 0.625rem;
-      text-transform: uppercase;
-      letter-spacing: 0.045em;
-      color: rgba(255, 255, 255, 0.55);
-    }
-
-    dd {
-      margin: 0;
-      text-align: right;
-      font-size: 0.625rem;
-      font-weight: 500;
-      color: rgba(255, 255, 255, 0.88);
-    }
-
-    .swiper.is-empty dd {
-      color: rgba(255, 255, 255, 0.45);
-    }
-  }
-
-  .swiper__exif-empty {
-    margin: 1rem 0 0;
-    font-size: 0.75rem;
-    color: rgba(255, 255, 255, 0.6);
-    text-align: center;
-  }
-
-  .swiper--thumbs {
+  &.swiper--thumbs {
     position: relative;
     width: 100%;
     border-radius: var(--radius-frame);
@@ -226,33 +105,80 @@
       justify-content: center;
       align-items: center;
       width: 10rem;
-      padding: 0 0.25rem;
-      opacity: 0.6;
       transition: opacity 0.2s ease, transform 0.2s ease;
       cursor: pointer;
       height: auto !important;
+      overflow: hidden;
+
+      border-radius: var(--radius-frame);
 
       img {
-        border-radius: var(--radius-frame);
+        overflow: hidden;
+        opacity: 0.5;
       }
 
-      .swiper.swiper-slide-thumb-active {
+      &:focus-visible {
+        outline: 0.125rem solid var(--color-secondary);
+        outline-offset: -0.125rem;
+      }
+
+      &:focus:not(:focus-visible) {
+        outline: none;
+      }
+
+      &.swiper-slide-thumb-active img {
         opacity: 1;
-        transform: scale(1.02);
       }
     }
   }
-}
 
-.swiper-button-prev,
-.swiper-button-next {
-  color: #ccc;
-  text-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.35);
+  .swiper__nav {
+    position: absolute;
+    z-index: 2;
+    inset: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    pointer-events: none;
+    padding: 0 0.5rem;
+  }
 
-  .swiper::after {
-    font-size: 2rem;
+  .swiper__nav-button {
+    pointer-events: auto;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: #ccc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: #fff;
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 0.125rem rgba(255, 255, 255, 0.35);
+    }
+  }
+
+  .swiper__nav-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+    fill: currentColor;
+    transition: transform 0.2s ease;
+  }
+
+  .swiper__nav-button--next .swiper__nav-icon {
+    transform: rotate(180deg);
   }
 }
+
 
 @media (max-width: 60rem) {
   .swiper--thumbs {
@@ -287,24 +213,6 @@
 
     .swiper__action {
       padding: 0.45rem 0.75rem;
-    }
-
-    .swiper__exif-overlay-content {
-      padding: 1.25rem 1.5rem;
-    }
-
-    .swiper__exif-grid {
-      grid-template-columns: 1fr;
-      gap: 0.75rem;
-    }
-
-    .swiper__exif-grid-row {
-      grid-template-columns: minmax(0, 1fr);
-      border-bottom: 0.0625rem solid rgba(255, 255, 255, 0.12);
-
-      dd {
-        text-align: left;
-      }
     }
   }
 }
