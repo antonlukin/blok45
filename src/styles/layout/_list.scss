@@ -14,4 +14,13 @@
       display: none;
     }
   }
+
+  .list__empty {
+    grid-column: 1 / -1;
+    padding: 2rem 1rem;
+    margin: 0;
+    text-align: center;
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.65);
+  }
 }

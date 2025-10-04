@@ -20,9 +20,14 @@
 
 		<div class="filters__list" role="list" data-tax="years">
 			<?php
+			printf(
+				'<button class="filters__item filters__item--active" data-value="" role="listitem" aria-pressed="true">%s</button>',
+				esc_html__( 'Any', 'blok45' )
+			);
+
 			foreach ( blok45_year_ranges() as $range ) {
 				printf(
-					'<button class="filters__item" data-value="%1$s" role="listitem">%2$s</button>',
+					'<button class="filters__item" data-value="%1$s" role="listitem" aria-pressed="false">%2$s</button>',
 					esc_attr( $range['slug'] ),
 					esc_html( $range['label'] )
 				);
@@ -51,9 +56,14 @@
 
 		<div class="filters__list" role="list" data-tax="artist">
 			<?php
+			printf(
+				'<button class="filters__item filters__item--active" data-value="" role="listitem" aria-pressed="true">%s</button>',
+				esc_html__( 'Any', 'blok45' )
+			);
+
 			foreach ( $artists as $artist ) {
 				printf(
-					'<button class="filters__item" data-value="%1$s" role="listitem">%2$s</button>',
+					'<button class="filters__item" data-value="%1$s" role="listitem" aria-pressed="false">%2$s</button>',
 					esc_attr( $artist->term_id ),
 					esc_html( $artist->name )
 				);
@@ -80,11 +90,6 @@
 			printf(
 				'<button class="filters__item" role="listitem" data-sort="rating" aria-pressed="false">%s</button>',
 				esc_html__( 'Highest Rated', 'blok45' )
-			);
-
-			printf(
-				'<button class="filters__item" role="listitem" data-sort="newest" aria-pressed="false">%s</button>',
-				esc_html__( 'Newest First', 'blok45' )
 			);
 			?>
 		</div>

@@ -59,11 +59,14 @@
     width: 2.5rem;
     height: 2.5rem;
 
-    color: var(--color-secondary);
     background: var(--gradient-pin);
 
     transform: translate(-1.25rem, -1.25rem);
     cursor: pointer;
+
+    &.map__pin--active {
+      background: var(--gradient-active);
+    }
   }
 
   .mapboxgl-ctrl-logo {

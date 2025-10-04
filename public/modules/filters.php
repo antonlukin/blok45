@@ -72,6 +72,11 @@ class Blok45_Modules_Filters {
 							return absint( $value ) >= 1;
 						},
 					),
+					'coords' => array(
+						'required'          => false,
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
+					),
 					'sort'   => array(
 						'required'          => false,
 						'type'              => 'string',
@@ -113,6 +118,7 @@ class Blok45_Modules_Filters {
 				'endpoint'  => esc_url_raw( rest_url( 'b45/v1/filter' ) ),
 				'startPage' => max( 2, $next_page ),
 				'hasMore'   => (bool) $has_more,
+				'emptyMessage' => esc_html__( 'Nothing found for the selected filters.', 'blok45' ),
 			)
 		);
 	}
@@ -125,49 +131,38 @@ class Blok45_Modules_Filters {
 	 * @return WP_REST_Response
 	 */
 	public static function rest_filter_posts( WP_REST_Request $request ) {
-		$tax_query = array( 'relation' => 'AND' );
+		$tax_query = array();
 		$page      = max( 1, absint( $request->get_param( 'page' ) ) );
 
-		// sleep( 1 );
+		usleep( 500000 );
 
-		foreach ( array( 'artist', 'years' ) as $tax ) {
-			$csv = trim( (string) $request->get_param( $tax ) );
+		$artist_id = absint( $request->get_param( 'artist' ) );
 
-			if ( empty( $csv ) ) {
-				continue;
-			}
-
-			$tokens = array_filter( array_map( 'trim', explode( ',', $csv ) ) );
-
-			if ( 'years' === $tax ) {
-				$ids = self::normalize_year_tokens_to_term_ids( $tokens );
-
-				if ( empty( $ids ) ) {
-					continue;
-				}
-
-				$tax_query[] = array(
-					'taxonomy' => $tax,
-					'field'    => 'term_id',
-					'terms'    => $ids,
-					'operator' => 'IN',
-				);
-				continue;
-			}
-
-			$ids = array_filter( array_map( 'absint', $tokens ) );
-
-			if ( empty( $ids ) ) {
-				continue;
-			}
-
+		if ( $artist_id > 0 ) {
 			$tax_query[] = array(
-				'taxonomy' => $tax,
+				'taxonomy' => 'artist',
 				'field'    => 'term_id',
-				'terms'    => $ids,
-				'operator' => 'AND',
+				'terms'    => array( $artist_id ),
+				'operator' => 'IN',
 			);
 		}
+
+		$year_token = trim( (string) $request->get_param( 'years' ) );
+
+		if ( '' !== $year_token ) {
+			$resolved_years = array_values( array_filter( array_map( 'absint', self::normalize_year_tokens_to_term_ids( array( $year_token ) ) ) ) );
+
+			if ( ! empty( $resolved_years ) ) {
+				$tax_query[] = array(
+					'taxonomy' => 'years',
+					'field'    => 'term_id',
+					'terms'    => $resolved_years,
+					'operator' => 'IN',
+				);
+			}
+		}
+
+		$coords_filter = self::normalize_coords_value( $request->get_param( 'coords' ) );
 
 		$args = array(
 			'post_type'      => 'post',
@@ -176,6 +171,18 @@ class Blok45_Modules_Filters {
 			'no_found_rows'  => false,
 			'paged'          => $page,
 		);
+
+		if ( $coords_filter ) {
+			if ( ! isset( $args['meta_query'] ) || ! is_array( $args['meta_query'] ) ) {
+				$args['meta_query'] = array();
+			}
+
+			$args['meta_query'][] = array(
+				'key'     => 'b45_coords',
+				'value'   => $coords_filter,
+				'compare' => '=',
+			);
+		}
 
 		$sort = sanitize_key( $request->get_param( 'sort' ) );
 
@@ -205,7 +212,11 @@ class Blok45_Modules_Filters {
 				break;
 		}
 
-		if ( count( $tax_query ) > 1 ) {
+		if ( ! empty( $tax_query ) ) {
+			if ( count( $tax_query ) > 1 ) {
+				$tax_query['relation'] = 'AND';
+			}
+
 			$args['tax_query'] = $tax_query; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
 		}
 
@@ -282,6 +293,27 @@ class Blok45_Modules_Filters {
 	}
 
 	/**
+	 * Normalize coordinates string to "lat,lng" format or return empty string on failure.
+	 *
+	 * @param string $raw Raw incoming value.
+	 *
+	 * @return string
+	 */
+	protected static function normalize_coords_value( $raw ) {
+		$coords = trim( (string) $raw );
+
+		if ( '' === $coords ) {
+			return '';
+		}
+
+		if ( ! preg_match( '/^-?\d{1,2}\.\d+,\s*-?\d{1,3}\.\d+$/', $coords ) ) {
+			return '';
+		}
+
+		return str_replace( ' ', '', $coords );
+	}
+
+	/**
 	 * Return predefined year ranges used by the filters UI and API.
 	 *
 	 * @return array
@@ -325,14 +357,11 @@ class Blok45_Modules_Filters {
 	 * REST: Return posts by exact coords match
 	 */
 	public static function rest_get_by_coords( $request ) {
-		$coords = trim( (string) $request->get_param( 'coords' ) );
+		$coords = self::normalize_coords_value( $request->get_param( 'coords' ) );
 
-		// Minimal validation: "lat, lng" with decimals and optional minus
-		if ( ! preg_match( '/^-?\d{1,2}\.\d+,\s*-?\d{1,3}\.\d+$/', $coords ) ) {
+		if ( '' === $coords ) {
 			return new WP_Error( 'bad_coords', 'Bad coords format', array( 'status' => 400 ) );
 		}
-
-		$coords = str_replace( ' ', '', $coords );
 
 		$args = array(
 			'post_type'      => 'post',
@@ -436,10 +465,9 @@ class Blok45_Modules_Filters {
 			return;
 		}
 
-		$src = get_stylesheet_directory_uri() . '/admin/coords-panel.js';
 		wp_enqueue_script(
 			'blok45-filters-panel',
-			$src,
+			get_stylesheet_directory_uri() . '/admin/coords-panel.js',
 			array(
 				'wp-plugins',
 				'wp-edit-post',

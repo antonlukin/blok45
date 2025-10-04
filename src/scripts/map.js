@@ -28,20 +28,69 @@
 	}
 
 	/**
-	 * Fetch posts by coords and dispatch a 'b45:map-select' event.
-	 * @param {string}             coordStr
-	 * @param {{byCoords?:string}} endpoints
+	 * Trigger list update when a marker is clicked.
+	 * @param {string} coordStr Raw "lat, lng" string.
+	 * @param {Array}  items    Associated posts metadata.
 	 */
-	async function handleMarkerClick( coordStr, endpoints ) {
-		try {
-			const url = ( endpoints && endpoints.byCoords );
-			const response = await fetch( url + '?coords=' + encodeURIComponent( coordStr ) );
-			const data = await response.json();
-
-			console.log( 'Marker data:', data );
-		} catch ( e ) {
-			/* silent */
+	let activeMarkerInstance = null;
+	function deactivateActiveMarker() {
+		if ( activeMarkerInstance && typeof activeMarkerInstance.getElement === 'function' ) {
+			activeMarkerInstance.getElement().classList.remove( 'map__pin--active' );
 		}
+
+		activeMarkerInstance = null;
+	}
+
+	function handleMarkerClick( coordStr, items, markerInstance ) {
+		const isSameActive = markerInstance && activeMarkerInstance === markerInstance;
+
+		if ( isSameActive ) {
+			deactivateActiveMarker();
+
+			window.dispatchEvent(
+				new CustomEvent( 'b45:map-select', {
+					detail: {
+						coords: '',
+						items: Array.isArray( items ) ? items : [],
+					},
+				} )
+			);
+
+			return;
+		}
+
+		const normalized = String( coordStr || '' ).replace( /\s+/g, '' );
+
+		if ( ! normalized ) {
+			return;
+		}
+
+		if ( activeMarkerInstance && activeMarkerInstance !== markerInstance && typeof activeMarkerInstance.getElement === 'function' ) {
+			activeMarkerInstance.getElement().classList.remove( 'map__pin--active' );
+		}
+
+		if ( markerInstance && typeof markerInstance.getElement === 'function' ) {
+			markerInstance.getElement().classList.add( 'map__pin--active' );
+			activeMarkerInstance = markerInstance;
+		}
+
+		if ( ! Array.isArray( window.__b45MapQueue ) ) {
+			window.__b45MapQueue = [];
+		}
+
+		window.__b45MapQueue.push( normalized );
+		if ( window.__b45MapQueue.length > 5 ) {
+			window.__b45MapQueue.shift();
+		}
+
+		window.dispatchEvent(
+			new CustomEvent( 'b45:map-select', {
+				detail: {
+					coords: normalized,
+					items: Array.isArray( items ) ? items : [],
+				},
+			} )
+		);
 	}
 
 	/**
@@ -135,9 +184,10 @@
 				}
 
 				const key = p.lat.toFixed( 6 ) + ', ' + p.lng.toFixed( 6 );
+				const normalizedCoords = String( it.coords || '' ).replace( /\s+/g, '' );
 
 				if ( ! groups.has( key ) ) {
-					groups.set( key, { pos: { lat: p.lat, lng: p.lng }, items: [] } );
+					groups.set( key, { pos: { lat: p.lat, lng: p.lng }, coords: normalizedCoords, items: [] } );
 				}
 
 				groups.get( key ).items.push( it );
@@ -148,13 +198,14 @@
 				el.className = 'map__pin';
 
 				const pos = group.pos;
+				const emitCoords = group.coords || coordStr.replace( /\s+/g, '' );
 
-				new window.mapboxgl.Marker( { element: el } )
+				const marker = new window.mapboxgl.Marker( { element: el } )
 					.setLngLat( [ pos.lng, pos.lat ] )
 					.addTo( map );
 
 				el.addEventListener( 'click', function() {
-					handleMarkerClick( coordStr, endpoints );
+					handleMarkerClick( emitCoords, group.items, marker );
 				} );
 			} );
 		} catch ( e ) {
@@ -167,4 +218,6 @@
 		return;
 	}
 	blocks.forEach( initBlock );
+
+	window.__b45DeactivateMarker = deactivateActiveMarker;
 }() );

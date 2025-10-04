@@ -14,7 +14,11 @@
 		return;
 	}
 
-	const selections = Object.create( null );
+	const selectionState = Object.create( null );
+	const emptyMessage = typeof settings.emptyMessage === 'string' && settings.emptyMessage.length
+		? settings.emptyMessage
+		: 'Nothing found for the selected filters.';
+	let activeCoords = '';
 	let currentSort = '';
 	let isFetching = false;
 	let nextPage = Number( settings.startPage || 2 );
@@ -25,6 +29,17 @@
 		const initialSort = activeSortButton ? ( activeSortButton.dataset.sort || '' ).trim() : '';
 		currentSort = ALLOWED_SORTS.has( initialSort ) ? initialSort : '';
 	}
+
+	filtersRoot.querySelectorAll( '.filters__list[data-tax]' ).forEach( function( list ) {
+		const tax = list.getAttribute( 'data-tax' );
+		if ( ! tax ) {
+			return;
+		}
+
+		const activeButton = list.querySelector( '.filters__item--active' );
+		const value = activeButton ? ( activeButton.dataset.value || '' ).trim() : '';
+		selectionState[ tax ] = value;
+	} );
 
 	const loader = document.createElement( 'div' );
 	loader.className = 'loadmore';
@@ -37,7 +52,7 @@
 	listRoot.insertAdjacentElement( 'beforeend', loader );
 
 	let observer = null;
-	const skeletonMinCount = Math.max( Number( settings.skeletonCount || 0 ), 6 );
+	const skeletonMinCount = Math.max( Number( settings.skeletonCount || 0 ), 24 );
 
 	function createSkeletonCard() {
 		const card = document.createElement( 'div' );
@@ -55,7 +70,7 @@
 
 	function showSkeletonCards() {
 		const currentCards = listRoot.querySelectorAll( '.card' ).length;
-		const targetCount = currentCards > 0 ? currentCards : skeletonMinCount;
+		const targetCount = Math.max( currentCards, skeletonMinCount );
 
 		listRoot.querySelectorAll( '.card--skeleton' ).forEach( function( node ) {
 			node.remove();
@@ -86,46 +101,17 @@
 		} );
 	}
 
-	function parseValues( button ) {
-		const raw = ( button.dataset.value || '' ).trim();
-		if ( ! raw ) {
-			return [];
-		}
-
-		return raw
-			.split( ',' )
-			.map( function( part ) {
-				return part.trim();
-			} )
-			.filter( function( value ) {
-				return value.length > 0;
-			} );
-	}
-
-	function recomputeSelection( tax ) {
-		const activeButtons = filtersRoot.querySelectorAll( '.filters__list[data-tax="' + tax + '"] .filters__item--active' );
-		const termSet = new Set();
-
-		activeButtons.forEach( function( button ) {
-			parseValues( button ).forEach( function( value ) {
-				termSet.add( value );
-			} );
-		} );
-
-		if ( termSet.size > 0 ) {
-			selections[ tax ] = termSet;
-		} else {
-			delete selections[ tax ];
-		}
-	}
-
 	function buildQuery( extraParams = {} ) {
 		const params = new URLSearchParams();
 
-		Object.keys( selections ).forEach( function( tax ) {
-			const values = Array.from( selections[ tax ] );
-			if ( values.length ) {
-				params.set( tax, values.join( ',' ) );
+		if ( activeCoords ) {
+			params.set( 'coords', activeCoords );
+		}
+
+		Object.keys( selectionState ).forEach( function( tax ) {
+			const value = selectionState[ tax ];
+			if ( value ) {
+				params.set( tax, value );
 			}
 		} );
 
@@ -176,7 +162,7 @@
 		}
 
 		if ( ! loader.isConnected ) {
-			listRoot.insertAdjacentElement( 'beforeend', loader );
+			sentinel.insertAdjacentElement( 'afterend', loader );
 		}
 	}
 
@@ -230,7 +216,7 @@
 			showLoader();
 		} else {
 			setBusy( true );
-			showLoader();
+			clearEmptyState();
 			showSkeletonCards();
 		}
 
@@ -248,7 +234,18 @@
 			if ( append ) {
 				sentinel.insertAdjacentHTML( 'beforebegin', html );
 			} else {
-				listRoot.innerHTML = html;
+				const trimmed = html.trim();
+
+				if ( trimmed.length > 0 ) {
+					listRoot.innerHTML = html;
+				} else {
+					listRoot.innerHTML = '';
+					const emptyNode = document.createElement( 'div' );
+					emptyNode.className = 'list__empty';
+					emptyNode.textContent = emptyMessage;
+					listRoot.appendChild( emptyNode );
+				}
+
 				ensureHelpers();
 			}
 
@@ -279,6 +276,102 @@
 		fetchPage( { page: nextPage, append: true } );
 	}
 
+	function activateListButton( list, button ) {
+		if ( ! list || ! button ) {
+			return;
+		}
+
+		list.querySelectorAll( '.filters__item' ).forEach( function( item ) {
+			item.classList.remove( 'filters__item--active' );
+			item.setAttribute( 'aria-pressed', 'false' );
+		} );
+
+		button.classList.add( 'filters__item--active' );
+		button.setAttribute( 'aria-pressed', 'true' );
+	}
+
+	function clearEmptyState() {
+		listRoot.querySelectorAll( '.list__empty' ).forEach( function( node ) {
+			node.remove();
+		} );
+	}
+
+	function deactivateMapMarker() {
+		if ( typeof window.__b45DeactivateMarker === 'function' ) {
+			window.__b45DeactivateMarker();
+		}
+	}
+
+	function resetTaxFilters() {
+		filtersRoot.querySelectorAll( '.filters__list[data-tax]' ).forEach( function( list ) {
+			const tax = list.getAttribute( 'data-tax' );
+			if ( ! tax ) {
+				return;
+			}
+
+			const defaultButton = list.querySelector( '.filters__item[data-value=""]' ) || list.querySelector( '.filters__item' );
+			if ( ! defaultButton ) {
+				return;
+			}
+
+			activateListButton( list, defaultButton );
+			selectionState[ tax ] = ( defaultButton.dataset.value || '' ).trim();
+		} );
+	}
+
+	function resetSortFilter() {
+		if ( ! sortList ) {
+			return;
+		}
+
+		const defaultButton = sortList.querySelector( '.filters__item:not([data-sort])' ) || sortList.querySelector( '.filters__item' );
+		if ( ! defaultButton ) {
+			return;
+		}
+
+		activateListButton( sortList, defaultButton );
+		currentSort = '';
+	}
+
+	function clearCoordsFilter() {
+		if ( ! activeCoords ) {
+			return false;
+		}
+
+		activeCoords = '';
+		return true;
+	}
+
+	function applyCoordsFilter( rawCoords ) {
+		const normalized = typeof rawCoords === 'string' ? rawCoords.replace( /\s+/g, '' ) : '';
+
+		if ( ! normalized ) {
+			if ( ! activeCoords ) {
+				return;
+			}
+
+			clearEmptyState();
+			deactivateMapMarker();
+			activeCoords = '';
+			nextPage = 2;
+			hasMore = false;
+
+			scrollListToTop();
+			fetchPage( { page: 1, append: false } );
+			return;
+		}
+
+		clearEmptyState();
+		activeCoords = normalized;
+		resetTaxFilters();
+		resetSortFilter();
+		nextPage = 2;
+		hasMore = false;
+
+		scrollListToTop();
+		fetchPage( { page: 1, append: false } );
+	}
+
 	function applySortSelection( button, listWrap ) {
 		const rawSort = ( button.dataset.sort || '' ).trim();
 		const nextSort = ALLOWED_SORTS.has( rawSort ) ? rawSort : '';
@@ -286,6 +379,10 @@
 		if ( nextSort === currentSort ) {
 			return;
 		}
+
+		clearEmptyState();
+		deactivateMapMarker();
+		clearCoordsFilter();
 
 		listWrap.querySelectorAll( '.filters__item' ).forEach( function( item ) {
 			item.classList.remove( 'filters__item--active' );
@@ -331,14 +428,20 @@
 			return;
 		}
 
-		const values = parseValues( button );
+		const nextValue = ( button.dataset.value || '' ).trim();
+		const currentValue = selectionState[ tax ] || '';
 
-		if ( values.length === 0 ) {
+		if ( nextValue === currentValue ) {
 			return;
 		}
 
-		button.classList.toggle( 'filters__item--active' );
-		recomputeSelection( tax );
+		clearEmptyState();
+		deactivateMapMarker();
+		clearCoordsFilter();
+
+		activateListButton( listWrap, button );
+
+		selectionState[ tax ] = nextValue;
 
 		nextPage = 2;
 		hasMore = false;
@@ -346,6 +449,17 @@
 		scrollListToTop();
 		fetchPage( { page: 1, append: false } );
 	} );
+
+	window.addEventListener( 'b45:map-select', function( event ) {
+		const detail = event && event.detail ? event.detail : {};
+		applyCoordsFilter( detail.coords );
+	} );
+
+	if ( Array.isArray( window.__b45MapQueue ) && window.__b45MapQueue.length ) {
+		const pendingCoords = window.__b45MapQueue.slice( 0 );
+		window.__b45MapQueue.length = 0;
+		pendingCoords.forEach( applyCoordsFilter );
+	}
 
 	updateObserver();
 }() );
