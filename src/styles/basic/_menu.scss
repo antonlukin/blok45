@@ -16,10 +16,14 @@
     margin: 0;
     padding: 0 0.75rem;
 
-    color: var(--color-primary);
+    color: var(--color-addition);
 
     border-radius: var(--radius-frame);
     transition: color 0.375s;
+
+    &.menu__item--current {
+      color: var(--color-light);
+    }
 
     &:hover {
       color: var(--color-light);

@@ -5,7 +5,11 @@
 
   & {
     display: block;
-    margin: 0 auto;
+    position: relative;
+    margin: 0 auto 1rem;
+    padding-top: 2rem;
+
+    border-top: solid 0.0625rem var(--color-border);
   }
 
   .is-front & {
@@ -13,6 +17,48 @@
     grid-template-columns: 3fr 1.5fr;
     align-items: flex-start;
     gap: 1rem;
-    position: relative;
+    padding-top: 0;
+
+    border-top: none;
   }
+
+  .archive__header {
+    margin: 0 0 2.5rem;
+  }
+
+  .archive__title {
+    margin: 0 0 1rem;
+    font-size: 2.5rem;
+    font-weight: 200;
+    line-height: 1.075;
+
+    color: var(--color-primary);
+  }
+
+  .archive__description {
+    max-width: 52rem;
+    font-size: 1rem;
+    line-height: 1.5;
+
+    color: var(--color-primary);
+
+    p {
+      margin-bottom: 1rem;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+
+    a {
+      color: var(--color-secondary);
+      border-bottom: solid 0.0625rem transparent;
+
+      &:hover,
+      &:focus-visible {
+        border-bottom-color: var(--color-secondary);
+      }
+    }
+  }
+
 }

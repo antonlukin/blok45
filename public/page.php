@@ -9,12 +9,13 @@
 get_header(); ?>
 
 <section class="content">
-    <?php
-    while ( have_posts() ) :
-        the_post();
-        get_template_part( 'templates/content', 'page' );
-    endwhile;
-    ?>
+	<?php
+	while ( have_posts() ) :
+		the_post();
+
+		the_content();
+	endwhile;
+	?>
 </section>
 
 <?php

@@ -36,6 +36,7 @@ if ( ! function_exists( 'blok45_display_meta' ) ) :
 	}
 endif;
 
+
 if ( ! function_exists( 'blok45_year_ranges' ) ) :
 	/**
 	 * Public template function to show post info
@@ -94,3 +95,4 @@ require_once get_template_directory() . '/modules/translit.php';
 require_once get_template_directory() . '/modules/filters.php';
 require_once get_template_directory() . '/modules/map.php';
 require_once get_template_directory() . '/modules/gallery.php';
+require_once get_template_directory() . '/modules/menu.php';

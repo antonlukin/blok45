@@ -2,7 +2,8 @@
   --width-site: 90rem;
   --radius-frame: 0.5rem;
 
-  --color-primary: #b6b8be;
+  --color-primary: #e0e0e0;
+  --color-addition: #b0b0b0;
   --color-secondary: #7170ff;
   --color-background: #000;
   --color-sheet: rgba(20, 20, 20, 0.75);
@@ -23,6 +24,6 @@
   radial-gradient(circle at 50% 50%, var(--color-light) 0 0.375rem, transparent 0.375rem),
   radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--color-light) 28%, transparent) 0 0.625rem, transparent 0.625rem);
 
-  --font-regular: "Inter", sans-serif;
+  --font-regular: "Inter Variable", sans-serif;
   --font-monospace: "Monaco", "Roboto Mono", "Courier", monospace;
 }

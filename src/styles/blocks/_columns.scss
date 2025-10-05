@@ -1,0 +1,26 @@
+.wp-block-columns {
+  display: grid;
+  gap: 0 7.25rem;
+  margin: 0 0 3rem;
+  grid-template-columns: 2fr 2fr;
+
+  &.is-layout-flex {
+    align-items: start;
+  }
+
+  .wp-block-column {
+    display: block;
+
+    & > * {
+      margin-bottom: 1rem;
+    }
+
+    > *:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  @media (max-width: 60rem) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

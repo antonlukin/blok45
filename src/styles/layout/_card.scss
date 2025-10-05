@@ -57,10 +57,9 @@
     height: 100%;
     padding: 0.5rem;
 
-    color: var(--color-primary);
+    color: var(--color-addition);
     background-image: var(--gradient-card);
   }
-
 
   .card__link {
     display: inline-flex;
@@ -84,13 +83,11 @@
 
     gap: 0.25rem;
 
-    color: var(--color-primary);
-
     a {
       position: relative;
       z-index: 2;
       padding: 0.25rem 0;
-      color: var(--color-primary);
+      color: var(--color-addition);
 
       transition: color 0.375s;
     }

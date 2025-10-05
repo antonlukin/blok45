@@ -82,7 +82,6 @@ class Blok45_Modules_Blocks {
 		wp_dequeue_style( 'core-block-supports' );
 	}
 
-
 	/**
 	 * Remove footer default styles
 	 */
@@ -96,8 +95,6 @@ class Blok45_Modules_Blocks {
 	public static function disable_core_blocks( $allowed, $editor_context ) {
 		$blocks = array_keys( WP_Block_Type_Registry::get_instance()->get_all_registered() );
 
-		// print_r($editor_context); exit;
-
 		// Allowed core blocks
 		$allowed = array(
 			'core/image',
@@ -108,6 +105,20 @@ class Blok45_Modules_Blocks {
 			'core/list-item',
 			'core/block',
 		);
+
+		$page_allowed = array(
+			'core/columns',
+			'core/column',
+			'core/heading',
+		);
+
+		if ( ! empty( $editor_context->post ) ) {
+			$post = $editor_context->post;
+
+			if ( isset( $post->post_type ) && 'page' === $post->post_type ) {
+				$allowed = array_merge( $allowed, $page_allowed );
+			}
+		}
 
 		$whitelist = array();
 

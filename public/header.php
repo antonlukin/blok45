@@ -26,9 +26,17 @@
 
 	<div class="header__navbar">
 		<div class="header__navbar-menu menu">
-			<a href="" class="menu__item">About</a>
-			<a href="" class="menu__item">Instagram</a>
-			<a href="" class="menu__item">Submit &rarr;</a>
+			<?php
+			wp_nav_menu(
+				array(
+					'theme_location' => 'header-menu',
+					'container'      => false,
+					'menu_class'     => 'menu__list',
+					'depth'          => 1,
+					'fallback_cb'    => false,
+				)
+			);
+			?>
 		</div>
 	</div>
 </header>

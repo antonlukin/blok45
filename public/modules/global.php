@@ -25,6 +25,7 @@ class Blok45_Modules_Global {
 		add_action( 'admin_menu', array( __CLASS__, 'remove_fse_menu' ), 12 );
 
 		add_filter( 'get_the_archive_title', array( __CLASS__, 'update_archive_title' ) );
+		add_filter( 'get_the_archive_description', array( __CLASS__, 'update_archive_description' ) );
 		add_filter( 'body_class', array( __CLASS__, 'update_body_classes' ) );
 		add_filter( 'post_class', array( __CLASS__, 'update_post_classes' ), 10, 2 );
 		add_action( 'next_posts_link_attributes', array( __CLASS__, 'update_next_posts_link' ) );
@@ -226,54 +227,47 @@ class Blok45_Modules_Global {
 	 * Custom archive title
 	 */
 	public static function update_archive_title( $title ) {
-		if ( is_category() ) {
-			return sprintf(
-				'<h1 class="caption__title caption__title--category">%s</h1>',
-				single_term_title( '', false )
-			);
+		if ( is_category() || is_tag() || is_tax() ) {
+			$term = get_queried_object();
+
+			if ( $term instanceof WP_Term ) {
+				return $term->name;
+			}
 		}
 
 		if ( is_author() ) {
-			return sprintf(
-				'<h1 class="caption__title caption__title--author">%s</h1>',
-				get_the_author()
-			);
+			return get_the_author();
 		}
 
 		if ( is_post_type_archive() ) {
-			return sprintf(
-				'<h1 class="caption__title">%s</h1>',
-				post_type_archive_title( '', false )
-			);
+			return post_type_archive_title( '', false );
 		}
 
-		if ( is_tax() ) {
-			return sprintf(
-				'<h1 class="caption__title">%s</h1>',
-				single_term_title( '', false )
-			);
-		}
-
-		if ( is_tag() ) {
-			$emoji = '';
-
-			if ( method_exists( 'Blok45_Modules_Tags', 'get_tag_emoji' ) ) {
-				$emoji = Blok45_Modules_Tags::get_tag_emoji( get_queried_object_id() );
-			}
-
-			return sprintf(
-				'<h1 class="caption__title">%s %s</h1>',
-				single_term_title( '', false ),
-				esc_html( $emoji )
-			);
-		}
-
-		return sprintf( '<h1 class="caption__title">%s</h1>', $title );
+		return $title;
 	}
 
 	/**
 	 * Filters the anchor tag attributes for the next posts page link.
 	 */
+	/**
+	 * Custom archive description
+	 */
+	public static function update_archive_description( $description ) {
+		if ( is_tax() ) {
+			$term = get_queried_object();
+
+			if ( $term instanceof WP_Term ) {
+				$raw = trim( (string) $term->description );
+
+				if ( '' !== $raw ) {
+					return wp_kses_post( wpautop( $raw ) );
+				}
+			}
+		}
+
+		return $description;
+	}
+
 	public static function update_next_posts_link() {
 		return 'class="navigate__button"';
 	}

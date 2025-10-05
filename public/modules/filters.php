@@ -115,9 +115,9 @@ class Blok45_Modules_Filters {
 			$handle,
 			'B45Filters',
 			array(
-				'endpoint'  => esc_url_raw( rest_url( 'b45/v1/filter' ) ),
-				'startPage' => max( 2, $next_page ),
-				'hasMore'   => (bool) $has_more,
+				'endpoint'     => esc_url_raw( rest_url( 'b45/v1/filter' ) ),
+				'startPage'    => max( 2, $next_page ),
+				'hasMore'      => (bool) $has_more,
 				'emptyMessage' => esc_html__( 'Nothing found for the selected filters.', 'blok45' ),
 			)
 		);
@@ -200,9 +200,9 @@ class Blok45_Modules_Filters {
 			case 'rating':
 				$meta_key = class_exists( 'Blok45_Modules_Rating' ) ? Blok45_Modules_Rating::META_KEY : 'b45_rating';
 
-				$args['meta_key']   = $meta_key;
-				$args['meta_type']  = 'NUMERIC';
-				$args['orderby']    = array(
+				$args['meta_key']  = $meta_key;
+				$args['meta_type'] = 'NUMERIC';
+				$args['orderby']   = array(
 					'meta_value_num' => 'DESC',
 					'date'           => 'DESC',
 				);

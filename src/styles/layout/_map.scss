@@ -69,6 +69,16 @@
     }
   }
 
+  &.map--single {
+    min-height: 20rem;
+    box-shadow: 0 0.75rem 2rem rgba(0, 0, 0, 0.3);
+
+    .map__zoom {
+      top: 1rem;
+      bottom: auto;
+    }
+  }
+
   .mapboxgl-ctrl-logo {
     opacity: 0.5;
     transition: opacity 0.375s;
