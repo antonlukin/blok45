@@ -24,7 +24,10 @@ get_header(); ?>
 		}
 
 		$rating_display        = number_format_i18n( $rating_value );
-		$raw_coords            = trim( (string) get_post_meta( get_the_ID(), 'b45_coords', true ) );
+		$raw_coords            = trim( (string) get_post_meta( get_the_ID(), 'blok45_coords', true ) );
+		if ( '' === $raw_coords ) {
+			$raw_coords = trim( (string) get_post_meta( get_the_ID(), 'b45_coords', true ) );
+		}
 		$main_swiper_classes   = 'swiper swiper--main' . ( $has_thumbs ? ' swiper--with-thumbs' : '' );
 		$thumbs_swiper_classes = 'swiper swiper--thumbs';
 		?>

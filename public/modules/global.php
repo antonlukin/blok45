@@ -184,26 +184,6 @@ class Blok45_Modules_Global {
 			$classes[] = 'is-empty';
 		}
 
-		$type = get_post_type();
-
-		if ( $type !== 'post' ) {
-			$classes[] = 'is-' . $type;
-		}
-
-		if ( has_post_format() ) {
-			$classes[] = 'is-' . get_post_format();
-		}
-
-		$template = get_page_template_slug();
-
-		if ( $template ) {
-			$parts = explode( '-', basename( $template, '.php' ) );
-
-			if ( isset( $parts[1] ) ) {
-				$classes[] = 'is-' . $parts[1];
-			}
-		}
-
 		return $classes;
 	}
 

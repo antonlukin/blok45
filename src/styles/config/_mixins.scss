@@ -27,14 +27,6 @@
 @mixin container {
   width: calc(100% - 1rem * 2);
   max-width: var(--width-site);
-
-  @media screen and (max-width: 1023px) {
-    max-width: var(--width-content);
-  }
-
-  @media screen and (max-width: 479px) {
-    max-width: 100%;
-  }
 }
 
 @mixin cross-button($width, $height: 0.125rem, $color: --color-dark) {
@@ -95,8 +87,15 @@
   border-bottom: solid 0.0625rem transparent;
   transition: border-color 0.25s ease-in-out;
 
-  &:hover,
-  &:focus-visible {
+  &:hover {
     border-bottom-color: var(--color-links);
+  }
+
+  &:focus-visible {
+    border-radius: 0.25rem;
+  }
+
+  &:focus-visible:hover {
+    border-bottom-color: transparent;
   }
 }

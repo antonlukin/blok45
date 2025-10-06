@@ -16,7 +16,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: var(--color-background);
+    background: var(--color-dark);
   }
 
   .map__zoom {
@@ -54,15 +54,35 @@
   }
 
   .map__pin {
-    display: block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 
-    width: 2.5rem;
-    height: 2.5rem;
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
 
     background: var(--gradient-pin);
+    border: 0;
+    border-radius: 50%;
+    cursor: pointer;
+
+    color: inherit;
+    font: inherit;
+    line-height: 1;
+    appearance: none;
+    -webkit-appearance: none;
 
     transform: translate(-1.25rem, -1.25rem);
-    cursor: pointer;
+
+    &:focus {
+      outline: none;
+    }
+
+    &:focus-visible {
+      outline: 0.125rem solid var(--color-secondary);
+      outline-offset: -0.125rem;
+    }
 
     &.map__pin--active {
       background: var(--gradient-active);
@@ -71,11 +91,17 @@
 
   &.map--single {
     min-height: 20rem;
+
+    .map__pin {
+      pointer-events: none;
+      cursor: default;
+    }
   }
 
   .mapboxgl-ctrl-logo {
     opacity: 0.5;
     transition: opacity 0.375s;
+    border-radius: 0.25rem;
   }
 
   .mapboxgl-ctrl-logo:hover {

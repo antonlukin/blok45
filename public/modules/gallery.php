@@ -75,7 +75,7 @@ class Blok45_Modules_Gallery {
 	 */
 	public static function register_rest_routes() {
 		register_rest_route(
-			'b45/v1',
+			'blok45/v1',
 			'/exif/(?P<attachment>\d+)',
 			array(
 				'methods'             => 'GET',

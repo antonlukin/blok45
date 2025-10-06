@@ -2,9 +2,9 @@
  * Simple front-page rating handler with toggle support.
  */
 ( function() {
-	const settings = window.B45Rating || {};
-	const endpoint = settings.endpoint || '/wp-json/b45/v1/rating';
-	const storageKey = settings.storageKey || 'b45_rating_posts';
+	const settings = window.Blok45Rating || {};
+	const endpoint = settings.endpoint || '/wp-json/blok45/v1/rating';
+	const storageKey = settings.storageKey;
 	const pending = new Set();
 	let storeCache = null;
 
@@ -177,5 +177,5 @@
 	} );
 
 	syncAllButtons();
-	window.addEventListener( 'b45:cards-updated', syncAllButtons );
+	window.addEventListener( 'blok45:cards-updated', syncAllButtons );
 }() );

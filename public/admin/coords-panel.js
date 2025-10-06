@@ -31,5 +31,5 @@ const Blok45CoordsPanel = ( { metaKey } ) => {
 };
 
 registerPlugin( 'blok45-coords', {
-	render: () => createElement( Blok45CoordsPanel, { metaKey: 'b45_coords' } ),
+	render: () => createElement( Blok45CoordsPanel, { metaKey: 'blok45_coords' } ),
 } );

@@ -9,18 +9,13 @@
     grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
   }
 
-  &.list--loading {
-    .card:not(.card--skeleton) {
-      display: none;
-    }
-  }
-
   .list__empty {
     grid-column: 1 / -1;
+    height: 50vh;
     padding: 2rem 1rem;
     margin: 0;
     text-align: center;
-    font-size: 0.875rem;
-    color: rgba(255, 255, 255, 0.65);
+    font-size: 1rem;
+    color: var(--color-addition);
   }
 }

@@ -27,18 +27,25 @@
 		return { lat, lng };
 	}
 
-	/**
-	 * Trigger list update when a marker is clicked.
-	 * @param {string} coordStr Raw "lat, lng" string.
-	 * @param {Array}  items    Associated posts metadata.
-	 */
 	let activeMarkerInstance = null;
+
 	function deactivateActiveMarker() {
 		if ( activeMarkerInstance && typeof activeMarkerInstance.getElement === 'function' ) {
-			activeMarkerInstance.getElement().classList.remove( 'map__pin--active' );
+			const markerEl = activeMarkerInstance.getElement();
+			markerEl.classList.remove( 'map__pin--active' );
+			markerEl.setAttribute( 'aria-pressed', 'false' );
 		}
 
 		activeMarkerInstance = null;
+	}
+
+	function createMarkerElement() {
+		const el = document.createElement( 'button' );
+		el.type = 'button';
+		el.className = 'map__pin';
+		el.setAttribute( 'aria-pressed', 'false' );
+
+		return el;
 	}
 
 	function setupDynamicResize( map, target ) {
@@ -55,10 +62,10 @@
 			}
 
 			if ( rafId ) {
-				cancelAnimationFrame( rafId );
+				window.cancelAnimationFrame( rafId );
 			}
 
-			rafId = requestAnimationFrame( function() {
+			rafId = window.requestAnimationFrame( function() {
 				rafId = 0;
 				map.resize();
 			} );
@@ -96,7 +103,7 @@
 			deactivateActiveMarker();
 
 			window.dispatchEvent(
-				new CustomEvent( 'b45:map-select', {
+				new CustomEvent( 'blok45:map-select', {
 					detail: {
 						coords: '',
 						items: Array.isArray( items ) ? items : [],
@@ -113,26 +120,28 @@
 			return;
 		}
 
-		if ( activeMarkerInstance && activeMarkerInstance !== markerInstance && typeof activeMarkerInstance.getElement === 'function' ) {
-			activeMarkerInstance.getElement().classList.remove( 'map__pin--active' );
+		if ( activeMarkerInstance && activeMarkerInstance !== markerInstance ) {
+			deactivateActiveMarker();
 		}
 
 		if ( markerInstance && typeof markerInstance.getElement === 'function' ) {
-			markerInstance.getElement().classList.add( 'map__pin--active' );
+			const el = markerInstance.getElement();
+			el.classList.add( 'map__pin--active' );
+			el.setAttribute( 'aria-pressed', 'true' );
 			activeMarkerInstance = markerInstance;
 		}
 
-		if ( ! Array.isArray( window.__b45MapQueue ) ) {
-			window.__b45MapQueue = [];
-		}
+		if ( ! Array.isArray( window.__blok45MapQueue ) ) {
+			window.__blok45MapQueue = [];
+}
 
-		window.__b45MapQueue.push( normalized );
-		if ( window.__b45MapQueue.length > 5 ) {
-			window.__b45MapQueue.shift();
-		}
+		window.__blok45MapQueue.push( normalized );
+		if ( window.__blok45MapQueue.length > 5 ) {
+			window.__blok45MapQueue.shift();
+}
 
 		window.dispatchEvent(
-			new CustomEvent( 'b45:map-select', {
+			new CustomEvent( 'blok45:map-select', {
 				detail: {
 					coords: normalized,
 					items: Array.isArray( items ) ? items : [],
@@ -189,14 +198,9 @@
 		}
 
 		const staticCoords = block.dataset.coords ? parseCoords( block.dataset.coords ) : null;
-		const staticLabel = block.dataset.label ? String( block.dataset.label ) : '';
 
 		if ( staticCoords ) {
-			const markerEl = document.createElement( 'div' );
-			markerEl.className = 'map__pin';
-			if ( staticLabel ) {
-				markerEl.setAttribute( 'title', staticLabel );
-			}
+			const markerEl = createMarkerElement();
 
 			const lngLat = [ staticCoords.lng, staticCoords.lat ];
 
@@ -209,7 +213,7 @@
 
 		// Load points and add markers
 		try {
-			const response = await fetch( endpoints.coords || '/wp-json/b45/v1/coords' );
+			const response = await fetch( endpoints.coords || '/wp-json/blok45/v1/coords' );
 			const items = await response.json();
 
 			if ( ! Array.isArray( items ) ) {
@@ -236,8 +240,18 @@
 			} );
 
 			groups.forEach( function( group, coordStr ) {
-				const el = document.createElement( 'div' );
-				el.className = 'map__pin';
+				let markerLabel = '';
+				if ( Array.isArray( group.items ) ) {
+					const labeledItem = group.items.find( function( item ) {
+						return item && item.title;
+					} );
+
+					if ( labeledItem && labeledItem.title ) {
+						markerLabel = labeledItem.title;
+					}
+				}
+
+				const el = createMarkerElement( markerLabel );
 
 				const pos = group.pos;
 				const emitCoords = group.coords || coordStr.replace( /\s+/g, '' );
@@ -261,5 +275,5 @@
 	}
 	blocks.forEach( initBlock );
 
-	window.__b45DeactivateMarker = deactivateActiveMarker;
+window.__blok45DeactivateMarker = deactivateActiveMarker;
 }() );

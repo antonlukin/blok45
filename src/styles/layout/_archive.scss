@@ -22,6 +22,10 @@
     border-top: none;
   }
 
+  .is-empty & {
+    border-top: none;
+  }
+
   .archive__header {
     margin: 0 0 2.5rem;
   }

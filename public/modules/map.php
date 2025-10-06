@@ -50,8 +50,8 @@ class Blok45_Modules_Map {
 			'center'      => array( 20.379262, 44.794558 ),
 			'zoom'        => 15,
 			'endpoints'   => array(
-				'coords'   => esc_url_raw( rest_url( 'b45/v1/coords' ) ),
-				'byCoords' => esc_url_raw( rest_url( 'b45/v1/by-coords' ) ),
+				'coords'   => esc_url_raw( rest_url( 'blok45/v1/coords' ) ),
+				'byCoords' => esc_url_raw( rest_url( 'blok45/v1/by-coords' ) ),
 			),
 		);
 

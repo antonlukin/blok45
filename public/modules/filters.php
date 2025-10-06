@@ -8,6 +8,87 @@
 
 class Blok45_Modules_Filters {
 	/**
+	 * List of coordinate meta keys (new + legacy).
+	 *
+	 * @return string[]
+	 */
+	private static function get_coords_meta_keys() {
+		return array( 'blok45_coords', 'b45_coords' );
+	}
+
+	/**
+	 * Return normalized coordinates for a post checking legacy meta keys.
+	 *
+	 * @param int $post_id Post identifier.
+	 *
+	 * @return string
+	 */
+	private static function get_post_coords_value( $post_id ) {
+		foreach ( self::get_coords_meta_keys() as $meta_key ) {
+			$raw = trim( (string) get_post_meta( $post_id, $meta_key, true ) );
+
+			if ( '' !== $raw ) {
+				return str_replace( ' ', '', $raw );
+			}
+		}
+
+		return '';
+	}
+
+	/**
+	 * Build meta query that ensures coordinates meta exists and is not empty.
+	 *
+	 * @return array
+	 */
+	private static function build_coords_presence_meta_query() {
+		$queries = array( 'relation' => 'OR' );
+
+		foreach ( self::get_coords_meta_keys() as $meta_key ) {
+			$queries[] = array(
+				'relation' => 'AND',
+				array(
+					'key'     => $meta_key,
+					'compare' => 'EXISTS',
+				),
+				array(
+					'key'     => $meta_key,
+					'value'   => '',
+					'compare' => '!=',
+				),
+			);
+		}
+
+		return $queries;
+	}
+
+	/**
+	 * Build meta query that matches a specific coordinates string (legacy aware).
+	 *
+	 * @param string $coords Normalized coordinates string.
+	 *
+	 * @return array
+	 */
+	private static function build_coords_value_meta_query( $coords ) {
+		$normalized = self::normalize_coords_value( $coords );
+
+		if ( '' === $normalized ) {
+			return array();
+		}
+
+		$queries = array( 'relation' => 'OR' );
+
+		foreach ( self::get_coords_meta_keys() as $meta_key ) {
+			$queries[] = array(
+				'key'     => $meta_key,
+				'value'   => $normalized,
+				'compare' => '=',
+			);
+		}
+
+		return $queries;
+	}
+
+	/**
 	 * Use this method instead of constructor to avoid multiple hook setting
 	 */
 	public static function load_module() {
@@ -24,7 +105,7 @@ class Blok45_Modules_Filters {
 	 */
 	public static function register_rest_routes() {
 		register_rest_route(
-			'b45/v1',
+			'blok45/v1',
 			'/coords',
 			array(
 				'methods'             => 'GET',
@@ -34,7 +115,7 @@ class Blok45_Modules_Filters {
 		);
 
 		register_rest_route(
-			'b45/v1',
+			'blok45/v1',
 			'/by-coords',
 			array(
 				'methods'             => 'GET',
@@ -51,7 +132,7 @@ class Blok45_Modules_Filters {
 
 		// Filters endpoint
 		register_rest_route(
-			'b45/v1',
+			'blok45/v1',
 			'/filter',
 			array(
 				'methods'             => 'GET',
@@ -96,29 +177,34 @@ class Blok45_Modules_Filters {
 			return;
 		}
 
-		$handle = 'blok45-filters';
-		$src    = get_template_directory_uri() . '/assets/filters.min.js';
-		$ver    = file_exists( get_template_directory() . '/assets/filters.min.js' ) ? filemtime( get_template_directory() . '/assets/filters.min.js' ) : null;
-
-		$current_page = max( 1, absint( get_query_var( 'paged' ) ) );
-		$next_page    = $current_page + 1;
-		$has_more     = false;
-
 		global $wp_query;
+
+		// Current page number
+		$current_page = max( 1, absint( get_query_var( 'paged' ) ) );
+
+		// Indicate if there are more pages available
+		$has_more = false;
 
 		if ( $wp_query instanceof WP_Query ) {
 			$has_more = ( $current_page < (int) $wp_query->max_num_pages );
 		}
 
-		wp_enqueue_script( $handle, $src, array(), $ver, true );
+		wp_enqueue_script(
+			'blok45-filters',
+			get_template_directory_uri() . '/assets/filters.min.js',
+			array(),
+			filemtime( get_template_directory() . '/assets/filters.min.js' ),
+			true
+		);
+
 		wp_localize_script(
-			$handle,
-			'B45Filters',
+			'blok45-filters',
+			'Blok45Filters',
 			array(
-				'endpoint'     => esc_url_raw( rest_url( 'b45/v1/filter' ) ),
-				'startPage'    => max( 2, $next_page ),
+				'endpoint'     => esc_url_raw( rest_url( 'blok45/v1/filter' ) ),
+				'startPage'    => max( 2, $current_page + 1 ),
 				'hasMore'      => (bool) $has_more,
-				'emptyMessage' => esc_html__( 'Nothing found for the selected filters.', 'blok45' ),
+				'emptyMessage' => esc_html__( 'Nothing found for the selected filters', 'blok45' ),
 			)
 		);
 	}
@@ -131,11 +217,12 @@ class Blok45_Modules_Filters {
 	 * @return WP_REST_Response
 	 */
 	public static function rest_filter_posts( WP_REST_Request $request ) {
+		$page = max( 1, absint( $request->get_param( 'page' ) ) );
+
+		usleep( 250000 );
+
+		// Build tax query
 		$tax_query = array();
-		$page      = max( 1, absint( $request->get_param( 'page' ) ) );
-
-		usleep( 500000 );
-
 		$artist_id = absint( $request->get_param( 'artist' ) );
 
 		if ( $artist_id > 0 ) {
@@ -149,8 +236,8 @@ class Blok45_Modules_Filters {
 
 		$year_token = trim( (string) $request->get_param( 'years' ) );
 
-		if ( '' !== $year_token ) {
-			$resolved_years = array_values( array_filter( array_map( 'absint', self::normalize_year_tokens_to_term_ids( array( $year_token ) ) ) ) );
+		if ( ! empty( $year_token ) ) {
+			$resolved_years = array_values( array_filter( self::normalize_year_tokens( array( $year_token ) ) ) );
 
 			if ( ! empty( $resolved_years ) ) {
 				$tax_query[] = array(
@@ -174,33 +261,27 @@ class Blok45_Modules_Filters {
 
 		if ( $coords_filter ) {
 			if ( ! isset( $args['meta_query'] ) || ! is_array( $args['meta_query'] ) ) {
-				$args['meta_query'] = array();
+				$args['meta_query'] = array(); // phpcs:ignore WordPress.DB.SlowDBQuery
 			}
 
-			$args['meta_query'][] = array(
-				'key'     => 'b45_coords',
-				'value'   => $coords_filter,
-				'compare' => '=',
-			);
+			$value_query = self::build_coords_value_meta_query( $coords_filter );
+
+			if ( ! empty( $value_query ) ) {
+				$args['meta_query'][] = $value_query;
+			}
 		}
 
 		$sort = sanitize_key( $request->get_param( 'sort' ) );
 
 		switch ( $sort ) {
-			case 'newest':
-				$args['orderby'] = 'date';
-				$args['order']   = 'DESC';
-				break;
-
-			case 'oldest':
-				$args['orderby'] = 'date';
-				$args['order']   = 'ASC';
-				break;
-
 			case 'rating':
-				$meta_key = class_exists( 'Blok45_Modules_Rating' ) ? Blok45_Modules_Rating::META_KEY : 'b45_rating';
+				if ( ! class_exists( 'Blok45_Modules_Rating' ) ) {
+					break;
+				}
 
-				$args['meta_key']  = $meta_key;
+				$meta_key = Blok45_Modules_Rating::META_KEY;
+
+				$args['meta_key']  = $meta_key; // phpcs:ignore WordPress.DB.SlowDBQuery
 				$args['meta_type'] = 'NUMERIC';
 				$args['orderby']   = array(
 					'meta_value_num' => 'DESC',
@@ -217,7 +298,7 @@ class Blok45_Modules_Filters {
 				$tax_query['relation'] = 'AND';
 			}
 
-			$args['tax_query'] = $tax_query; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
+			$args['tax_query'] = $tax_query; // phpcs:ignore WordPress.DB.SlowDBQuery
 		}
 
 		$query = new WP_Query( $args );
@@ -256,31 +337,18 @@ class Blok45_Modules_Filters {
 			'posts_per_page' => -1,
 			'no_found_rows'  => true,
 			'fields'         => 'ids',
-			'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
-				'relation' => 'AND',
-				array(
-					'key'     => 'b45_coords',
-					'compare' => 'EXISTS',
-				),
-				array(
-					'key'     => 'b45_coords',
-					'value'   => '',
-					'compare' => '!=',
-				),
-			),
+			'meta_query'     => self::build_coords_presence_meta_query(), // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 		);
 
 		$posts = array();
 		$query = new WP_Query( $args );
 
 		foreach ( $query->posts as $post_id ) {
-			$coords = (string) get_post_meta( $post_id, 'b45_coords', true );
+			$coords = self::get_post_coords_value( $post_id );
 
 			if ( empty( $coords ) ) {
 				continue;
 			}
-
-			$coords = str_replace( ' ', '', $coords );
 
 			$posts[] = array(
 				'id'     => $post_id,
@@ -369,13 +437,7 @@ class Blok45_Modules_Filters {
 			'posts_per_page' => -1,
 			'no_found_rows'  => true,
 			'fields'         => 'ids',
-			'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
-				array(
-					'key'     => 'b45_coords',
-					'value'   => $coords,
-					'compare' => '=',
-				),
-			),
+			'meta_query'     => self::build_coords_value_meta_query( $coords ), // phpcs:ignore WordPress.DB.SlowDBQuery
 		);
 
 		$posts = array();
@@ -385,7 +447,7 @@ class Blok45_Modules_Filters {
 			$posts[] = array(
 				'id'     => $post_id,
 				'title'  => get_the_title( $post_id ),
-				'coords' => (string) get_post_meta( $post_id, 'b45_coords', true ),
+				'coords' => self::get_post_coords_value( $post_id ),
 				'link'   => get_permalink( $post_id ),
 			);
 		}
@@ -438,7 +500,7 @@ class Blok45_Modules_Filters {
 	public static function register_coordinates() {
 		register_post_meta(
 			'post',
-			'b45_coords',
+			'blok45_coords',
 			array(
 				'type'          => 'string',
 				'single'        => true,
@@ -514,7 +576,7 @@ class Blok45_Modules_Filters {
 	 *
 	 * @return array
 	 */
-	protected static function normalize_year_tokens_to_term_ids( $tokens ) {
+	protected static function normalize_year_tokens( $tokens ) {
 		$tokens = array_unique( array_filter( array_map( 'trim', (array) $tokens ) ) );
 
 		if ( empty( $tokens ) ) {

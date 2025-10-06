@@ -11,9 +11,7 @@ if ( ! defined( 'WPINC' ) ) {
 }
 
 class Blok45_Modules_Rating {
-	const META_KEY      = 'b45_rating';
-	const STORAGE_KEY   = 'b45_rating_posts';
-	const SCRIPT_HANDLE = 'blok45-rating';
+	const META_KEY = 'blok45_rating';
 
 	/**
 	 * Bootstrap rating module.
@@ -22,7 +20,7 @@ class Blok45_Modules_Rating {
 		add_action( 'init', array( __CLASS__, 'register_meta' ) );
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_public_assets' ) );
-		add_action( 'save_post_post', array( __CLASS__, 'ensure_default_rating_meta' ), 10, 3 );
+		add_action( 'save_post_post', array( __CLASS__, 'ensure_default_rating_meta' ), 10, 2 );
 	}
 
 	/**
@@ -47,7 +45,7 @@ class Blok45_Modules_Rating {
 	 */
 	public static function register_rest_routes() {
 		register_rest_route(
-			'b45/v1',
+			'blok45/v1',
 			'/rating',
 			array(
 				array(
@@ -84,22 +82,20 @@ class Blok45_Modules_Rating {
 	 * Expose rating data to the rating script.
 	 */
 	public static function enqueue_public_assets() {
-		$asset_path = get_template_directory() . '/assets/rating.min.js';
+		wp_enqueue_script(
+			'blok45-rating',
+			get_template_directory_uri() . '/assets/rating.min.js',
+			array(),
+			filemtime( get_template_directory() . '/assets/rating.min.js' ),
+			true
+		);
 
-		if ( ! file_exists( $asset_path ) ) {
-			return;
-		}
-
-		$src = get_template_directory_uri() . '/assets/rating.min.js';
-		$ver = filemtime( $asset_path );
-
-		wp_enqueue_script( self::SCRIPT_HANDLE, $src, array(), $ver, true );
 		wp_localize_script(
-			self::SCRIPT_HANDLE,
-			'B45Rating',
+			'blok45-rating',
+			'Blok45Rating',
 			array(
-				'endpoint'   => esc_url_raw( rest_url( 'b45/v1/rating' ) ),
-				'storageKey' => self::STORAGE_KEY,
+				'endpoint'   => esc_url_raw( rest_url( 'blok45/v1/rating' ) ),
+				'storageKey' => self::META_KEY,
 			)
 		);
 	}
@@ -111,7 +107,7 @@ class Blok45_Modules_Rating {
 	 * @param WP_Post $post    Post instance.
 	 * @param bool    $update  Whether this is an existing post being updated.
 	 */
-	public static function ensure_default_rating_meta( $post_id, $post, $update ) {
+	public static function ensure_default_rating_meta( $post_id, $post ) {
 		if ( wp_is_post_revision( $post_id ) || 'auto-draft' === $post->post_status ) {
 			return;
 		}

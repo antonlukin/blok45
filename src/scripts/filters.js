@@ -2,8 +2,8 @@
  * Combined taxonomy filters + infinite scroll for the front page list.
  */
 ( function() {
-	const settings = window.B45Filters || {};
-	const endpoint = settings.endpoint || '/wp-json/b45/v1/filter';
+	const settings = window.Blok45Filters || {};
+	const endpoint = settings.endpoint || '/wp-json/blok45/v1/filter';
 
 	const filtersRoot = document.querySelector( '.filters' );
 	const listRoot = document.querySelector( '.list' );
@@ -15,9 +15,7 @@
 	}
 
 	const selectionState = Object.create( null );
-	const emptyMessage = typeof settings.emptyMessage === 'string' && settings.emptyMessage.length
-		? settings.emptyMessage
-		: 'Nothing found for the selected filters.';
+
 	let activeCoords = '';
 	let currentSort = '';
 	let isFetching = false;
@@ -242,14 +240,14 @@
 					listRoot.innerHTML = '';
 					const emptyNode = document.createElement( 'div' );
 					emptyNode.className = 'list__empty';
-					emptyNode.textContent = emptyMessage;
+					emptyNode.textContent = settings.emptyMessage || '';
 					listRoot.appendChild( emptyNode );
 				}
 
 				ensureHelpers();
 			}
 
-			window.dispatchEvent( new CustomEvent( 'b45:cards-updated' ) );
+			window.dispatchEvent( new CustomEvent( 'blok45:cards-updated' ) );
 
 			const resolvedPage = Number( data?.page ) || page;
 			hasMore = Boolean( data?.has_more );
@@ -297,8 +295,8 @@
 	}
 
 	function deactivateMapMarker() {
-		if ( typeof window.__b45DeactivateMarker === 'function' ) {
-			window.__b45DeactivateMarker();
+		if ( typeof window.__blok45DeactivateMarker === 'function' ) {
+			window.__blok45DeactivateMarker();
 		}
 	}
 
@@ -450,14 +448,14 @@
 		fetchPage( { page: 1, append: false } );
 	} );
 
-	window.addEventListener( 'b45:map-select', function( event ) {
+window.addEventListener( 'blok45:map-select', function( event ) {
 		const detail = event && event.detail ? event.detail : {};
 		applyCoordsFilter( detail.coords );
 	} );
 
-	if ( Array.isArray( window.__b45MapQueue ) && window.__b45MapQueue.length ) {
-		const pendingCoords = window.__b45MapQueue.slice( 0 );
-		window.__b45MapQueue.length = 0;
+if ( Array.isArray( window.__blok45MapQueue ) && window.__blok45MapQueue.length ) {
+	const pendingCoords = window.__blok45MapQueue.slice( 0 );
+	window.__blok45MapQueue.length = 0;
 		pendingCoords.forEach( applyCoordsFilter );
 	}
 

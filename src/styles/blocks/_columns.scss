@@ -19,8 +19,4 @@
       margin-bottom: 0;
     }
   }
-
-  @media (max-width: 60rem) {
-    grid-template-columns: minmax(0, 1fr);
-  }
 }
