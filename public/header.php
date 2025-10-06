@@ -31,8 +31,8 @@
 				array(
 					'theme_location' => 'header-menu',
 					'container'      => false,
-					'menu_class'     => 'menu__list',
 					'depth'          => 1,
+					'items_wrap'     => '<ul class="menu__list">%3$s</ul>',
 					'fallback_cb'    => false,
 				)
 			);

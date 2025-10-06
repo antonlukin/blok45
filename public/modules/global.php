@@ -25,10 +25,8 @@ class Blok45_Modules_Global {
 		add_action( 'admin_menu', array( __CLASS__, 'remove_fse_menu' ), 12 );
 
 		add_filter( 'get_the_archive_title', array( __CLASS__, 'update_archive_title' ) );
-		add_filter( 'get_the_archive_description', array( __CLASS__, 'update_archive_description' ) );
 		add_filter( 'body_class', array( __CLASS__, 'update_body_classes' ) );
 		add_filter( 'post_class', array( __CLASS__, 'update_post_classes' ), 10, 2 );
-		add_action( 'next_posts_link_attributes', array( __CLASS__, 'update_next_posts_link' ) );
 		add_action( 'get_header', array( __CLASS__, 'remove_adminbar_styles' ) );
 		add_filter( 'feed_links_show_comments_feed', '__return_false' );
 		add_filter( 'posts_search', array( __CLASS__, 'hide_empty_search' ), 10, 2 );
@@ -244,32 +242,6 @@ class Blok45_Modules_Global {
 		}
 
 		return $title;
-	}
-
-	/**
-	 * Filters the anchor tag attributes for the next posts page link.
-	 */
-	/**
-	 * Custom archive description
-	 */
-	public static function update_archive_description( $description ) {
-		if ( is_tax() ) {
-			$term = get_queried_object();
-
-			if ( $term instanceof WP_Term ) {
-				$raw = trim( (string) $term->description );
-
-				if ( '' !== $raw ) {
-					return wp_kses_post( wpautop( $raw ) );
-				}
-			}
-		}
-
-		return $description;
-	}
-
-	public static function update_next_posts_link() {
-		return 'class="navigate__button"';
 	}
 }
 

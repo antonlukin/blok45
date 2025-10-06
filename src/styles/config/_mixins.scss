@@ -91,14 +91,12 @@
 }
 
 @mixin default-link {
-  font-family: var(--font-regular);
-  font-weight: 700;
-  color: var(--color-primary);
+  color: var(--color-links);
+  border-bottom: solid 0.0625rem transparent;
+  transition: border-color 0.25s ease-in-out;
 
-  border-bottom: solid 0.0625rem;
-
-  &:hover {
-    transition: border 0.25s;
-    border-bottom: transparent;
+  &:hover,
+  &:focus-visible {
+    border-bottom-color: var(--color-links);
   }
 }

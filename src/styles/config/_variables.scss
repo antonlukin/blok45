@@ -4,7 +4,8 @@
 
   --color-primary: #e0e0e0;
   --color-addition: #b0b0b0;
-  --color-secondary: #7170ff;
+  --color-secondary: #6b6af6;
+  --color-links: #8e8dfe;
   --color-background: #000;
   --color-sheet: rgba(20, 20, 20, 0.75);
   --color-button: #2c2c2c;
@@ -17,8 +18,8 @@
 
   --gradient-card: linear-gradient(-180deg, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0.65) 100%);
   --gradient-pin: radial-gradient(circle at 50% 50%, #000 0 0.1875rem, transparent 0.1875rem),
-  radial-gradient(circle at 50% 50%, var(--color-secondary) 0 0.375rem, transparent 0.375rem),
-  radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--color-secondary) 28%, transparent) 0 0.625rem, transparent 0.625rem);
+  radial-gradient(circle at 50% 50%, var(--color-links) 0 0.375rem, transparent 0.375rem),
+  radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--color-links) 28%, transparent) 0 0.625rem, transparent 0.625rem);
 
   --gradient-active: radial-gradient(circle at 50% 50%, #000 0 0.1875rem, transparent 0.1875rem),
   radial-gradient(circle at 50% 50%, var(--color-light) 0 0.375rem, transparent 0.375rem),

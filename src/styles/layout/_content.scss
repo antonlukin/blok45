@@ -24,12 +24,6 @@
   }
 
   a {
-    color: var(--color-secondary);
-    border-bottom: solid 0.0625rem transparent;
-
-    &:hover,
-    &:focus-visible {
-      border-bottom-color: var(--color-secondary);
-    }
+    @include mixins.default-link;
   }
 }

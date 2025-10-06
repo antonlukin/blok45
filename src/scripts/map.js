@@ -41,6 +41,54 @@
 		activeMarkerInstance = null;
 	}
 
+	function setupDynamicResize( map, target ) {
+		if ( ! map || typeof map.resize !== 'function' ) {
+			return;
+		}
+
+		let rafId = 0;
+		let isDestroyed = false;
+
+		function scheduleResize() {
+			if ( isDestroyed ) {
+				return;
+			}
+
+			if ( rafId ) {
+				cancelAnimationFrame( rafId );
+			}
+
+			rafId = requestAnimationFrame( function() {
+				rafId = 0;
+				map.resize();
+			} );
+		}
+
+		map.on( 'load', function() {
+			scheduleResize();
+			setTimeout( scheduleResize, 200 );
+		} );
+
+		if ( typeof window.ResizeObserver === 'function' && target ) {
+			const observer = new window.ResizeObserver( scheduleResize );
+			observer.observe( target );
+
+			map.on( 'remove', function() {
+				isDestroyed = true;
+				observer.disconnect();
+			} );
+		} else {
+			window.addEventListener( 'resize', scheduleResize );
+			window.addEventListener( 'orientationchange', scheduleResize );
+
+			map.on( 'remove', function() {
+				isDestroyed = true;
+				window.removeEventListener( 'resize', scheduleResize );
+				window.removeEventListener( 'orientationchange', scheduleResize );
+			} );
+		}
+	}
+
 	function handleMarkerClick( coordStr, items, markerInstance ) {
 		const isSameActive = markerInstance && activeMarkerInstance === markerInstance;
 
@@ -122,6 +170,8 @@
 			scrollZoom: false,
 		} );
 
+		setupDynamicResize( map, block );
+
 		const zoomIn = block.querySelector( '.map__zoom-in' );
 
 		if ( zoomIn ) {
@@ -139,7 +189,6 @@
 		}
 
 		const staticCoords = block.dataset.coords ? parseCoords( block.dataset.coords ) : null;
-		const staticZoom = block.dataset.zoom ? parseFloat( block.dataset.zoom ) : null;
 		const staticLabel = block.dataset.label ? String( block.dataset.label ) : '';
 
 		if ( staticCoords ) {
@@ -150,13 +199,6 @@
 			}
 
 			const lngLat = [ staticCoords.lng, staticCoords.lat ];
-
-			map.once( 'load', function() {
-				map.jumpTo( {
-					center: lngLat,
-					zoom: Number.isFinite( staticZoom ) ? staticZoom : Number( settings.zoom || 14 ),
-				} );
-			} );
 
 			new window.mapboxgl.Marker( { element: markerEl } )
 				.setLngLat( lngLat )
