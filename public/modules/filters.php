@@ -201,10 +201,11 @@ class Blok45_Modules_Filters {
 			'blok45-filters',
 			'Blok45Filters',
 			array(
-				'endpoint'     => esc_url_raw( rest_url( 'blok45/v1/filter' ) ),
-				'startPage'    => max( 2, $current_page + 1 ),
-				'hasMore'      => (bool) $has_more,
-				'emptyMessage' => esc_html__( 'Nothing found for the selected filters', 'blok45' ),
+				'endpoint'        => esc_url_raw( rest_url( 'blok45/v1/filter' ) ),
+				'startPage'       => max( 2, $current_page + 1 ),
+				'hasMore'         => (bool) $has_more,
+				'emptyHeading'    => esc_html__( 'Nothing found', 'blok45' ),
+				'emptySubheading' => esc_html__( 'Try adjusting your search filters', 'blok45' ),
 			)
 		);
 	}

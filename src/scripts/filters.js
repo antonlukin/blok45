@@ -240,7 +240,17 @@
 					listRoot.innerHTML = '';
 					const emptyNode = document.createElement( 'div' );
 					emptyNode.className = 'list__empty';
-					emptyNode.textContent = settings.emptyMessage || '';
+
+					const headingEl = document.createElement( 'h3' );
+					headingEl.className = 'list__empty-title';
+					headingEl.textContent = settings.emptyHeading || '';
+					emptyNode.appendChild( headingEl );
+
+					const subheadingEl = document.createElement( 'p' );
+					subheadingEl.className = 'list__empty-subtitle';
+					subheadingEl.textContent = settings.emptySubheading || '';
+					emptyNode.appendChild( subheadingEl );
+
 					listRoot.appendChild( emptyNode );
 				}
 
@@ -448,14 +458,14 @@
 		fetchPage( { page: 1, append: false } );
 	} );
 
-window.addEventListener( 'blok45:map-select', function( event ) {
+	window.addEventListener( 'blok45:map-select', function( event ) {
 		const detail = event && event.detail ? event.detail : {};
 		applyCoordsFilter( detail.coords );
 	} );
 
-if ( Array.isArray( window.__blok45MapQueue ) && window.__blok45MapQueue.length ) {
-	const pendingCoords = window.__blok45MapQueue.slice( 0 );
-	window.__blok45MapQueue.length = 0;
+	if ( Array.isArray( window.__blok45MapQueue ) && window.__blok45MapQueue.length ) {
+		const pendingCoords = window.__blok45MapQueue.slice( 0 );
+		window.__blok45MapQueue.length = 0;
 		pendingCoords.forEach( applyCoordsFilter );
 	}
 
