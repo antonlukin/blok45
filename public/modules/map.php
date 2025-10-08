@@ -19,6 +19,52 @@ class Blok45_Modules_Map {
 	}
 
 	/**
+	 * Prepare sanitized template arguments for the map markup.
+	 *
+	 * @param array $args Raw arguments passed from template calls.
+	 *
+	 * @return array
+	 */
+	public static function prepare_template_args( array $args = array() ) {
+		$args = wp_parse_args(
+			$args,
+			array(
+				'class'  => '',
+				'coords' => '',
+			)
+		);
+
+		$classes = array( 'map' );
+
+		if ( $args['class'] ) {
+			$classes[] = $args['class'];
+		}
+
+		if ( '' !== trim( (string) $args['coords'] ) ) {
+			$classes[] = 'map--single';
+		}
+
+		$classes = array_unique( array_filter( array_map( 'sanitize_html_class', $classes ) ) );
+
+		$attributes = array();
+
+		foreach ( array( 'coords' ) as $attribute ) {
+			$value = isset( $args[ $attribute ] ) ? trim( (string) $args[ $attribute ] ) : '';
+
+			if ( '' === $value ) {
+				continue;
+			}
+
+			$attributes[ 'data-' . $attribute ] = $value;
+		}
+
+		return array(
+			'wrapper_class'      => implode( ' ', $classes ),
+			'wrapper_attributes' => $attributes,
+		);
+	}
+
+	/**
 	 * Enqueue Mapbox GL CSS/JS and expose settings for frontend
 	 */
 	public static function enqueue_assets() {

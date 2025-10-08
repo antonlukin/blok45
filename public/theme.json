@@ -28,33 +28,11 @@
           ]
         }
       ]
-    },
-    "spacing": {
-      "units": ["px", "rem", "em"],
-      "spacingSizes": [
-        { "slug": "40", "name": "40", "size": "1rem" },
-        { "slug": "60", "name": "60", "size": "1.5rem" },
-        { "slug": "80", "name": "80", "size": "2rem" },
-        { "slug": "120", "name": "120", "size": "3rem" }
-      ]
     }
   },
   "styles": {
     "typography": {
       "fontFamily": "var:preset|font-family|inter-variable"
-    },
-    "spacing": {
-      "blockGap": "var:preset|spacing|60"
-    },
-    "blocks": {
-      "core/gallery": {
-        "spacing": {
-          "margin": {
-            "top": "var:preset|spacing|120",
-            "bottom": "var:preset|spacing|120"
-          }
-        }
-      }
     }
   }
 }

@@ -9,40 +9,26 @@
 $args = wp_parse_args(
 	isset( $args ) ? $args : array(),
 	array(
-		'context' => 'default',
-		'class'   => '',
-		'coords'  => '',
-		'zoom'    => '',
-		'label'   => '',
+		'wrapper_class'      => 'map',
+		'wrapper_attributes' => array(),
 	)
 );
 
-$classes = array( 'map' );
+$wrapper_class      = trim( (string) $args['wrapper_class'] );
+$wrapper_attributes = is_array( $args['wrapper_attributes'] ) ? $args['wrapper_attributes'] : array();
 
-if ( ! empty( $args['class'] ) ) {
-	$classes[] = $args['class'];
+if ( '' === $wrapper_class ) {
+	return;
 }
 
-if ( 'single' === $args['context'] ) {
-	$classes[] = 'map--single';
+$attributes_string = '';
+
+foreach ( $wrapper_attributes as $attribute => $value ) {
+	$attributes_string .= sprintf( ' %1$s="%2$s"', esc_attr( $attribute ), esc_attr( $value ) );
 }
-
-$classes = array_unique( array_filter( $classes ) );
-
-$attributes = array();
-
-foreach ( array( 'coords', 'zoom', 'label' ) as $attribute ) {
-	if ( empty( $args[ $attribute ] ) ) {
-		continue;
-	}
-
-	$attributes[] = sprintf( 'data-%1$s="%2$s"', esc_attr( $attribute ), esc_attr( $args[ $attribute ] ) );
-}
-
-$attr_string = $attributes ? ' ' . implode( ' ', $attributes ) : '';
 
 ?>
-<div class="<?php echo esc_attr( implode( ' ', $classes ) ); ?>"<?php echo $attr_string; ?>>
+<div class="<?php echo esc_attr( $wrapper_class ); ?>"<?php echo $attributes_string; ?>>
 	<div class="map__canvas"></div>
 
 	<div class="map__zoom">

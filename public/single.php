@@ -23,8 +23,8 @@ get_header(); ?>
 			$rating_value = Blok45_Modules_Rating::get_post_rating_value( get_the_ID() );
 		}
 
-		$rating_display        = number_format_i18n( $rating_value );
-		$raw_coords            = trim( (string) get_post_meta( get_the_ID(), 'blok45_coords', true ) );
+		$rating_display = number_format_i18n( $rating_value );
+		$raw_coords     = trim( (string) get_post_meta( get_the_ID(), 'blok45_coords', true ) );
 		if ( '' === $raw_coords ) {
 			$raw_coords = trim( (string) get_post_meta( get_the_ID(), 'b45_coords', true ) );
 		}
@@ -150,7 +150,7 @@ get_header(); ?>
 				$has_years   = is_array( $years ) && ! is_wp_error( $years ) && ! empty( $years );
 
 				if ( $has_artists || $has_years ) :
-				?>
+					?>
 				<div class="single__post-meta">
 					<?php if ( $has_artists ) : ?>
 						<div class="single__meta-group">
@@ -193,18 +193,7 @@ get_header(); ?>
 
 			<?php if ( ! empty( $raw_coords ) ) : ?>
 				<div class="single__map">
-					<?php
-					get_template_part(
-						'template-parts/map',
-						null,
-						array(
-							'context' => 'single',
-							'coords'  => $raw_coords,
-							'zoom'    => 15,
-							'label'   => get_the_title(),
-						)
-					);
-				?>
+					<?php get_template_part( 'template-parts/map', null, blok45_get_map_args( array( 'coords' => $raw_coords ) ) ); ?>
 				</div>
 			<?php endif; ?>
 		</aside>

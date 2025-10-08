@@ -22,7 +22,7 @@ get_header();
 
 		<aside class="sidebar">
 			<?php get_template_part( 'template-parts/filters' ); ?>
-			<?php get_template_part( 'template-parts/map' ); ?>
+			<?php get_template_part( 'template-parts/map', null, blok45_get_map_args() ); ?>
 		</aside>
 	</main>
 <?php else : ?>

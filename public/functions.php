@@ -82,6 +82,23 @@ if ( ! function_exists( 'blok45_get_gallery_items' ) ) :
 	}
 endif;
 
+if ( ! function_exists( 'blok45_get_map_args' ) ) :
+	/**
+	 * Return sanitized arguments for the map template part.
+	 *
+	 * @param array $args Raw arguments.
+	 *
+	 * @return array
+	 */
+	function blok45_get_map_args( array $args = array() ) {
+		if ( method_exists( 'Blok45_Modules_Map', 'prepare_template_args' ) ) {
+			$args = Blok45_Modules_Map::prepare_template_args( $args );
+		}
+
+		return $args;
+	}
+endif;
+
 /**
  * Include theme core modules
  */

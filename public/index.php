@@ -12,7 +12,7 @@
 get_header(); ?>
 
 <section class="archive">
-    <?php get_template_part( 'templates/content', 'none' ); ?>
+	<?php get_template_part( 'templates/content', 'none' ); ?>
 </section>
 
 <?php
