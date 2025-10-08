@@ -64,10 +64,10 @@
 	}
 
 	function updateCount( button, rating ) {
-		button.dataset.rating = String( rating );
 		const counter = button.querySelector( '.card__like-count' );
 
 		if ( counter ) {
+			counter.dataset.rating = String( rating );
 			counter.textContent = new Intl.NumberFormat().format( rating );
 		}
 	}
@@ -94,7 +94,8 @@
 			return;
 		}
 
-		const rating = Number( button.dataset.rating );
+		const counter = button.querySelector( '.card__like-count' );
+		const rating = counter ? Number( counter.dataset.rating ) : Number.NaN;
 
 		if ( ! Number.isNaN( rating ) ) {
 			updateCount( button, rating );

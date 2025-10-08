@@ -25,7 +25,6 @@ class Blok45_Modules_Gallery {
 	 */
 	public static function load_module() {
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_single_assets' ) );
-		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
 	}
 
 	/**
@@ -68,55 +67,6 @@ class Blok45_Modules_Gallery {
 				true
 			);
 		}
-	}
-
-	/**
-	 * Register REST API routes.
-	 */
-	public static function register_rest_routes() {
-		register_rest_route(
-			'blok45/v1',
-			'/exif/(?P<attachment>\d+)',
-			array(
-				'methods'             => 'GET',
-				'permission_callback' => '__return_true',
-				'callback'            => array( __CLASS__, 'rest_get_attachment_exif' ),
-				'args'                => array(
-					'attachment' => array(
-						'required' => true,
-						'type'     => 'integer',
-					),
-				),
-			)
-		);
-	}
-
-	/**
-	 * REST: Return EXIF data for attachment.
-	 *
-	 * @param WP_REST_Request $request Request instance.
-	 */
-	public static function rest_get_attachment_exif( WP_REST_Request $request ) {
-		$attachment_id = absint( $request->get_param( 'attachment' ) );
-
-		if ( $attachment_id <= 0 || 'attachment' !== get_post_type( $attachment_id ) ) {
-			return new WP_REST_Response( array( 'message' => esc_html__( 'Attachment not found.', 'blok45' ) ), 404 );
-		}
-
-		$full = wp_get_attachment_image_src( $attachment_id, 'full' );
-
-		if ( ! $full ) {
-			return new WP_REST_Response( array( 'message' => esc_html__( 'Image source not available.', 'blok45' ) ), 404 );
-		}
-
-		$meta = self::get_attachment_exif( $attachment_id, $full );
-
-		return rest_ensure_response(
-			array(
-				'attachment' => $attachment_id,
-				'meta'       => $meta,
-			)
-		);
 	}
 
 	/**
@@ -259,124 +209,6 @@ class Blok45_Modules_Gallery {
 		);
 	}
 
-	/**
-	 * Extract EXIF data from attachment metadata.
-	 */
-	protected static function get_attachment_exif( $attachment_id, $full ) {
-		$meta = wp_get_attachment_metadata( $attachment_id );
-		$exif = array();
-
-		if ( isset( $meta['image_meta'] ) && is_array( $meta['image_meta'] ) ) {
-			$image_meta = $meta['image_meta'];
-
-			if ( ! empty( $image_meta['camera'] ) ) {
-				$exif['camera'] = sanitize_text_field( $image_meta['camera'] );
-			}
-
-			if ( ! empty( $image_meta['lens'] ) ) {
-				$exif['lens'] = sanitize_text_field( $image_meta['lens'] );
-			}
-
-			if ( ! empty( $image_meta['focal_length'] ) ) {
-				$focal_length = self::format_fractional_number( $image_meta['focal_length'] );
-				if ( $focal_length ) {
-					$exif['focal_length'] = self::format_numeric_label( $focal_length, __( 'mm', 'blok45' ) );
-				}
-			}
-
-			if ( ! empty( $image_meta['aperture'] ) ) {
-				$aperture = self::format_fractional_number( $image_meta['aperture'], 2 );
-				if ( $aperture ) {
-					$exif['aperture'] = 'f/' . $aperture;
-				}
-			}
-
-			if ( ! empty( $image_meta['shutter_speed'] ) ) {
-				$shutter = self::format_shutter_speed( $image_meta['shutter_speed'] );
-				if ( $shutter ) {
-					$exif['shutter_speed'] = $shutter;
-				}
-			}
-
-			if ( ! empty( $image_meta['iso'] ) ) {
-				$exif['iso'] = 'ISO ' . absint( $image_meta['iso'] );
-			}
-
-			if ( ! empty( $image_meta['created_timestamp'] ) ) {
-				$timestamp = absint( $image_meta['created_timestamp'] );
-				if ( $timestamp > 0 ) {
-					$exif['created'] = date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $timestamp );
-				}
-			}
-		}
-
-		$width  = isset( $meta['width'] ) ? (int) $meta['width'] : ( isset( $full[1] ) ? (int) $full[1] : 0 );
-		$height = isset( $meta['height'] ) ? (int) $meta['height'] : ( isset( $full[2] ) ? (int) $full[2] : 0 );
-
-		if ( $width > 0 && $height > 0 ) {
-			$exif['dimensions'] = sprintf( '%1$s × %2$s px', number_format_i18n( $width ), number_format_i18n( $height ) );
-		}
-
-		return array_filter(
-			$exif,
-			static function ( $value ) {
-				return $value !== null && $value !== '';
-			}
-		);
-	}
-
-	protected static function format_fractional_number( $value, $precision = 1 ) {
-		if ( '' === $value || null === $value ) {
-			return '';
-		}
-
-		if ( strpos( (string) $value, '/' ) !== false ) {
-			list( $numerator, $denominator ) = array_map( 'floatval', explode( '/', $value ) );
-			if ( 0.0 === $denominator ) {
-				return '';
-			}
-			$value = $numerator / $denominator;
-		}
-
-		$value = floatval( $value );
-
-		if ( $value <= 0 ) {
-			return '';
-		}
-
-		return self::trim_numeric( $value, $precision );
-	}
-
-	protected static function format_shutter_speed( $value ) {
-		$numeric = self::format_fractional_number( $value, 4 );
-
-		if ( '' === $numeric ) {
-			return '';
-		}
-
-		$numeric = (float) $numeric;
-
-		if ( $numeric >= 1 ) {
-			return self::trim_numeric( $numeric, 2 ) . 's';
-		}
-
-		$denominator = (int) round( 1 / $numeric );
-
-		if ( $denominator <= 0 ) {
-			return '';
-		}
-
-		return '1/' . $denominator . 's';
-	}
-
-	protected static function format_numeric_label( $value, $unit ) {
-		return self::trim_numeric( $value, 1 ) . ' ' . $unit;
-	}
-
-	protected static function trim_numeric( $value, $precision = 1 ) {
-		$formatted = number_format( (float) $value, $precision, '.', '' );
-		return rtrim( rtrim( $formatted, '0' ), '.' );
-	}
 }
 
 Blok45_Modules_Gallery::load_module();

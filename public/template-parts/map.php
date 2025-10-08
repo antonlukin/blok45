@@ -6,29 +6,10 @@
  * @since 1.0
  */
 
-$args = wp_parse_args(
-	isset( $args ) ? $args : array(),
-	array(
-		'wrapper_class'      => 'map',
-		'wrapper_attributes' => array(),
-	)
-);
-
-$wrapper_class      = trim( (string) $args['wrapper_class'] );
-$wrapper_attributes = is_array( $args['wrapper_attributes'] ) ? $args['wrapper_attributes'] : array();
-
-if ( '' === $wrapper_class ) {
-	return;
-}
-
-$attributes_string = '';
-
-foreach ( $wrapper_attributes as $attribute => $value ) {
-	$attributes_string .= sprintf( ' %1$s="%2$s"', esc_attr( $attribute ), esc_attr( $value ) );
-}
-
+$data = blok45_get_map_args( $args );
 ?>
-<div class="<?php echo esc_attr( $wrapper_class ); ?>"<?php echo $attributes_string; ?>>
+
+<div class="<?php echo esc_attr( $data['class'] ); ?>"<?php echo $data['coords'] ? ' data-coords="' . esc_attr( $data['coords'] ) . '"' : ''; ?>>
 	<div class="map__canvas"></div>
 
 	<div class="map__zoom">

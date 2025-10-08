@@ -20,24 +20,9 @@
 		?>
 	</figure>
 
-	<?php
-	$rating_value = 0;
+	<?php $rating = blok45_get_post_rating( get_the_ID() ); ?>
 
-	if ( class_exists( 'Blok45_Modules_Rating' ) ) {
-		$rating_value = Blok45_Modules_Rating::get_post_rating_value( get_the_ID() );
-	}
-
-	$rating_display = number_format_i18n( $rating_value );
-	?>
-
-	<button
-		class="card__like"
-		type="button"
-		data-post="<?php echo esc_attr( get_the_ID() ); ?>"
-		data-rating="<?php echo esc_attr( $rating_value ); ?>"
-		aria-label="<?php echo esc_attr__( 'Toggle rating', 'blok45' ); ?>"
-		aria-pressed="false"
-	>
+	<button class="card__like" type="button" data-post="<?php echo esc_attr( get_the_ID() ); ?>" aria-pressed="false">
 		<?php
 		printf(
 			'<svg class="card__like-icon card__like-icon--default" aria-hidden="true"><use xlink:href="%1$s" href="%1$s"></use></svg>',
@@ -48,8 +33,13 @@
 			'<svg class="card__like-icon card__like-icon--active" aria-hidden="true"><use xlink:href="%1$s" href="%1$s"></use></svg>',
 			esc_url( blok45_get_icon( 'liked' ) )
 		);
+
+		printf(
+			'<span class="card__like-count" aria-live="polite" data-rating="%s">%s</span>',
+			esc_attr( $rating ),
+			esc_html( $rating )
+		);
 		?>
-		<span class="card__like-count" aria-live="polite"><?php echo esc_html( $rating_display ); ?></span>
 	</button>
 
 	<div class="card__content">
