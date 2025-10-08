@@ -12,6 +12,15 @@
     font-weight: 500;
     font-family: var(--font-regular);
     line-height: 1.25;
+
+    @media screen and (max-width: 767px) {
+      gap: 0.5rem;
+    }
+
+    @media screen and (max-width: 479px) {
+      gap: 0.25rem;
+      font-size: 0.875rem;
+    }
   }
 
   .menu__item {

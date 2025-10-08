@@ -20,6 +20,15 @@
     padding-top: 0;
 
     border-top: none;
+
+    @media screen and (max-width: 1023px) {
+      grid-template-columns: 3fr 2fr;
+    }
+
+    @media screen and (max-width: 767px) {
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
   }
 
   .is-empty & {

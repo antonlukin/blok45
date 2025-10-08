@@ -17,6 +17,10 @@
   border-radius: var(--radius-frame);
   transition: color 0.25s;
 
+  @media screen and (max-width: 479px) {
+    font-size: 1.125rem;
+  }
+
   span {
     display: flex;
     position: relative;
@@ -32,13 +36,22 @@
       position: absolute;
       top: 50%;
       left: 50%;
-      width: 1.725rem;
+      width: 1.625rem;
       height: 1.625rem;
 
       border: solid 0.09375rem;
       border-radius: 0.25rem;
 
       transform: translate(-50%, -50%);
+
+      @media screen and (max-width: 479px) {
+        width: 1.5rem;
+        height: 1.5rem;
+      }
+    }
+
+    @media screen and (max-width: 479px) {
+      font-size: 0.8125rem;
     }
   }
 
