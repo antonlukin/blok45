@@ -31,6 +31,7 @@
 	}
 
 	let mobileMedia = null;
+
 	if ( typeof window.matchMedia === 'function' ) {
 		mobileMedia = window.matchMedia( '(max-width: 767px)' );
 	}
@@ -105,6 +106,16 @@
 		return mobileMedia.matches;
 	}
 
+	function blurIfInsidePanel() {
+		if ( mobilePanel && mobilePanel.matches( ':focus-within' ) ) {
+			const focused = mobilePanel.querySelector( ':focus' );
+
+			if ( focused && typeof focused.blur === 'function' ) {
+				focused.blur();
+			}
+		}
+	}
+
 	function openMobilePanel() {
 		if ( isMobilePanelOpen ) {
 			return;
@@ -116,11 +127,11 @@
 
 		isMobilePanelOpen = true;
 		filtersContainer.classList.add( 'filters--open' );
-		document.body.classList.add( 'filters-open' );
 
-		if ( mobilePanel ) {
-			mobilePanel.setAttribute( 'aria-hidden', 'false' );
-		}
+		const scrollOffset = window.pageYOffset || document.documentElement.scrollTop || 0;
+		document.body.dataset.scrollLock = String( scrollOffset );
+		document.body.style.top = '-' + scrollOffset + 'px';
+		document.body.classList.add( 'is-overflow' );
 
 		if ( mobileToggle ) {
 			mobileToggle.setAttribute( 'aria-expanded', 'true' );
@@ -147,6 +158,8 @@
 			return;
 		}
 
+		blurIfInsidePanel();
+
 		let shouldRestoreFocus = true;
 		if ( options && options.restoreFocus === false ) {
 			shouldRestoreFocus = false;
@@ -158,11 +171,17 @@
 			filtersContainer.classList.remove( 'filters--open' );
 		}
 
-		document.body.classList.remove( 'filters-open' );
+		const scrollOffset = Number( document.body.dataset.scrollLock || 0 );
+		const targetScroll = Number.isFinite( scrollOffset ) ? scrollOffset : 0;
 
-		if ( mobilePanel ) {
-			mobilePanel.setAttribute( 'aria-hidden', 'true' );
-		}
+		document.body.classList.remove( 'is-overflow' );
+		document.body.style.removeProperty( 'top' );
+		delete document.body.dataset.scrollLock;
+
+		window.scrollTo( {
+			top: targetScroll,
+			left: 0,
+		} );
 
 		if ( mobileToggle ) {
 			mobileToggle.setAttribute( 'aria-expanded', 'false' );
@@ -226,12 +245,20 @@
 	function createSkeletonCard() {
 		const card = document.createElement( 'div' );
 		card.className = 'card card--skeleton';
-		card.setAttribute( 'aria-hidden', 'true' );
-		card.innerHTML = [
-			'<div class="card__skeleton-image"></div>',
-			'<div class="card__skeleton-like"></div>',
-			'<span class="card__skeleton-line"></span>',
-		].join( '' );
+
+		const skeletonImage = document.createElement( 'div' );
+		skeletonImage.className = 'card__skeleton-image';
+
+		const skeletonLike = document.createElement( 'div' );
+		skeletonLike.className = 'card__skeleton-like';
+
+		const skeletonLine = document.createElement( 'span' );
+		skeletonLine.className = 'card__skeleton-line';
+
+		card.appendChild( skeletonImage );
+		card.appendChild( skeletonLike );
+		card.appendChild( skeletonLine );
+
 		return card;
 	}
 
@@ -582,6 +609,7 @@
 				return;
 			}
 
+			closeMobilePanel( { restoreFocus: false } );
 			clearEmptyState();
 			deactivateMapMarker();
 			activeCoords = '';
@@ -593,6 +621,7 @@
 			return;
 		}
 
+		closeMobilePanel( { restoreFocus: false } );
 		clearEmptyState();
 		activeCoords = normalized;
 		resetTaxFilters();

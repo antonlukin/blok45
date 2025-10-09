@@ -122,7 +122,7 @@ button {
   user-select: none;
 
   background-color: transparent;
-  transition: 0.25s;
+  transition: background-color 0.25s;
 
   &[disabled] {
     pointer-events: none;

@@ -11,15 +11,21 @@
 
 <aside class="filters" data-filters-container aria-labelledby="filters-panel-heading">
 	<button class="filters__toggle" type="button" data-filters-toggle aria-haspopup="dialog" aria-expanded="false" aria-controls="filters-panel-sheet">
+		<?php
+		printf(
+			'<svg class="filters__toggle-icon" aria-hidden="true"><use xlink:href="%1$s" href="%1$s"></use></svg>',
+			esc_url( blok45_get_icon( 'filters' ) )
+		);
+		?>
 		<span><?php esc_html_e( 'Filters', 'blok45' ); ?></span>
 	</button>
 
-	<div class="filters__sheet" id="filters-panel-sheet" data-filters-panel role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="filters-panel-heading">
+	<div class="filters__sheet" id="filters-panel-sheet" data-filters-panel role="dialog" aria-modal="true" aria-labelledby="filters-panel-heading">
 		<div class="filters__sheet-inner">
 			<div class="filters__sheet-header">
 				<h3 class="filters__title" id="filters-panel-heading"><?php esc_html_e( 'Filters', 'blok45' ); ?></h3>
 				<button class="filters__close" type="button" data-filters-close>
-					<span><?php esc_html_e( 'Close', 'blok45' ); ?></span>
+					<span class="screen-reader-text"><?php esc_html_e( 'Close', 'blok45' ); ?></span>
 				</button>
 			</div>
 

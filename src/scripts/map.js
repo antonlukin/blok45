@@ -96,6 +96,32 @@
 		}
 	}
 
+	function setupResponsiveInteractions( map ) {
+		const mq = window.matchMedia( '(max-width: 767px)' );
+
+		function apply() {
+			if ( mq.matches ) {
+				map.dragPan.disable();
+			} else {
+				map.dragPan.enable();
+			}
+		}
+
+		apply();
+
+		if ( typeof mq.addEventListener === 'function' ) {
+			mq.addEventListener( 'change', apply );
+		}
+
+		map.on( 'remove', function() {
+			if ( typeof mq.removeEventListener === 'function' ) {
+				mq.removeEventListener( 'change', apply );
+			} else {
+				mq.removeListener( apply );
+			}
+		} );
+	}
+
 	function handleMarkerClick( coordStr, items, markerInstance ) {
 		const isSameActive = markerInstance && activeMarkerInstance === markerInstance;
 
@@ -133,12 +159,12 @@
 
 		if ( ! Array.isArray( window.__blok45MapQueue ) ) {
 			window.__blok45MapQueue = [];
-}
+		}
 
 		window.__blok45MapQueue.push( normalized );
 		if ( window.__blok45MapQueue.length > 5 ) {
 			window.__blok45MapQueue.shift();
-}
+		}
 
 		window.dispatchEvent(
 			new CustomEvent( 'blok45:map-select', {
@@ -180,6 +206,7 @@
 		} );
 
 		setupDynamicResize( map, block );
+		setupResponsiveInteractions( map );
 
 		const zoomIn = block.querySelector( '.map__zoom-in' );
 
@@ -275,5 +302,5 @@
 	}
 	blocks.forEach( initBlock );
 
-window.__blok45DeactivateMarker = deactivateActiveMarker;
+	window.__blok45DeactivateMarker = deactivateActiveMarker;
 }() );

@@ -20,12 +20,12 @@
         {}
       ],
       "properties": {
-        "order": 63,
-        "id": 13,
+        "order": 82,
+        "id": 18,
         "name": "liked",
         "prevSize": 32
       },
-      "setIdx": 0,
+      "setIdx": 2,
       "setId": 10,
       "iconIdx": 0
     },
@@ -48,12 +48,12 @@
         {}
       ],
       "properties": {
-        "order": 61,
-        "id": 12,
+        "order": 83,
+        "id": 19,
         "name": "like",
         "prevSize": 32
       },
-      "setIdx": 0,
+      "setIdx": 2,
       "setId": 10,
       "iconIdx": 1
     },
@@ -72,12 +72,12 @@
       },
       "attrs": [],
       "properties": {
-        "order": 62,
-        "id": 0,
+        "order": 84,
+        "id": 20,
         "name": "search",
         "prevSize": 32
       },
-      "setIdx": 0,
+      "setIdx": 2,
       "setId": 10,
       "iconIdx": 2
     },
@@ -97,14 +97,14 @@
       },
       "attrs": [],
       "properties": {
-        "id": 1,
-        "order": 52,
+        "id": 21,
+        "order": 85,
         "ligatures": "",
         "prevSize": 32,
         "name": "left",
         "code": 59649
       },
-      "setIdx": 0,
+      "setIdx": 2,
       "setId": 10,
       "iconIdx": 3
     },
@@ -124,14 +124,14 @@
       },
       "attrs": [],
       "properties": {
-        "id": 2,
-        "order": 53,
+        "id": 22,
+        "order": 86,
         "ligatures": "",
         "prevSize": 32,
         "name": "right",
         "code": 59656
       },
-      "setIdx": 0,
+      "setIdx": 2,
       "setId": 10,
       "iconIdx": 4
     },
@@ -151,14 +151,14 @@
       },
       "attrs": [],
       "properties": {
-        "id": 3,
-        "order": 54,
+        "id": 23,
+        "order": 87,
         "ligatures": "",
         "prevSize": 32,
         "name": "notify",
         "code": 59657
       },
-      "setIdx": 0,
+      "setIdx": 2,
       "setId": 10,
       "iconIdx": 5
     },
@@ -178,14 +178,14 @@
       },
       "attrs": [],
       "properties": {
-        "id": 4,
-        "order": 55,
+        "id": 24,
+        "order": 88,
         "ligatures": "",
         "prevSize": 32,
         "name": "loop",
         "code": 59658
       },
-      "setIdx": 0,
+      "setIdx": 2,
       "setId": 10,
       "iconIdx": 6
     },
@@ -205,13 +205,13 @@
       },
       "attrs": [],
       "properties": {
-        "order": 56,
-        "id": 5,
+        "order": 89,
+        "id": 25,
         "name": "reply",
         "prevSize": 32,
         "code": 59667
       },
-      "setIdx": 0,
+      "setIdx": 2,
       "setId": 10,
       "iconIdx": 7
     },
@@ -233,13 +233,13 @@
       },
       "attrs": [],
       "properties": {
-        "order": 57,
-        "id": 6,
+        "order": 90,
+        "id": 26,
         "prevSize": 32,
         "code": 59952,
         "name": "shuffle"
       },
-      "setIdx": 0,
+      "setIdx": 2,
       "setId": 10,
       "iconIdx": 8
     },
@@ -259,15 +259,43 @@
       },
       "attrs": [],
       "properties": {
-        "order": 58,
-        "id": 7,
+        "order": 91,
+        "id": 27,
         "name": "external",
         "prevSize": 32,
         "code": 59671
       },
-      "setIdx": 0,
+      "setIdx": 2,
       "setId": 10,
       "iconIdx": 9
+    },
+    {
+      "icon": {
+        "paths": [
+          "M576 64c0-35.2-28.8-64-64-64s-64 28.8-64 64v576h-64v128h64v192c0 35.2 28.8 64 64 64s64-28.8 64-64v-192h64v-128h-64v-576zM192 64c0-35.2-28.8-64-64-64s-64 28.8-64 64v320h-64v128h64v448c0 35.2 28.8 64 64 64s64-28.8 64-64v-448h64v-128h-64v-320zM1024 256h-64v-192c0-35.2-28.8-64-64-64s-64 28.8-64 64v192h-64v128h64v576c0 35.2 28.8 64 64 64s64-28.8 64-64v-576h64v-128z"
+        ],
+        "attrs": [
+          {}
+        ],
+        "isMulticolor": false,
+        "isMulticolor2": false,
+        "tags": [
+          "filters"
+        ],
+        "grid": 32
+      },
+      "attrs": [
+        {}
+      ],
+      "properties": {
+        "order": 92,
+        "id": 17,
+        "prevSize": 32,
+        "name": "filters"
+      },
+      "setIdx": 2,
+      "setId": 10,
+      "iconIdx": 10
     }
   ],
   "height": 1024,
