@@ -22,20 +22,20 @@
 
 	<?php $rating = blok45_get_post_rating( get_the_ID() ); ?>
 
-	<button class="card__like" type="button" data-post="<?php echo esc_attr( get_the_ID() ); ?>" aria-pressed="false">
+	<button class="like" type="button" data-post="<?php echo esc_attr( get_the_ID() ); ?>" aria-pressed="false">
 		<?php
 		printf(
-			'<svg class="card__like-icon card__like-icon--default" aria-hidden="true"><use xlink:href="%1$s" href="%1$s"></use></svg>',
+			'<svg class="like__icon like__icon--default" aria-hidden="true"><use xlink:href="%1$s" href="%1$s"></use></svg>',
 			esc_url( blok45_get_icon( 'like' ) )
 		);
 
 		printf(
-			'<svg class="card__like-icon card__like-icon--active" aria-hidden="true"><use xlink:href="%1$s" href="%1$s"></use></svg>',
+			'<svg class="like__icon like__icon--active" aria-hidden="true"><use xlink:href="%1$s" href="%1$s"></use></svg>',
 			esc_url( blok45_get_icon( 'liked' ) )
 		);
 
 		printf(
-			'<span class="card__like-count" aria-live="polite" data-rating="%s">%s</span>',
+			'<span class="like__count" aria-live="polite" data-rating="%s">%s</span>',
 			esc_attr( $rating ),
 			esc_html( $rating )
 		);

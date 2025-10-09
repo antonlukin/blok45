@@ -17,7 +17,6 @@ class Blok45_Modules_Global {
 	 */
 	public static function load_module() {
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_styles' ) );
-		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_scripts' ) );
 
 		add_action( 'after_switch_theme', 'flush_rewrite_rules' );
 		add_action( 'after_setup_theme', array( __CLASS__, 'update_theme_settings' ), 12 );
@@ -98,15 +97,6 @@ class Blok45_Modules_Global {
 		$version = filemtime( get_template_directory() . '/assets/styles.min.css' );
 
 		wp_enqueue_style( 'blok45', get_template_directory_uri() . '/assets/styles.min.css', array(), $version );
-	}
-
-	/**
-	 * Add required theme scripts
-	 */
-	public static function enqueue_scripts() {
-		$version = filemtime( get_template_directory() . '/assets/scripts.min.js' );
-
-		wp_enqueue_script( 'blok45', get_template_directory_uri() . '/assets/scripts.min.js', array( 'wp-i18n' ), $version, true );
 	}
 
 	/**

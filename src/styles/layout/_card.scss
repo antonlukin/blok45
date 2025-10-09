@@ -124,75 +124,11 @@
     }
   }
 
-  .card__like {
+  .like {
     position: absolute;
     right: 0.25rem;
     top: 0.25rem;
     z-index: 3;
-
-    display: inline-flex;
-    align-items: center;
-    gap: 0.375rem;
-
-    padding: 0.375rem 0.5rem;
-    border-radius: 50rem;
-
-    font-variant-numeric: tabular-nums;
-
-    background: var(--surface-sheet);;
-    color: var(--stroke);
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
-    color: var(--color-primary);
-
-    @media screen and (max-width: 767px) {
-      padding: 0.45rem 0.625rem;
-    }
-
-    .card__like-icon {
-      width: 0.8125rem;
-      height: 0.8125rem;
-      display: block;
-      fill: var(--color-primary);
-
-      transition: transform 0.125s;
-
-      @media screen and (max-width: 767px) {
-        width: 0.875rem;
-        height: 0.875rem;
-      }
-
-      &.card__like-icon--active {
-        display: none;
-      }
-    }
-
-    .card__like-count {
-      font-size: 0.6875rem;
-      font-weight: 600;
-
-      @media screen and (max-width: 767px) {
-        font-size: 0.7125rem;
-      }
-    }
-
-    &.card__like--busy {
-      pointer-events: none;
-      opacity: 0.6;
-    }
-
-    &:hover .card__like-icon {
-      transform: scale(110%);
-    }
-
-    &.card__like--active .card__like-icon--default {
-      display: none;
-    }
-
-    &.card__like--active .card__like-icon--active {
-      display: block;
-      fill: var(--color-light);
-    }
   }
 
   &.card--skeleton {

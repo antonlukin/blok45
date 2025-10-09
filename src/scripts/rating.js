@@ -64,7 +64,7 @@
 	}
 
 	function updateCount( button, rating ) {
-		const counter = button.querySelector( '.card__like-count' );
+		const counter = button.querySelector( '.like__count' );
 
 		if ( counter ) {
 			counter.dataset.rating = String( rating );
@@ -74,16 +74,16 @@
 
 	function setBusyState( button, busy ) {
 		if ( busy ) {
-			button.classList.add( 'card__like--busy' );
+			button.classList.add( 'like--busy' );
 			button.setAttribute( 'aria-disabled', 'true' );
 		} else {
-			button.classList.remove( 'card__like--busy' );
+			button.classList.remove( 'like--busy' );
 			button.removeAttribute( 'aria-disabled' );
 		}
 	}
 
 	function applyButtonState( button, liked ) {
-		button.classList.toggle( 'card__like--active', liked );
+		button.classList.toggle( 'like--active', liked );
 		button.setAttribute( 'aria-pressed', liked ? 'true' : 'false' );
 	}
 
@@ -94,7 +94,7 @@
 			return;
 		}
 
-		const counter = button.querySelector( '.card__like-count' );
+		const counter = button.querySelector( '.like__count' );
 		const rating = counter ? Number( counter.dataset.rating ) : Number.NaN;
 
 		if ( ! Number.isNaN( rating ) ) {
@@ -106,7 +106,7 @@
 	}
 
 	function syncAllButtons() {
-		document.querySelectorAll( '.card__like[data-post]' ).forEach( syncButton );
+		document.querySelectorAll( '.like[data-post]' ).forEach( syncButton );
 	}
 
 	async function sendRating( postId, liked ) {
@@ -136,7 +136,7 @@
 	}
 
 	document.addEventListener( 'click', function( event ) {
-		const button = event.target.closest( '.card__like[data-post]' );
+		const button = event.target.closest( '.like[data-post]' );
 
 		if ( ! button ) {
 			return;

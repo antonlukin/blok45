@@ -9,8 +9,8 @@
 
 ?>
 
-<aside class="filters" data-filters-container aria-labelledby="filters-panel-heading">
-	<button class="filters__toggle" type="button" data-filters-toggle aria-haspopup="dialog" aria-expanded="false" aria-controls="filters-panel-sheet">
+<aside class="filters" aria-labelledby="filters-panel-heading">
+	<button class="filters__toggle" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="filters-panel-sheet">
 		<?php
 		printf(
 			'<svg class="filters__toggle-icon" aria-hidden="true"><use xlink:href="%1$s" href="%1$s"></use></svg>',
@@ -20,11 +20,17 @@
 		<span><?php esc_html_e( 'Filters', 'blok45' ); ?></span>
 	</button>
 
-	<div class="filters__sheet" id="filters-panel-sheet" data-filters-panel role="dialog" aria-modal="true" aria-labelledby="filters-panel-heading">
+	<div class="filters__sheet" id="filters-panel-sheet" role="dialog" aria-modal="true" aria-labelledby="filters-panel-heading">
 		<div class="filters__sheet-inner">
 			<div class="filters__sheet-header">
-				<h3 class="filters__title" id="filters-panel-heading"><?php esc_html_e( 'Filters', 'blok45' ); ?></h3>
-				<button class="filters__close" type="button" data-filters-close>
+				<?php
+				printf(
+					'<h3 class="filters__title" id="filters-panel-heading">%s</h3>',
+					esc_html__( 'Filters', 'blok45' )
+				);
+				?>
+
+				<button class="filters__close" type="button">
 					<span class="screen-reader-text"><?php esc_html_e( 'Close', 'blok45' ); ?></span>
 				</button>
 			</div>
@@ -55,16 +61,6 @@
 						?>
 					</div>
 				</div>
-	<?php
-	$artists = get_terms(
-		array(
-			'taxonomy'   => 'artist',
-			'hide_empty' => true,
-			'orderby'    => 'name',
-			'order'      => 'ASC',
-		)
-	);
-	?>
 
 				<div class="filters__group filters__group--artists">
 					<?php
@@ -81,7 +77,7 @@
 							esc_html__( 'Any', 'blok45' )
 						);
 
-						foreach ( $artists as $artist ) {
+						foreach ( blok45_get_artist_list() as $artist ) {
 							printf(
 								'<button class="filters__item" data-value="%1$s" role="listitem" aria-pressed="false">%2$s</button>',
 								esc_attr( $artist->term_id ),

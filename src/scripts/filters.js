@@ -15,8 +15,8 @@
 		return;
 	}
 
-	const sortList = filtersRoot.querySelector( '.filters__list[data-role="sort"]' );
-	const filtersContainer = filtersRoot.closest( '[data-filters-container]' );
+	const sortList = filtersRoot.querySelector( '.filters__list--sort' );
+	const filtersContainer = filtersRoot.closest( '.filters' );
 
 	let mobileToggle = null;
 	let mobilePanel = null;
@@ -24,9 +24,9 @@
 	let mobileSheetInner = null;
 
 	if ( filtersContainer ) {
-		mobileToggle = filtersContainer.querySelector( '[data-filters-toggle]' );
-		mobilePanel = filtersContainer.querySelector( '[data-filters-panel]' );
-		mobileClose = filtersContainer.querySelector( '[data-filters-close]' );
+		mobileToggle = filtersContainer.querySelector( '.filters__toggle' );
+		mobilePanel = filtersContainer.querySelector( '.filters__sheet' );
+		mobileClose = filtersContainer.querySelector( '.filters__close' );
 		mobileSheetInner = filtersContainer.querySelector( '.filters__sheet-inner' );
 	}
 
@@ -40,30 +40,42 @@
 	const SORT_RATING = 'rating';
 
 	const selectionState = Object.create( null );
+	const defaultSelectionState = Object.create( null );
 	let activeCoords = '';
 	let currentSort = '';
+	let defaultSort = '';
 	let isFetching = false;
 	let nextPage = Number( settings.startPage || 2 );
 	let hasMore = true;
+
+	const initialHashString = ( window.location.hash || '' ).replace( /^#/, '' );
+	const initialSearchString = ( window.location.search || '' ).replace( /^\?/, '' );
+	const urlParams = initialHashString ? new window.URLSearchParams( initialHashString ) : new window.URLSearchParams( initialSearchString );
+	let currentHashString = initialHashString;
 
 	if ( settings.hasMore !== undefined ) {
 		hasMore = Boolean( settings.hasMore );
 	}
 
 	if ( sortList ) {
+		const defaultSortButton = sortList.querySelector( '.filters__item--active' ) || sortList.querySelector( '.filters__item' );
+		defaultSort = ( defaultSortButton && ( defaultSortButton.dataset.sort || '' ).trim() ) || '';
+		currentSort = defaultSort;
+
 		const activeSortButton = sortList.querySelector( '.filters__item--active[data-sort]' );
-		let initialSort = '';
 
 		if ( activeSortButton ) {
-			initialSort = ( activeSortButton.dataset.sort || '' ).trim();
-		}
+			const initialSort = ( activeSortButton.dataset.sort || '' ).trim();
 
-		if ( initialSort === SORT_RATING ) {
-			currentSort = SORT_RATING;
+			if ( initialSort === SORT_RATING ) {
+				currentSort = SORT_RATING;
+			}
 		}
+	} else {
+		defaultSort = '';
 	}
 
-	filtersRoot.querySelectorAll( '.filters__list[data-tax]' ).forEach( function( list ) {
+	filtersRoot.querySelectorAll( '.filters__list--tax' ).forEach( function( list ) {
 		const tax = list.getAttribute( 'data-tax' );
 
 		if ( ! tax ) {
@@ -78,6 +90,7 @@
 		}
 
 		selectionState[ tax ] = value;
+		defaultSelectionState[ tax ] = value;
 	} );
 
 	const loader = document.createElement( 'div' );
@@ -308,7 +321,7 @@
 		} );
 	}
 
-	function buildQuery( extraParams ) {
+	function buildParams( extraParams ) {
 		const params = new window.URLSearchParams();
 
 		if ( activeCoords ) {
@@ -334,13 +347,169 @@
 			} );
 		}
 
-		const query = params.toString();
+		return params;
+	}
 
-		if ( query.length > 0 ) {
-			return '?' + query;
+	function getHistorySnapshot() {
+		const selection = {};
+
+		Object.keys( selectionState ).forEach( function( tax ) {
+			selection[ tax ] = selectionState[ tax ];
+		} );
+
+		return {
+			coords: activeCoords,
+			sort: currentSort,
+			selection,
+		};
+	}
+
+	function syncHistoryState( options ) {
+		const config = options || {};
+		const params = buildParams( { sort: getSortParam() } );
+		const hashString = params.toString();
+		const targetHash = hashString.length > 0 ? '#' + hashString : '';
+		const targetUrl = window.location.pathname + targetHash;
+
+		if ( ! window.history || typeof window.history.pushState !== 'function' ) {
+			const currentHash = ( window.location.hash || '' );
+
+			if ( config.replace ) {
+				if ( ! config.force && hashString === currentHashString && currentHash.replace( /^#/, '' ) === hashString ) {
+					return;
+				}
+
+				try {
+					window.location.replace( targetUrl || window.location.pathname );
+				} catch ( e ) {
+					window.location.hash = targetHash;
+				}
+			} else if ( currentHash !== targetHash ) {
+				window.location.hash = targetHash;
+			}
+
+			currentHashString = hashString;
+			return;
 		}
 
-		return '';
+		if ( config.replace ) {
+			if ( ! config.force && hashString === currentHashString && window.location.hash.replace( /^#/, '' ) === hashString ) {
+				return;
+			}
+
+			window.history.replaceState( getHistorySnapshot(), '', targetUrl );
+			currentHashString = hashString;
+			return;
+		}
+
+		if ( hashString === currentHashString ) {
+			return;
+		}
+
+		window.history.pushState( getHistorySnapshot(), '', targetUrl );
+		currentHashString = hashString;
+	}
+
+	function applyStateFromParams( params ) {
+		const searchParams = params instanceof window.URLSearchParams ? params : new window.URLSearchParams( params || '' );
+		const previousCoords = activeCoords;
+		const previousSort = currentSort;
+		const result = {
+			changed: false,
+			coordsChanged: false,
+			coordsCleared: false,
+		};
+
+		const coordsParam = ( searchParams.get( 'coords' ) || '' ).trim();
+		const hasCoords = coordsParam.length > 0;
+
+		if ( hasCoords ) {
+			if ( coordsParam !== previousCoords ) {
+				result.changed = true;
+				result.coordsChanged = true;
+			}
+
+			activeCoords = coordsParam;
+		} else {
+			if ( previousCoords ) {
+				result.changed = true;
+				result.coordsChanged = true;
+				result.coordsCleared = true;
+			}
+
+			activeCoords = '';
+		}
+
+		let desiredSort = defaultSort;
+
+		if ( ! hasCoords ) {
+			const sortParam = ( searchParams.get( 'sort' ) || '' ).trim();
+
+			if ( sortParam === SORT_RATING ) {
+				desiredSort = SORT_RATING;
+			}
+		}
+
+		if ( desiredSort !== previousSort ) {
+			result.changed = true;
+		}
+
+		currentSort = desiredSort;
+
+		if ( sortList ) {
+			const sortButtons = Array.from( sortList.querySelectorAll( '.filters__item' ) );
+			let targetSortButton = sortButtons.find( function( button ) {
+				return ( button.dataset.sort || '' ).trim() === desiredSort;
+			} );
+
+			if ( ! targetSortButton ) {
+				targetSortButton = sortButtons.find( function( button ) {
+					return ( button.dataset.sort || '' ).trim() === defaultSort;
+				} );
+			}
+
+			if ( targetSortButton ) {
+				activateListButton( sortList, targetSortButton );
+			}
+		}
+
+		filtersRoot.querySelectorAll( '.filters__list[data-tax]' ).forEach( function( list ) {
+			const tax = list.getAttribute( 'data-tax' );
+
+			if ( ! tax ) {
+				return;
+			}
+
+			const buttons = Array.from( list.querySelectorAll( '.filters__item' ) );
+			let desiredValue = defaultSelectionState[ tax ] || '';
+
+			if ( ! hasCoords && searchParams.has( tax ) ) {
+				desiredValue = ( searchParams.get( tax ) || '' ).trim();
+			}
+
+			let targetButton = buttons.find( function( button ) {
+				return ( button.dataset.value || '' ).trim() === desiredValue;
+			} );
+
+			if ( ! targetButton ) {
+				desiredValue = defaultSelectionState[ tax ] || '';
+				targetButton = buttons.find( function( button ) {
+					return ( button.dataset.value || '' ).trim() === desiredValue;
+				} );
+			}
+
+			if ( targetButton ) {
+				activateListButton( list, targetButton );
+			}
+
+			if ( selectionState[ tax ] !== desiredValue ) {
+				result.changed = true;
+			}
+
+			selectionState[ tax ] = desiredValue;
+		} );
+
+		return result;
 	}
 
 	function getSortParam() {
@@ -438,8 +607,9 @@
 		}
 
 		try {
-			const query = buildQuery( { page, sort: getSortParam() } );
-			const response = await fetch( endpoint + query );
+			const params = buildParams( { page, sort: getSortParam() } );
+			const query = params.toString();
+			const response = await fetch( endpoint + ( query.length > 0 ? '?' + query : '' ) );
 
 			if ( ! response.ok ) {
 				throw new Error( 'Request failed' );
@@ -597,6 +767,32 @@
 		return true;
 	}
 
+	function updateCoordsState( nextCoords, options ) {
+		const config = options || {};
+
+		closeMobilePanel( { restoreFocus: false } );
+		clearEmptyState();
+
+		if ( config.deactivateMarker ) {
+			deactivateMapMarker();
+		}
+
+		activeCoords = nextCoords;
+
+		if ( config.resetFilters ) {
+			resetTaxFilters();
+			resetSortFilter();
+		}
+
+		nextPage = 2;
+		hasMore = false;
+
+		syncHistoryState();
+
+		scrollListToTop();
+		fetchPage( { page: 1, append: false } );
+	}
+
 	function applyCoordsFilter( rawCoords ) {
 		let normalized = '';
 
@@ -609,28 +805,15 @@
 				return;
 			}
 
-			closeMobilePanel( { restoreFocus: false } );
-			clearEmptyState();
-			deactivateMapMarker();
-			activeCoords = '';
-			nextPage = 2;
-			hasMore = false;
-
-			scrollListToTop();
-			fetchPage( { page: 1, append: false } );
+			updateCoordsState( '', { deactivateMarker: true } );
 			return;
 		}
 
-		closeMobilePanel( { restoreFocus: false } );
-		clearEmptyState();
-		activeCoords = normalized;
-		resetTaxFilters();
-		resetSortFilter();
-		nextPage = 2;
-		hasMore = false;
+		if ( normalized === activeCoords ) {
+			return;
+		}
 
-		scrollListToTop();
-		fetchPage( { page: 1, append: false } );
+		updateCoordsState( normalized, { resetFilters: true } );
 	}
 
 	function applySortSelection( button, listWrap ) {
@@ -663,7 +846,23 @@
 		nextPage = 2;
 		hasMore = false;
 
+		syncHistoryState();
+
 		scrollListToTop();
+		fetchPage( { page: 1, append: false } );
+	}
+
+	const initialState = applyStateFromParams( urlParams );
+
+	syncHistoryState( { replace: true, force: true } );
+
+	if ( initialState.coordsCleared ) {
+		deactivateMapMarker();
+	}
+
+	if ( initialState.changed ) {
+		nextPage = 2;
+		hasMore = false;
 		fetchPage( { page: 1, append: false } );
 	}
 
@@ -720,9 +919,47 @@
 		nextPage = 2;
 		hasMore = false;
 
+		syncHistoryState();
+
 		scrollListToTop();
 		fetchPage( { page: 1, append: false } );
 	} );
+
+	function handleLocationChange() {
+		const locationHashString = ( window.location.hash || '' ).replace( /^#/, '' );
+
+		if ( locationHashString === currentHashString ) {
+			return;
+		}
+
+		const params = new window.URLSearchParams( locationHashString );
+		const stateResult = applyStateFromParams( params );
+
+		if ( stateResult.coordsCleared ) {
+			deactivateMapMarker();
+		}
+
+		if ( stateResult.changed ) {
+			closeMobilePanel( { restoreFocus: false } );
+			clearEmptyState();
+			nextPage = 2;
+			hasMore = false;
+
+			scrollListToTop();
+			fetchPage( { page: 1, append: false } );
+		}
+
+		const sanitizedHash = buildParams( { sort: getSortParam() } ).toString();
+
+		if ( sanitizedHash !== locationHashString ) {
+			syncHistoryState( { replace: true, force: true } );
+		} else {
+			currentHashString = sanitizedHash;
+		}
+	}
+
+	window.addEventListener( 'popstate', handleLocationChange );
+	window.addEventListener( 'hashchange', handleLocationChange );
 
 	window.addEventListener( 'blok45:map-select', function( event ) {
 		let detail = {};

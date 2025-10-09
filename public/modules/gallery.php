@@ -56,12 +56,12 @@ class Blok45_Modules_Gallery {
 			true
 		);
 
-		$script_path = get_template_directory() . '/assets/single-gallery.min.js';
+		$script_path = get_template_directory() . '/assets/gallery.min.js';
 
 		if ( file_exists( $script_path ) ) {
 			wp_enqueue_script(
-				'blok45-single-gallery',
-				get_template_directory_uri() . '/assets/single-gallery.min.js',
+				'blok45-gallery',
+				get_template_directory_uri() . '/assets/gallery.min.js',
 				array( 'blok45-swiper' ),
 				filemtime( $script_path ),
 				true
@@ -95,6 +95,7 @@ class Blok45_Modules_Gallery {
 		}
 
 		$items = self::extract_items_from_block( $gallery_block );
+
 		self::$cache[ $post_id ] = $items;
 
 		return $items;
@@ -208,7 +209,6 @@ class Blok45_Modules_Gallery {
 			'attachment' => $attachment_id,
 		);
 	}
-
 }
 
 Blok45_Modules_Gallery::load_module();
