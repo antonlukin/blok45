@@ -20,10 +20,7 @@ get_header();
 			?>
 		</section>
 
-		<aside class="sidebar">
-			<?php get_template_part( 'template-parts/filters' ); ?>
-			<?php get_template_part( 'template-parts/map' ); ?>
-		</aside>
+		<?php get_template_part( 'template-parts/filters' ); ?>
 	</main>
 <?php else : ?>
 	<?php get_template_part( 'template-parts/message' ); ?>

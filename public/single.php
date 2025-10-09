@@ -98,7 +98,7 @@ get_header(); ?>
 			<?php endif; ?>
 		</div>
 
-		<aside class="single__sidebar">
+		<aside class="single__content">
 			<div class="single__post">
 				<h2 class="single__post-title">
 					<?php the_title(); ?>
