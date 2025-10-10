@@ -15,7 +15,7 @@
 		return;
 	}
 
-	const sortList = filtersRoot.querySelector( '.filters__list--sort' );
+	const sortList = filtersRoot.querySelector( '.filters__list--sort, .filters__list[data-role="sort"]' );
 	const filtersContainer = filtersRoot.closest( '.filters' );
 
 	let mobileToggle = null;
@@ -52,6 +52,7 @@
 	const initialSearchString = ( window.location.search || '' ).replace( /^\?/, '' );
 	const urlParams = initialHashString ? new window.URLSearchParams( initialHashString ) : new window.URLSearchParams( initialSearchString );
 	let currentHashString = initialHashString;
+	let currentHistoryCoords = activeCoords;
 
 	if ( settings.hasMore !== undefined ) {
 		hasMore = Boolean( settings.hasMore );
@@ -324,13 +325,8 @@
 	function buildParams( extraParams ) {
 		const params = new window.URLSearchParams();
 
-		if ( activeCoords ) {
-			params.set( 'coords', activeCoords );
-		}
-
 		Object.keys( selectionState ).forEach( function( tax ) {
 			const value = selectionState[ tax ];
-
 			if ( value ) {
 				params.set( tax, value );
 			}
@@ -340,7 +336,6 @@
 			Object.keys( extraParams ).forEach( function( key ) {
 				const value = extraParams[ key ];
 				const isEmpty = value === undefined || value === null || value === '';
-
 				if ( ! isEmpty ) {
 					params.set( key, value );
 				}
@@ -375,7 +370,7 @@
 			const currentHash = ( window.location.hash || '' );
 
 			if ( config.replace ) {
-				if ( ! config.force && hashString === currentHashString && currentHash.replace( /^#/, '' ) === hashString ) {
+				if ( ! config.force && hashString === currentHashString && currentHash.replace( /^#/, '' ) === hashString && activeCoords === currentHistoryCoords ) {
 					return;
 				}
 
@@ -389,30 +384,33 @@
 			}
 
 			currentHashString = hashString;
+			currentHistoryCoords = activeCoords;
 			return;
 		}
 
 		if ( config.replace ) {
-			if ( ! config.force && hashString === currentHashString && window.location.hash.replace( /^#/, '' ) === hashString ) {
+			if ( ! config.force && hashString === currentHashString && window.location.hash.replace( /^#/, '' ) === hashString && activeCoords === currentHistoryCoords ) {
 				return;
 			}
 
 			window.history.replaceState( getHistorySnapshot(), '', targetUrl );
 			currentHashString = hashString;
+			currentHistoryCoords = activeCoords;
 			return;
 		}
 
-		if ( hashString === currentHashString ) {
+		if ( hashString === currentHashString && activeCoords === currentHistoryCoords ) {
 			return;
 		}
 
 		window.history.pushState( getHistorySnapshot(), '', targetUrl );
 		currentHashString = hashString;
+		currentHistoryCoords = activeCoords;
 	}
 
-	function applyStateFromParams( params ) {
+	function applyStateFromParams( params, options ) {
 		const searchParams = params instanceof window.URLSearchParams ? params : new window.URLSearchParams( params || '' );
-		const previousCoords = activeCoords;
+		const config = options || {};
 		const previousSort = currentSort;
 		const result = {
 			changed: false,
@@ -420,31 +418,12 @@
 			coordsCleared: false,
 		};
 
-		const coordsParam = ( searchParams.get( 'coords' ) || '' ).trim();
-		const hasCoords = coordsParam.length > 0;
-
-		if ( hasCoords ) {
-			if ( coordsParam !== previousCoords ) {
-				result.changed = true;
-				result.coordsChanged = true;
-			}
-
-			activeCoords = coordsParam;
-		} else {
-			if ( previousCoords ) {
-				result.changed = true;
-				result.coordsChanged = true;
-				result.coordsCleared = true;
-			}
-
-			activeCoords = '';
-		}
+		const hasCoords = config.hasCoords !== undefined ? Boolean( config.hasCoords ) : Boolean( activeCoords );
 
 		let desiredSort = defaultSort;
 
 		if ( ! hasCoords ) {
 			const sortParam = ( searchParams.get( 'sort' ) || '' ).trim();
-
 			if ( sortParam === SORT_RATING ) {
 				desiredSort = SORT_RATING;
 			}
@@ -608,6 +587,9 @@
 
 		try {
 			const params = buildParams( { page, sort: getSortParam() } );
+			if ( activeCoords ) {
+				params.set( 'coords', activeCoords );
+			}
 			const query = params.toString();
 			const response = await fetch( endpoint + ( query.length > 0 ? '?' + query : '' ) );
 
@@ -787,7 +769,11 @@
 		nextPage = 2;
 		hasMore = false;
 
-		syncHistoryState();
+		if ( config.skipHistory ) {
+			currentHistoryCoords = activeCoords;
+		} else {
+			syncHistoryState();
+		}
 
 		scrollListToTop();
 		fetchPage( { page: 1, append: false } );
@@ -925,21 +911,45 @@
 		fetchPage( { page: 1, append: false } );
 	} );
 
-	function handleLocationChange() {
+	function handleLocationChange( event ) {
 		const locationHashString = ( window.location.hash || '' ).replace( /^#/, '' );
+		const isPopState = Boolean( event && event.type === 'popstate' );
 
-		if ( locationHashString === currentHashString ) {
+		if ( ! isPopState && locationHashString === currentHashString ) {
 			return;
 		}
 
-		const params = new window.URLSearchParams( locationHashString );
-		const stateResult = applyStateFromParams( params );
+		let historyCoords = '';
+		if ( isPopState && event && event.state && typeof event.state.coords === 'string' ) {
+			historyCoords = event.state.coords.replace( /\s+/g, '' );
+		}
 
-		if ( stateResult.coordsCleared ) {
+		const params = new window.URLSearchParams( locationHashString );
+		const stateResult = applyStateFromParams( params, isPopState ? { hasCoords: Boolean( historyCoords ) } : undefined );
+		let shouldFetch = stateResult.changed;
+		let shouldDeactivateMarker = stateResult.coordsCleared;
+
+		if ( isPopState ) {
+			const normalizedHistoryCoords = historyCoords;
+			const coordsChanged = normalizedHistoryCoords !== activeCoords;
+
+			if ( coordsChanged ) {
+				if ( normalizedHistoryCoords ) {
+					updateCoordsState( normalizedHistoryCoords, { skipHistory: true } );
+				} else {
+					updateCoordsState( '', { deactivateMarker: true, skipHistory: true } );
+				}
+
+				shouldFetch = false;
+				shouldDeactivateMarker = false;
+			}
+		}
+
+		if ( shouldDeactivateMarker ) {
 			deactivateMapMarker();
 		}
 
-		if ( stateResult.changed ) {
+		if ( shouldFetch ) {
 			closeMobilePanel( { restoreFocus: false } );
 			clearEmptyState();
 			nextPage = 2;
@@ -955,6 +965,7 @@
 			syncHistoryState( { replace: true, force: true } );
 		} else {
 			currentHashString = sanitizedHash;
+			currentHistoryCoords = activeCoords;
 		}
 	}
 

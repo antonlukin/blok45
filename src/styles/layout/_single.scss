@@ -4,13 +4,16 @@
   @include mixins.container;
 
   & {
-    width: 100%;
     display: grid;
     grid-template-columns: 2fr 1fr;
     gap: 1rem;
     align-items: flex-start;
 
     margin: 0 auto 1rem;
+
+    @media screen and (max-width: 1023px) {
+      grid-template-columns: 1fr;
+    }
   }
 
   .single__empty {

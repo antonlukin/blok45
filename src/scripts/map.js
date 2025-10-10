@@ -114,11 +114,7 @@
 		}
 
 		map.on( 'remove', function() {
-			if ( typeof mq.removeEventListener === 'function' ) {
-				mq.removeEventListener( 'change', apply );
-			} else {
-				mq.removeListener( apply );
-			}
+			mq.removeEventListener( 'change', apply );
 		} );
 	}
 

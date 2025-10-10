@@ -141,9 +141,24 @@ class Blok45_Modules_Single {
 	protected static function prepare_rating( $post_id ) {
 		$rating = blok45_get_post_rating( $post_id );
 
+		$value   = 0;
+		$display = number_format_i18n( 0 );
+
+		if ( is_array( $rating ) ) {
+			if ( isset( $rating['value'] ) && is_numeric( $rating['value'] ) ) {
+				$value = max( 0, (int) $rating['value'] );
+			}
+
+			$display = ! empty( $rating['display'] ) ? (string) $rating['display'] : number_format_i18n( $value );
+
+		} elseif ( is_numeric( $rating ) ) {
+			$value   = max( 0, (int) round( $rating ) );
+			$display = number_format_i18n( $value );
+		}
+
 		return array(
-			'value'   => isset( $rating['value'] ) ? (float) $rating['value'] : 0,
-			'display' => isset( $rating['display'] ) ? (string) $rating['display'] : number_format_i18n( 0 ),
+			'value'   => $value,
+			'display' => $display,
 		);
 	}
 

@@ -8,7 +8,6 @@
     border-radius: var(--radius-frame);
     background: var(--surface-sheet);
     box-shadow: 0 1.5rem 3rem var(--surface-shadow);
-    min-height: 28rem;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -56,6 +55,10 @@
     border-radius: var(--radius-frame);
     overflow: hidden;
     user-select: none;
+
+    @media screen and (max-width: 1023px) {
+      display: none;
+    }
 
     .swiper-wrapper {
       align-items: center;
