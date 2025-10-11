@@ -40,33 +40,28 @@ class Blok45_Modules_Gallery {
 		if ( ! $post_id || empty( self::get_gallery_items( $post_id ) ) ) {
 			return;
 		}
-
 		wp_enqueue_style(
 			'blok45-swiper',
-			sprintf( 'https://unpkg.com/swiper@%s/swiper-bundle.min.css', self::SWIPER_VERSION ),
+			get_template_directory_uri() . '/assets/swiper/swiper-bundle.min.css',
 			array(),
 			self::SWIPER_VERSION
 		);
 
 		wp_enqueue_script(
 			'blok45-swiper',
-			sprintf( 'https://unpkg.com/swiper@%s/swiper-bundle.min.js', self::SWIPER_VERSION ),
+			get_template_directory_uri() . '/assets/swiper/swiper-bundle.min.js',
 			array(),
 			self::SWIPER_VERSION,
 			true
 		);
 
-		$script_path = get_template_directory() . '/assets/gallery.min.js';
-
-		if ( file_exists( $script_path ) ) {
-			wp_enqueue_script(
-				'blok45-gallery',
-				get_template_directory_uri() . '/assets/gallery.min.js',
-				array( 'blok45-swiper' ),
-				filemtime( $script_path ),
-				true
-			);
-		}
+		wp_enqueue_script(
+			'blok45-gallery',
+			get_template_directory_uri() . '/assets/gallery.min.js',
+			array( 'blok45-swiper' ),
+			filemtime( get_template_directory() . '/assets/gallery.min.js' ),
+			true
+		);
 	}
 
 	/**

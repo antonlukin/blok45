@@ -50,9 +50,17 @@
 
 	const initialHashString = ( window.location.hash || '' ).replace( /^#/, '' );
 	const initialSearchString = ( window.location.search || '' ).replace( /^\?/, '' );
-	const urlParams = initialHashString ? new window.URLSearchParams( initialHashString ) : new window.URLSearchParams( initialSearchString );
+
+	let urlParams;
+	if ( initialHashString ) {
+		urlParams = new window.URLSearchParams( initialHashString );
+	} else {
+		urlParams = new window.URLSearchParams( initialSearchString );
+	}
+
 	let currentHashString = initialHashString;
 	let currentHistoryCoords = activeCoords;
+	const hasInitialParams = Boolean( initialHashString ) || Boolean( initialSearchString );
 
 	if ( settings.hasMore !== undefined ) {
 		hasMore = Boolean( settings.hasMore );
@@ -186,7 +194,10 @@
 		}
 
 		const scrollOffset = Number( document.body.dataset.scrollLock || 0 );
-		const targetScroll = Number.isFinite( scrollOffset ) ? scrollOffset : 0;
+		let targetScroll = 0;
+		if ( Number.isFinite( scrollOffset ) ) {
+			targetScroll = scrollOffset;
+		}
 
 		document.body.classList.remove( 'is-overflow' );
 		document.body.style.removeProperty( 'top' );
@@ -199,6 +210,7 @@
 
 		if ( mobileToggle ) {
 			mobileToggle.setAttribute( 'aria-expanded', 'false' );
+
 			if ( shouldRestoreFocus ) {
 				mobileToggle.focus();
 			}
@@ -363,11 +375,16 @@
 		const config = options || {};
 		const params = buildParams( { sort: getSortParam() } );
 		const hashString = params.toString();
-		const targetHash = hashString.length > 0 ? '#' + hashString : '';
+
+		let targetHash = '';
+		if ( hashString.length > 0 ) {
+			targetHash = '#' + hashString;
+		}
+
 		const targetUrl = window.location.pathname + targetHash;
 
 		if ( ! window.history || typeof window.history.pushState !== 'function' ) {
-			const currentHash = ( window.location.hash || '' );
+			const currentHash = window.location.hash || '';
 
 			if ( config.replace ) {
 				if ( ! config.force && hashString === currentHashString && currentHash.replace( /^#/, '' ) === hashString && activeCoords === currentHistoryCoords ) {
@@ -376,7 +393,7 @@
 
 				try {
 					window.location.replace( targetUrl || window.location.pathname );
-				} catch ( e ) {
+				} catch ( error ) {
 					window.location.hash = targetHash;
 				}
 			} else if ( currentHash !== targetHash ) {
@@ -409,7 +426,12 @@
 	}
 
 	function applyStateFromParams( params, options ) {
-		const searchParams = params instanceof window.URLSearchParams ? params : new window.URLSearchParams( params || '' );
+		let searchParams = null;
+		if ( params instanceof window.URLSearchParams ) {
+			searchParams = params;
+		} else {
+			searchParams = new window.URLSearchParams( params || '' );
+		}
 		const config = options || {};
 		const previousSort = currentSort;
 		const result = {
@@ -418,7 +440,10 @@
 			coordsCleared: false,
 		};
 
-		const hasCoords = config.hasCoords !== undefined ? Boolean( config.hasCoords ) : Boolean( activeCoords );
+		let hasCoords = Boolean( activeCoords );
+		if ( config.hasCoords !== undefined ) {
+			hasCoords = Boolean( config.hasCoords );
+		}
 
 		let desiredSort = defaultSort;
 
@@ -538,13 +563,16 @@
 			return;
 		}
 
-		observer = new window.IntersectionObserver( function( entries ) {
-			entries.forEach( function( entry ) {
-				if ( entry.isIntersecting ) {
-					fetchNextPage();
-				}
-			} );
-		}, { rootMargin: '200px 0px', threshold: 0 } );
+		observer = new window.IntersectionObserver(
+			function( entries ) {
+				entries.forEach( function( entry ) {
+					if ( entry.isIntersecting ) {
+						fetchNextPage();
+					}
+				} );
+			},
+			{ rootMargin: '200px 0px', threshold: 0 }
+		);
 
 		observer.observe( sentinel );
 	}
@@ -575,9 +603,7 @@
 
 		isFetching = true;
 
-		const append = Boolean( config.append );
-
-		if ( append ) {
+		if ( config.append ) {
 			showLoader();
 		} else {
 			setBusy( true );
@@ -590,8 +616,14 @@
 			if ( activeCoords ) {
 				params.set( 'coords', activeCoords );
 			}
+
 			const query = params.toString();
-			const response = await fetch( endpoint + ( query.length > 0 ? '?' + query : '' ) );
+			let requestUrl = endpoint;
+			if ( query ) {
+				requestUrl = endpoint + '?' + query;
+			}
+
+			const response = await fetch( requestUrl );
 
 			if ( ! response.ok ) {
 				throw new Error( 'Request failed' );
@@ -604,7 +636,7 @@
 				html = data.html;
 			}
 
-			if ( append ) {
+			if ( config.append ) {
 				sentinel.insertAdjacentHTML( 'beforebegin', html );
 			} else {
 				const trimmed = html.trim();
@@ -650,12 +682,12 @@
 			} else {
 				hasMore = false;
 			}
-		} catch ( e ) {
+		} catch ( error ) {
 			hasMore = false;
 		} finally {
 			hideLoader();
 
-			if ( ! append ) {
+			if ( ! config.append ) {
 				setBusy( false );
 				clearSkeletonCards();
 			}
@@ -846,7 +878,7 @@
 		deactivateMapMarker();
 	}
 
-	if ( initialState.changed ) {
+	if ( initialState.changed && hasInitialParams ) {
 		nextPage = 2;
 		hasMore = false;
 		fetchPage( { page: 1, append: false } );
@@ -925,7 +957,14 @@
 		}
 
 		const params = new window.URLSearchParams( locationHashString );
-		const stateResult = applyStateFromParams( params, isPopState ? { hasCoords: Boolean( historyCoords ) } : undefined );
+
+		let stateOptions;
+
+		if ( isPopState ) {
+			stateOptions = { hasCoords: Boolean( historyCoords ) };
+		}
+
+		const stateResult = applyStateFromParams( params, stateOptions );
 		let shouldFetch = stateResult.changed;
 		let shouldDeactivateMarker = stateResult.coordsCleared;
 

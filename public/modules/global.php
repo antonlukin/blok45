@@ -28,8 +28,9 @@ class Blok45_Modules_Global {
 		add_filter( 'post_class', array( __CLASS__, 'update_post_classes' ), 10, 2 );
 		add_action( 'get_header', array( __CLASS__, 'remove_adminbar_styles' ) );
 		add_filter( 'feed_links_show_comments_feed', '__return_false' );
-		add_filter( 'posts_search', array( __CLASS__, 'hide_empty_search' ), 10, 2 );
-		add_action( 'admin_init', array( __CLASS__, 'hide_useless_functions' ) );
+	add_action( 'admin_init', array( __CLASS__, 'hide_useless_functions' ) );
+	add_action( 'pre_get_posts', array( __CLASS__, 'disable_default_archives' ) );
+	add_action( 'pre_get_posts', array( __CLASS__, 'disable_front_search' ) );
 
 		// Remove auto suggestions
 		add_filter( 'do_redirect_guess_404_permalink', '__return_false' );
@@ -124,18 +125,38 @@ class Blok45_Modules_Global {
 	}
 
 	/**
-	 * Halt the main query in the case of an empty search
+	 * Disable default date and author archives.
+	 *
+	 * @param WP_Query $query Current query instance.
 	 */
-	public static function hide_empty_search( $search, $query ) {
-		if ( is_admin() ) {
-			return $search;
+	public static function disable_default_archives( $query ) {
+		if ( ! $query->is_main_query() || is_admin() ) {
+			return;
 		}
 
-		if ( empty( $search ) && $query->is_search() && $query->is_main_query() ) {
-			return $search . ' AND 0=1 ';
+		if ( is_date() || is_year() || is_month() || is_day() || is_author() ) {
+			$query->set_404();
+			status_header( 404 );
+		}
+	}
+
+	/**
+	 * Disable default search results on the frontend.
+	 *
+	 * @param WP_Query $query Current query instance.
+	 */
+	public static function disable_front_search( $query ) {
+		if ( ! $query->is_main_query() || is_admin() ) {
+			return;
 		}
 
-		return $search;
+		if ( $query->is_search() ) {
+			$query->set_404();
+			$query->is_search = false;
+			$query->is_home   = false;
+			$query->is_404    = true;
+			status_header( 404 );
+		}
 	}
 
 	/**

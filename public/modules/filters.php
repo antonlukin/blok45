@@ -220,8 +220,6 @@ class Blok45_Modules_Filters {
 	public static function rest_filter_posts( WP_REST_Request $request ) {
 		$page = max( 1, absint( $request->get_param( 'page' ) ) );
 
-		usleep( 250000 );
-
 		// Build tax query
 		$tax_query = array();
 		$artist_id = absint( $request->get_param( 'artist' ) );

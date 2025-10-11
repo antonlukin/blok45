@@ -69,9 +69,10 @@
       justify-content: center;
       align-items: center;
       width: 10rem;
+      margin-right: 1rem;
       transition: opacity 0.2s ease, transform 0.2s ease;
       cursor: pointer;
-      height: auto !important;
+      height: auto;
       overflow: hidden;
 
       border-radius: var(--radius-frame);
@@ -92,6 +93,10 @@
 
       &.swiper-slide-thumb-active img {
         opacity: 1;
+      }
+
+      &:last-child {
+        margin-right: 0;
       }
     }
   }

@@ -9,6 +9,7 @@ const prefix = require( 'gulp-autoprefixer' );
 const webpack = require( 'webpack-stream' );
 const fs = require( 'fs' );
 const path = require( 'path' );
+const mergeStream = require( 'merge-stream' );
 
 function getScriptEntries() {
 	const dir = path.join( __dirname, 'src', 'scripts' );
@@ -70,6 +71,29 @@ gulp.task( 'scripts', ( done ) => {
 	done();
 } );
 
+gulp.task( 'vendor', ( done ) => {
+	const swiperBase = 'node_modules/swiper';
+	const dest = 'public/assets/swiper';
+
+	const scripts = gulp
+		.src( [
+			path.join( swiperBase, 'swiper-bundle.min.js' ),
+			path.join( swiperBase, 'swiper-bundle.min.js.map' ),
+		], { allowEmpty: true } )
+		.pipe( gulp.dest( dest ) );
+
+	const styles = gulp
+		.src( [
+			path.join( swiperBase, 'swiper-bundle.min.css' ),
+			path.join( swiperBase, 'swiper-bundle.min.css.map' ),
+		], { allowEmpty: true } )
+		.pipe( gulp.dest( dest ) );
+
+	mergeStream( scripts, styles );
+
+	done();
+} );
+
 // Standalone bundles are covered by generic 'scripts' task using entries
 
 gulp.task( 'images', ( done ) => {
@@ -95,5 +119,5 @@ gulp.task( 'watch', () => {
 	gulp.watch( [ 'src/scripts/**/*' ], gulp.series( 'scripts' ) );
 } );
 
-gulp.task( 'build', gulp.parallel( 'styles', 'scripts', 'images', 'icons', 'fonts' ) );
+gulp.task( 'build', gulp.parallel( 'styles', 'scripts', 'images', 'icons', 'fonts', 'vendor' ) );
 gulp.task( 'default', gulp.series( 'build', 'watch' ) );

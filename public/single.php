@@ -81,7 +81,7 @@ get_header(); ?>
 			</div>
 
 			<?php if ( $gallery['has_thumbs'] ) : ?>
-				<div class="<?php echo esc_attr( $gallery['thumbs_classes'] ); ?>" aria-label="<?php esc_attr_e( 'Gallery thumbnails', 'blok45' ); ?>" data-swiper="thumbs">
+				<div class="<?php echo esc_attr( $gallery['thumbs_classes'] ); ?>" aria-label="<?php esc_attr_e( 'Gallery thumbnails', 'blok45' ); ?>" data-swiper="thumbs" data-swiper-ready="false">
 					<div class="swiper-wrapper">
 						<?php foreach ( $gallery['items'] as $item ) : ?>
 							<?php
