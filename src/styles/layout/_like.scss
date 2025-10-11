@@ -13,12 +13,32 @@
   color: var(--color-primary);
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.18s ease;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(circle at center, rgba(255, 255, 255, 0.16), transparent 60%);
+    opacity: 0;
+    transform: scale(0.6);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    pointer-events: none;
+  }
+
+  &.like--pulse::after {
+    opacity: 1;
+    transform: scale(1.125);
+  }
 
   @media screen and (max-width: 767px) {
     padding: 0.45rem 0.625rem;
   }
 
-  &__icon {
+  .like__icon {
     display: block;
     width: 0.8125rem;
     height: 0.8125rem;
@@ -30,12 +50,12 @@
       height: 0.875rem;
     }
 
-    &--active {
+    &.like__icon--active {
       display: none;
     }
   }
 
-  &__count {
+  .like__count {
     font-size: 0.6875rem;
     font-weight: 600;
 
@@ -44,20 +64,20 @@
     }
   }
 
-  &--busy {
+  &.like--busy {
     pointer-events: none;
     opacity: 0.6;
   }
 
-  &:hover &__icon {
+  &:hover .like__icon {
     transform: scale(110%);
   }
 
-  &--active &__icon--default {
+  &.like--active .like__icon--default {
     display: none;
   }
 
-  &--active &__icon--active {
+  &.like--active .like__icon--active {
     display: block;
     fill: var(--color-light);
   }

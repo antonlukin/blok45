@@ -28,9 +28,9 @@ class Blok45_Modules_Global {
 		add_filter( 'post_class', array( __CLASS__, 'update_post_classes' ), 10, 2 );
 		add_action( 'get_header', array( __CLASS__, 'remove_adminbar_styles' ) );
 		add_filter( 'feed_links_show_comments_feed', '__return_false' );
-	add_action( 'admin_init', array( __CLASS__, 'hide_useless_functions' ) );
-	add_action( 'pre_get_posts', array( __CLASS__, 'disable_default_archives' ) );
-	add_action( 'pre_get_posts', array( __CLASS__, 'disable_front_search' ) );
+		add_action( 'admin_init', array( __CLASS__, 'hide_useless_functions' ) );
+		add_action( 'pre_get_posts', array( __CLASS__, 'disable_default_archives' ) );
+		add_action( 'pre_get_posts', array( __CLASS__, 'disable_front_search' ) );
 
 		// Remove auto suggestions
 		add_filter( 'do_redirect_guess_404_permalink', '__return_false' );
