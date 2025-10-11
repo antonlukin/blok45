@@ -62,7 +62,7 @@ class Blok45_Modules_Images {
 		set_post_thumbnail_size( 300, 300, true );
 
 		add_image_size( 'card', 640, 480, false );
-		add_image_size( 'single', 1920, 1080, false );
+		add_image_size( 'single', 1200, 800, false );
 	}
 
 	/**

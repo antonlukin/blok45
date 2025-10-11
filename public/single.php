@@ -43,7 +43,7 @@ get_header(); ?>
 							esc_url( $item['full'] ),
 							wp_get_attachment_image(
 								(int) $item['attachment'],
-								'full',
+								'single',
 								false,
 								array(
 									'class'    => 'swiper__image',

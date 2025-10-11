@@ -32,7 +32,8 @@
   },
   "styles": {
     "typography": {
-      "fontFamily": "var:preset|font-family|inter-variable"
+      "fontFamily": "var:preset|font-family|inter-variable",
+      "lineHeight": "1.65"
     }
   }
 }
