@@ -77,6 +77,7 @@ class Blok45_Modules_Global {
 		add_theme_support( 'title-tag' );
 		add_theme_support( 'automatic-feed-links' );
 		add_theme_support( 'customize-selective-refresh-widgets' );
+		add_post_type_support( 'page', 'excerpt' );
 
 		remove_theme_support( 'core-block-patterns' );
 		remove_theme_support( 'block-templates' );

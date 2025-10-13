@@ -53,16 +53,16 @@
     }
   }
 
-  .map__pin {
+ .map__pin {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    position: relative;
 
-    width: 2rem;
-    height: 2rem;
+    width: 1.25rem;
+    height: 1.25rem;
     padding: 0;
 
-    background: var(--gradient-pin);
     border: 0;
     border-radius: 50%;
     cursor: pointer;
@@ -75,6 +75,9 @@
 
     transform: translate(-1.25rem, -1.25rem);
 
+    background-color: var(--pin-default);
+    border-radius: 50%;
+
     &:focus {
       outline: none;
     }
@@ -84,8 +87,38 @@
       outline-offset: -0.125rem;
     }
 
+    &::before {
+      content: '';
+
+      position: absolute;
+      width: 0.7125rem;
+      height: 0.7125rem;
+
+      background-color: var(--color-links);
+      border-radius: 50%;
+    }
+
+    &::after {
+      content: '';
+
+      position: absolute;
+      width: 0.3275rem;
+      height: 0.3275rem;
+
+      background-color: var(--color-dark);
+      border-radius: 50%;
+    }
+
+    &:hover {
+      transform: translate(-1.25rem, -1.25rem) scale(1.08);
+    }
+
     &.map__pin--active {
-      background: var(--gradient-active);
+      background-color: var(--pin-active);
+
+      &::before {
+        background-color: var(--color-light);
+      }
     }
   }
 

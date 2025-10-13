@@ -5,6 +5,32 @@ const { TextControl } = wp.components;
 const { useSelect, useDispatch } = wp.data;
 const { createElement } = wp.element;
 
+const sanitizeCoords = ( value ) => {
+	if ( typeof value !== 'string' ) {
+		return value;
+	}
+
+	const parts = value.split( ',' );
+
+	if ( parts.length !== 2 ) {
+		return value.trim();
+	}
+
+	const formattedParts = parts.map( ( part ) => {
+		const numeric = parseFloat( part.trim() );
+
+		if ( Number.isNaN( numeric ) ) {
+			return part.trim();
+		}
+
+		const rounded = Math.round( numeric * 1e5 ) / 1e5;
+
+		return rounded.toString();
+	} );
+
+	return formattedParts.join( ',' );
+};
+
 const Blok45CoordsPanel = ( { metaKey } ) => {
 	const meta = useSelect( ( select ) =>
 		select( 'core/editor' ).getEditedPostAttribute( 'meta' ),
@@ -20,9 +46,9 @@ const Blok45CoordsPanel = ( { metaKey } ) => {
 			title: __( 'GEO Coords', 'blok45' ),
 		},
 		createElement( TextControl, {
-			value: meta[ metaKey ],
+			value: sanitizeCoords( meta[ metaKey ] || '' ),
 			onChange: ( value ) => {
-				editPost( { meta: { [ metaKey ]: value } } );
+				editPost( { meta: { [ metaKey ]: sanitizeCoords( value ) } } );
 			},
 			__next40pxDefaultSize: true,
 			__nextHasNoMarginBottom: true,
