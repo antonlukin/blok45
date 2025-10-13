@@ -24,6 +24,8 @@ class Blok45_Modules_Sitemeta {
 		add_action( 'admin_head', array( __CLASS__, 'add_icons' ), 4 );
 
 		add_action( 'wp_head', array( __CLASS__, 'add_twitter_tags' ), 5 );
+		add_filter( 'wp_sitemaps_add_provider', array( __CLASS__, 'remove_users_from_sitemap' ), 10, 2 );
+		add_filter( 'wp_sitemaps_taxonomies', array( __CLASS__, 'remove_categories_from_sitemap' ) );
 	}
 
 	/**
@@ -197,6 +199,30 @@ class Blok45_Modules_Sitemeta {
 		foreach ( $meta as $tag ) {
 			echo $tag . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput
 		}
+	}
+
+	/**
+	 * Disable the users sitemap provider to exclude users from sitemaps.
+	 */
+	public static function remove_users_from_sitemap( $provider, $name ) {
+		if ( 'users' === $name ) {
+			return false;
+		}
+
+		return $provider;
+	}
+
+	/**
+	 * Remove categories from sitemap taxonomies list.
+	 *
+	 * @param array $taxonomies Registered sitemap taxonomies.
+	 *
+	 * @return array
+	 */
+	public static function remove_categories_from_sitemap( $taxonomies ) {
+		unset( $taxonomies['category'] );
+
+		return $taxonomies;
 	}
 
 	private static function wrap_string( $str, $start, $end ) {
