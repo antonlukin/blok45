@@ -3,8 +3,9 @@
   "version": 3,
   "settings": {
     "layout": {
-      "contentSize": "1040px",
-      "wideSize": "1040px"
+      "contentSize": "960px",
+      "wideSize": "1040px",
+      "allowEditing": false
     },
     "typography": {
       "fontFamilies": [
@@ -34,6 +35,12 @@
     "typography": {
       "fontFamily": "var:preset|font-family|inter-variable",
       "lineHeight": "1.65"
+    },
+    "spacing": {
+      "padding": {
+        "left": "16px",
+        "right": "16px"
+      }
     }
   }
 }
