@@ -28,6 +28,7 @@ require_once get_template_directory() . '/modules/rating.php';
 require_once get_template_directory() . '/modules/sitemeta.php';
 require_once get_template_directory() . '/modules/translit.php';
 require_once get_template_directory() . '/modules/filters.php';
+require_once get_template_directory() . '/modules/archive.php';
 require_once get_template_directory() . '/modules/map.php';
 require_once get_template_directory() . '/modules/gallery.php';
 require_once get_template_directory() . '/modules/single.php';
