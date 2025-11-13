@@ -39,11 +39,15 @@
 		activeMarkerInstance = null;
 	}
 
-	function createMarkerElement() {
+	function createMarkerElement( label ) {
 		const el = document.createElement( 'button' );
 		el.type = 'button';
 		el.className = 'map__pin';
 		el.setAttribute( 'aria-pressed', 'false' );
+
+		if ( label ) {
+			el.setAttribute( 'aria-label', label );
+		}
 
 		return el;
 	}
