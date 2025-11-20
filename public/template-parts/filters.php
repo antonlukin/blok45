@@ -36,6 +36,40 @@
 			</div>
 
 			<nav class="filters__body" aria-labelledby="filters-panel-heading">
+
+				<div class="filters__group filters__group--artists">
+					<?php
+					printf(
+						'<div class="filters__group-heading"><h4 class="filters__group-title">%s</h4>',
+						esc_html__( 'Artist', 'blok45' )
+					);
+
+					printf(
+						'<a class="filters__group-link" href="%1$s">%2$s<span class="filters__group-link-icon" aria-hidden="true">&rarr;</span></a></div>',
+						esc_url( site_url( '/creators/' ) ),
+						esc_html__( 'Show all', 'blok45' )
+					);
+					?>
+
+					<div class="filters__list" role="list" data-tax="artist">
+						<?php
+						printf(
+							'<button class="filters__item filters__item--active" data-value="" role="listitem" aria-pressed="true">%s</button>',
+							esc_html__( 'Any', 'blok45' )
+						);
+
+						foreach ( blok45_get_artist_list( 4 ) as $artist ) {
+							printf(
+								'<button class="filters__item" data-value="%1$s" role="listitem" aria-pressed="false">%2$s<span class="filters__item-separator" aria-hidden="true"> | </span><span class="filters__item-count">%3$s</span></button>',
+								esc_attr( $artist->term_id ),
+								esc_html( $artist->name ),
+								esc_html( number_format_i18n( $artist->count ) )
+							);
+						}
+						?>
+					</div>
+				</div>
+
 				<div class="filters__group filters__group--years">
 					<?php
 					printf(
@@ -56,32 +90,6 @@
 								'<button class="filters__item" data-value="%1$s" role="listitem" aria-pressed="false">%2$s</button>',
 								esc_attr( $range['slug'] ),
 								esc_html( $range['label'] )
-							);
-						}
-						?>
-					</div>
-				</div>
-
-				<div class="filters__group filters__group--artists">
-					<?php
-					printf(
-						'<h4 class="filters__group-title">%s</h4>',
-						esc_html__( 'Artist', 'blok45' )
-					);
-					?>
-
-					<div class="filters__list" role="list" data-tax="artist">
-						<?php
-						printf(
-							'<button class="filters__item filters__item--active" data-value="" role="listitem" aria-pressed="true">%s</button>',
-							esc_html__( 'Any', 'blok45' )
-						);
-
-						foreach ( blok45_get_artist_list() as $artist ) {
-							printf(
-								'<button class="filters__item" data-value="%1$s" role="listitem" aria-pressed="false">%2$s</button>',
-								esc_attr( $artist->term_id ),
-								esc_html( $artist->name )
 							);
 						}
 						?>

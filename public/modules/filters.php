@@ -472,6 +472,10 @@ class Blok45_Modules_Filters {
 				'show_in_rest'      => true,
 				'hierarchical'      => false,
 				'show_admin_column' => true,
+				'rewrite'           => array(
+					'slug'       => 'artists',
+					'with_front' => false,
+				),
 			)
 		);
 

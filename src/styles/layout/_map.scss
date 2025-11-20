@@ -130,13 +130,9 @@
     }
   }
 
-  &.map--single {
-    min-height: 20rem;
-
-    .map__pin {
-      pointer-events: none;
-      cursor: default;
-    }
+  &.map--single .map__pin {
+    pointer-events: none;
+    cursor: default;
   }
 
   .mapboxgl-ctrl-logo {

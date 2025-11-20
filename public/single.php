@@ -134,6 +134,17 @@ get_header(); ?>
 						<?php endforeach; ?>
 					</div>
 				<?php endif; ?>
+
+				<div class="single__post-feedback">
+					<?php
+					printf(
+						'<span class="single__feedback-label">%s <a href="%s" target="_blank" rel="noopener">%s</a></span>',
+						esc_html__( 'Notice a mistake?', 'blok45' ),
+						esc_url( blok45_get_correction_url( get_the_ID() ) ),
+						esc_html__( 'Suggest an update →', 'blok45' )
+					);
+					?>
+				</div>
 			</div>
 
 			<?php if ( ! empty( $context['map'] ) ) : ?>

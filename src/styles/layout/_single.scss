@@ -78,7 +78,7 @@
       display: flex;
       flex-direction: column;
       gap: 1.25rem;
-      margin: 2rem 0 0;
+      margin: 1.5rem 0 0;
     }
 
     .single__meta-group {
@@ -108,6 +108,34 @@
 
     a {
       @include mixins.default-link;
+    }
+
+    .single__post-feedback {
+      margin-top: 1.125rem;
+      padding-top: 0.875rem;
+      border-top: 0.0625rem solid rgba(247, 248, 248, 0.08);
+    }
+
+    .single__feedback {
+      display: inline-flex;
+      flex-direction: row;
+      gap: 0.25rem;
+      line-height: 1.25;
+      text-decoration: none;
+      color: var(--color-links);
+    }
+
+    .single__feedback-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      font-size: 0.8125rem;
+      font-weight: 400;
+      color: var(--color-addition);
+
+      a {
+        transform: translateX(0.125rem);
+      }
     }
   }
 

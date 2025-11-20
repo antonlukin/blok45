@@ -12,16 +12,25 @@
 		return;
 	}
 
-	const maxPages = Number( settings.maxPages || 0 );
-	let hasMore = settings.hasMore !== undefined ? Boolean( settings.hasMore ) : true;
-	const currentPage = Number( settings.currentPage || 1 );
-	let nextPage = Number( settings.startPage || currentPage + 1 );
+	let hasMore = true;
+	if ( settings.hasMore !== undefined ) {
+		hasMore = Boolean( settings.hasMore );
+	}
+
 	const endpoint = ( settings.endpoint || '' ).trim();
-	const baseParams = ( settings.params && typeof settings.params === 'object' ) ? settings.params : {};
+	let baseParams = {};
+	if ( settings.params && typeof settings.params === 'object' ) {
+		baseParams = settings.params;
+	}
 
 	if ( ! endpoint ) {
 		return;
 	}
+
+	const maxPages = Number( settings.maxPages || 0 );
+	const currentPage = Number( settings.currentPage || 1 );
+
+	let nextPage = Number( settings.startPage || currentPage + 1 );
 
 	if ( ! hasMore || ! Number.isFinite( nextPage ) || ( maxPages > 0 && nextPage > maxPages ) ) {
 		return;
@@ -29,7 +38,6 @@
 
 	const loader = document.createElement( 'div' );
 	loader.className = 'loadmore';
-	loader.style.display = 'none';
 
 	const sentinel = document.createElement( 'div' );
 	sentinel.className = 'loadmore__sentinel';
@@ -69,11 +77,11 @@
 	}
 
 	function showLoader() {
-		loader.style.display = 'flex';
+		loader.classList.add( 'loadmore--visible' );
 	}
 
 	function hideLoader() {
-		loader.style.display = 'none';
+		loader.classList.remove( 'loadmore--visible' );
 	}
 
 	function stopObserving() {
@@ -119,7 +127,10 @@
 			}
 
 			const data = await response.json();
-			const html = data && typeof data.html === 'string' ? data.html : '';
+			let html = '';
+			if ( data && typeof data.html === 'string' ) {
+				html = data.html;
+			}
 			const markup = html.trim();
 
 			if ( markup.length === 0 ) {

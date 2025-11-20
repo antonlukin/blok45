@@ -33,6 +33,8 @@ require_once get_template_directory() . '/modules/map.php';
 require_once get_template_directory() . '/modules/gallery.php';
 require_once get_template_directory() . '/modules/single.php';
 require_once get_template_directory() . '/modules/menu.php';
+require_once get_template_directory() . '/modules/directory.php';
+require_once get_template_directory() . '/modules/settings.php';
 
 /**
  * Include template tags

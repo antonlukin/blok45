@@ -129,22 +129,53 @@ if ( ! function_exists( 'blok45_get_single_context' ) ) :
 	}
 endif;
 
+if ( ! function_exists( 'blok45_get_correction_url' ) ) :
+	/**
+	 * Return the correction form URL stored in theme settings.
+	 *
+	 * @param int|WP_Post|null $post Optional post reference.
+	 *
+	 * @return string
+	 */
+	function blok45_get_correction_url( $post = null ) {
+		if ( class_exists( 'Blok45_Modules_Settings' ) && method_exists( 'Blok45_Modules_Settings', 'get_correction_url' ) ) {
+			return Blok45_Modules_Settings::get_correction_url( $post );
+		}
+
+		return home_url( '/' );
+	}
+endif;
+
 if ( ! function_exists( 'blok45_get_artist_list' ) ) :
 	/**
-	 * Return list of artists.
+	 * Return list of artists, optionally filtered by min count.
 	 *
-	 * @return array
+	 * @param int $min_count Minimum number of posts per artist. Default 0.
+	 *
+	 * @return WP_Term[] Array of artist terms.
 	 */
-	function blok45_get_artist_list() {
-		$artists = get_terms(
-			array(
-				'taxonomy'   => 'artist',
-				'hide_empty' => true,
-				'orderby'    => 'name',
-				'order'      => 'ASC',
-			)
-		);
+	function blok45_get_artist_list( $min_count = 0 ) {
+		if ( ! class_exists( 'Blok45_Modules_Directory' ) ) {
+			return array();
+		}
 
-		return $artists;
+		return Blok45_Modules_Directory::get_artist_list( $min_count );
+	}
+endif;
+
+if ( ! function_exists( 'blok45_get_artist_preview_query' ) ) :
+	/**
+	 * Return preview thumbnails for a given artist.
+	 *
+	 * @param WP_Term $artist Artist term object.
+	 *
+	 * @return string[] Array of thumbnail HTML strings.
+	 */
+	function blok45_get_artist_preview_query( $artist ) {
+		if ( empty( $artist->term_id ) || ! class_exists( 'Blok45_Modules_Directory' ) ) {
+			return array();
+		}
+
+		return Blok45_Modules_Directory::get_artist_preview_thumbnails( (int) $artist->term_id );
 	}
 endif;

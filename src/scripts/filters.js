@@ -104,7 +104,6 @@
 
 	const loader = document.createElement( 'div' );
 	loader.className = 'loadmore';
-	loader.style.display = 'none';
 
 	const sentinel = document.createElement( 'div' );
 	sentinel.className = 'loadmore__sentinel';
@@ -546,11 +545,11 @@
 
 	function showLoader() {
 		sentinel.insertAdjacentElement( 'afterend', loader );
-		loader.style.display = 'flex';
+		loader.classList.add( 'loadmore--visible' );
 	}
 
 	function hideLoader() {
-		loader.style.display = 'none';
+		loader.classList.remove( 'loadmore--visible' );
 	}
 
 	function updateObserver() {
@@ -571,7 +570,7 @@
 					}
 				} );
 			},
-			{ rootMargin: '200px 0px', threshold: 0 }
+			{ rootMargin: '500px 0px', threshold: 0 }
 		);
 
 		observer.observe( sentinel );
@@ -892,6 +891,10 @@
 		const button = event.target.closest( '.filters__item' );
 
 		if ( ! button ) {
+			return;
+		}
+
+		if ( button.dataset.navigation === 'true' ) {
 			return;
 		}
 
