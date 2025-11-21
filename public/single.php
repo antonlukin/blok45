@@ -104,6 +104,14 @@ get_header(); ?>
 					<?php the_title(); ?>
 				</h2>
 
+			<?php if ( ! empty( $context['archived'] ) ) : ?>
+				<div class="single__graffiti-state" role="status">
+					<p class="single__graffiti-state-text">
+						<?php esc_html_e( 'This graffiti has been removed, but this entry is preserved for historical reference and archival purposes.', 'blok45' ); ?>
+					</p>
+				</div>
+			<?php endif; ?>
+
 				<div class="single__post-excerpt">
 					<?php the_content(); ?>
 				</div>

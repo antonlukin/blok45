@@ -94,6 +94,7 @@ class Blok45_Modules_Filters {
 	public static function load_module() {
 		add_action( 'init', array( __CLASS__, 'register_taxonomies' ) );
 		add_action( 'init', array( __CLASS__, 'register_coordinates' ) );
+		add_action( 'init', array( __CLASS__, 'register_graffiti_state_meta' ) );
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
 
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_coords_scripts' ) );
@@ -515,6 +516,25 @@ class Blok45_Modules_Filters {
 	}
 
 	/**
+	 * Register graffiti archive flag meta.
+	 */
+	public static function register_graffiti_state_meta() {
+		register_post_meta(
+			'post',
+			'blok45_graffiti_archived',
+			array(
+				'type'          => 'boolean',
+				'single'        => true,
+				'show_in_rest'  => true,
+				'auth_callback' => function () {
+					return current_user_can( 'edit_posts' );
+				},
+				'default'       => false,
+			)
+		);
+	}
+
+	/**
 	 * Enqueue admin scripts for coordinates meta box
 	 *
 	 * @param string $hook Current admin page
@@ -535,12 +555,28 @@ class Blok45_Modules_Filters {
 			get_stylesheet_directory_uri() . '/admin/coords-panel.js',
 			array(
 				'wp-plugins',
-				'wp-edit-post',
+				'wp-element',
+				'wp-editor',
 				'wp-components',
 				'wp-data',
 				'wp-i18n',
 			),
 			filemtime( get_stylesheet_directory() . '/admin/coords-panel.js' ),
+			true
+		);
+
+		wp_enqueue_script(
+			'blok45-graffiti-state-panel',
+			get_stylesheet_directory_uri() . '/admin/graffiti-state-panel.js',
+			array(
+				'wp-plugins',
+				'wp-element',
+				'wp-edit-post',
+				'wp-components',
+				'wp-data',
+				'wp-i18n',
+			),
+			filemtime( get_stylesheet_directory() . '/admin/graffiti-state-panel.js' ),
 			true
 		);
 	}

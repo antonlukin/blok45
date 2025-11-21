@@ -13,6 +13,8 @@
   --color-border: #222222;
   --color-separator: #111111;
   --color-meta: #888888;
+  --color-alert: #ff6b6b;
+  --color-warning: #ff6b6b59;
 
   --color-dark: #000000;
   --color-light: #f7f8f8;
@@ -24,6 +26,7 @@
   --surface-shadow: rgba(0, 0, 0, 0.35);
   --surface-highlight: rgba(247, 248, 248, 0.1);
 
+  --gradient-alert: linear-gradient(135deg, rgba(255, 107, 107, 0.15), rgba(255, 107, 107, 0.05));
   --gradient-skeleton: linear-gradient(90deg, rgba(247, 248, 248, 0.08), rgba(247, 248, 248, 0.1), rgba(247, 248, 248, 0.08));
   --gradient-card: linear-gradient(-180deg, transparent 50%, var(--surface-sheet) 100%);
   --gradient-pin: radial-gradient(circle at 50% 50%,

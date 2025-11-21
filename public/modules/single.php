@@ -28,10 +28,11 @@ class Blok45_Modules_Single {
 		$post_id = (int) $post->ID;
 
 		return array(
-			'post_id' => $post_id,
-			'gallery' => self::prepare_gallery( $post_id, $post ),
-			'meta'    => self::prepare_meta_groups( $post_id ),
-			'map'     => self::prepare_map( $post_id ),
+			'post_id'  => $post_id,
+			'gallery'  => self::prepare_gallery( $post_id, $post ),
+			'meta'     => self::prepare_meta_groups( $post_id ),
+			'map'      => self::prepare_map( $post_id ),
+			'archived' => self::is_graffiti_archived( $post_id ),
 		);
 	}
 
@@ -255,5 +256,16 @@ class Blok45_Modules_Single {
 		}
 
 		return array( 'coords' => $coords );
+	}
+
+	/**
+	 * Return true when graffiti is marked as archived.
+	 *
+	 * @param int $post_id Current post ID.
+	 *
+	 * @return bool
+	 */
+	protected static function is_graffiti_archived( $post_id ) {
+		return (bool) get_post_meta( $post_id, 'blok45_graffiti_archived', true );
 	}
 }

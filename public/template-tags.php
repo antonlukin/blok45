@@ -62,7 +62,7 @@ if ( ! function_exists( 'blok45_get_gallery_items' ) ) :
 	 * @return array
 	 */
 	function blok45_get_gallery_items( $post = null ) {
-		if ( ! class_exists( 'Blok45_Modules_Gallery' ) ) {
+		if ( ! method_exists( 'Blok45_Modules_Gallery', 'get_gallery_items' ) ) {
 			return array();
 		}
 
@@ -121,7 +121,7 @@ if ( ! function_exists( 'blok45_get_single_context' ) ) :
 	 * @return array
 	 */
 	function blok45_get_single_context( $post = null ) {
-		if ( ! class_exists( 'Blok45_Modules_Single' ) ) {
+		if ( ! method_exists( 'Blok45_Modules_Single', 'get_template_context' ) ) {
 			return array();
 		}
 
@@ -138,7 +138,7 @@ if ( ! function_exists( 'blok45_get_correction_url' ) ) :
 	 * @return string
 	 */
 	function blok45_get_correction_url( $post = null ) {
-		if ( class_exists( 'Blok45_Modules_Settings' ) && method_exists( 'Blok45_Modules_Settings', 'get_correction_url' ) ) {
+		if ( method_exists( 'Blok45_Modules_Settings', 'get_correction_url' ) ) {
 			return Blok45_Modules_Settings::get_correction_url( $post );
 		}
 
