@@ -24,7 +24,7 @@
 		return createElement(
 			PluginPostStatusInfo,
 			{
-				className: 'blok45-graffiti-state',
+				className: 'blok45-state',
 			},
 			createElement( CheckboxControl, {
 				label: __( 'Graffiti removed', 'blok45' ),
@@ -36,7 +36,7 @@
 		);
 	};
 
-	registerPlugin( 'blok45-graffiti-state', {
+	registerPlugin( 'blok45-state', {
 		render: () => createElement( Blok45GraffitiStateToggle, { metaKey: 'blok45_graffiti_archived' } ),
 	} );
 } )();

@@ -70,7 +70,6 @@
 
     margin-left: 1rem;
     margin-bottom: -0.125rem;
-    padding: 0.125rem 0;
     white-space: nowrap;
 
     font-size: 0.6875rem;
@@ -86,14 +85,18 @@
   }
 
   .card__meta {
-    display: inline-flex;
+    display: inline-block;
     white-space: nowrap;
 
+    min-width: 0;
     margin-right: auto;
     margin-bottom: -0.125rem;
+    overflow: hidden;
+
     font-size: 0.6875rem;
     font-weight: 400;
     line-height: 1.125;
+    text-overflow: ellipsis;
 
     gap: 0.25rem;
 
@@ -114,7 +117,7 @@
     a::after {
       content: '·';
       display: inline-flex;
-      margin-left: 0.25rem;
+      margin: 0 0.25rem;
     }
 
     a:last-child::after {
@@ -126,7 +129,7 @@
     }
   }
 
-  .like {
+  .card__like {
     position: absolute;
     right: 0.25rem;
     top: 0.25rem;

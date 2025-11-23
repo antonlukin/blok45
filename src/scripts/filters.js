@@ -21,13 +21,11 @@
 	let mobileToggle = null;
 	let mobilePanel = null;
 	let mobileClose = null;
-	let mobileSheetInner = null;
 
 	if ( filtersContainer ) {
 		mobileToggle = filtersContainer.querySelector( '.filters__toggle' );
 		mobilePanel = filtersContainer.querySelector( '.filters__sheet' );
 		mobileClose = filtersContainer.querySelector( '.filters__close' );
-		mobileSheetInner = filtersContainer.querySelector( '.filters__sheet-inner' );
 	}
 
 	let mobileMedia = null;
@@ -36,8 +34,8 @@
 		mobileMedia = window.matchMedia( '(max-width: 767px)' );
 	}
 
-	const focusableSelector = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
 	const SORT_RATING = 'rating';
+	const SORT_ID_DESC = 'reversed';
 
 	const selectionState = Object.create( null );
 	const defaultSelectionState = Object.create( null );
@@ -75,9 +73,10 @@
 
 		if ( activeSortButton ) {
 			const initialSort = ( activeSortButton.dataset.sort || '' ).trim();
+			const normalizedInitialSort = normalizeSortValue( initialSort );
 
-			if ( initialSort === SORT_RATING ) {
-				currentSort = SORT_RATING;
+			if ( normalizedInitialSort ) {
+				currentSort = normalizedInitialSort;
 			}
 		}
 	} else {
@@ -114,6 +113,16 @@
 	let observer = null;
 	const skeletonMinCount = Math.max( Number( settings.skeletonCount || 0 ), 24 );
 	let isMobilePanelOpen = false;
+
+	function normalizeSortValue( value ) {
+		const normalized = ( value || '' ).trim();
+
+		if ( normalized === SORT_RATING || normalized === SORT_ID_DESC ) {
+			return normalized;
+		}
+
+		return '';
+	}
 
 	function shouldUseMobilePanel() {
 		if ( ! filtersContainer || ! mobilePanel ) {
@@ -156,15 +165,6 @@
 
 		if ( mobileToggle ) {
 			mobileToggle.setAttribute( 'aria-expanded', 'true' );
-		}
-
-		let focusTarget = null;
-		if ( mobileSheetInner ) {
-			focusTarget = mobileSheetInner.querySelector( focusableSelector );
-		}
-
-		if ( focusTarget ) {
-			focusTarget.focus();
 		}
 
 		if ( mobilePanel && mobilePanel.querySelector( '.map' ) ) {
@@ -426,11 +426,13 @@
 
 	function applyStateFromParams( params, options ) {
 		let searchParams = null;
+
 		if ( params instanceof window.URLSearchParams ) {
 			searchParams = params;
 		} else {
 			searchParams = new window.URLSearchParams( params || '' );
 		}
+
 		const config = options || {};
 		const previousSort = currentSort;
 		const result = {
@@ -448,8 +450,10 @@
 
 		if ( ! hasCoords ) {
 			const sortParam = ( searchParams.get( 'sort' ) || '' ).trim();
-			if ( sortParam === SORT_RATING ) {
-				desiredSort = SORT_RATING;
+			const normalizedSort = normalizeSortValue( sortParam );
+
+			if ( normalizedSort ) {
+				desiredSort = normalizedSort;
 			}
 		}
 
@@ -516,8 +520,10 @@
 	}
 
 	function getSortParam() {
-		if ( currentSort === SORT_RATING ) {
-			return SORT_RATING;
+		const normalizedSort = normalizeSortValue( currentSort );
+
+		if ( normalizedSort ) {
+			return normalizedSort;
 		}
 
 		return '';
@@ -768,7 +774,7 @@
 		}
 
 		activateListButton( sortList, defaultButton );
-		currentSort = '';
+		currentSort = defaultSort;
 	}
 
 	function clearCoordsFilter() {
@@ -835,10 +841,10 @@
 
 	function applySortSelection( button, listWrap ) {
 		const rawSort = ( button.dataset.sort || '' ).trim();
-		let nextSort = '';
+		let nextSort = normalizeSortValue( rawSort );
 
-		if ( rawSort === SORT_RATING ) {
-			nextSort = SORT_RATING;
+		if ( ! nextSort ) {
+			nextSort = defaultSort;
 		}
 
 		if ( nextSort === currentSort ) {

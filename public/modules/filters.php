@@ -257,6 +257,8 @@ class Blok45_Modules_Filters {
 			'posts_per_page' => 24,
 			'no_found_rows'  => false,
 			'paged'          => $page,
+			'orderby'        => 'date',
+			'order'          => 'ASC',
 		);
 
 		if ( $coords_filter ) {
@@ -285,8 +287,14 @@ class Blok45_Modules_Filters {
 				$args['meta_type'] = 'NUMERIC';
 				$args['orderby']   = array(
 					'meta_value_num' => 'DESC',
-					'date'           => 'DESC',
+					'date'           => 'ASC',
 				);
+				unset( $args['order'] );
+				break;
+
+			case 'reversed':
+				$args['orderby'] = 'ID';
+				$args['order']   = 'DESC';
 				break;
 
 			default:
@@ -566,8 +574,8 @@ class Blok45_Modules_Filters {
 		);
 
 		wp_enqueue_script(
-			'blok45-graffiti-state-panel',
-			get_stylesheet_directory_uri() . '/admin/graffiti-state-panel.js',
+			'blok45-state-panel',
+			get_stylesheet_directory_uri() . '/admin/state-panel.js',
 			array(
 				'wp-plugins',
 				'wp-element',
@@ -576,7 +584,7 @@ class Blok45_Modules_Filters {
 				'wp-data',
 				'wp-i18n',
 			),
-			filemtime( get_stylesheet_directory() . '/admin/graffiti-state-panel.js' ),
+			filemtime( get_stylesheet_directory() . '/admin/state-panel.js' ),
 			true
 		);
 	}

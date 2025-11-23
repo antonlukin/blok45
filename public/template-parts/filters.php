@@ -36,20 +36,49 @@
 			</div>
 
 			<nav class="filters__body" aria-labelledby="filters-panel-heading">
+				<div class="filters__group filters__group--years">
+					<div class="filters__group-heading">
+						<?php
+						printf(
+							'<h4 class="filters__group-title">%s</h4>',
+							esc_html__( 'Year', 'blok45' )
+						);
+						?>
+					</div>
+
+					<div class="filters__list" role="list" data-tax="years">
+						<?php
+						printf(
+							'<button class="filters__item filters__item--active" data-value="" role="listitem" aria-pressed="true">%s</button>',
+							esc_html__( 'Any', 'blok45' )
+						);
+
+						foreach ( blok45_year_ranges() as $range ) {
+							printf(
+								'<button class="filters__item" data-value="%1$s" role="listitem" aria-pressed="false">%2$s</button>',
+								esc_attr( $range['slug'] ),
+								esc_html( $range['label'] )
+							);
+						}
+						?>
+					</div>
+				</div>
 
 				<div class="filters__group filters__group--artists">
-					<?php
-					printf(
-						'<div class="filters__group-heading"><h4 class="filters__group-title">%s</h4>',
-						esc_html__( 'Artist', 'blok45' )
-					);
+					<div class="filters__group-heading">
+						<?php
+						printf(
+							'<h4 class="filters__group-title">%s</h4>',
+							esc_html__( 'Artist', 'blok45' )
+						);
 
-					printf(
-						'<a class="filters__group-link" href="%1$s">%2$s<span class="filters__group-link-icon" aria-hidden="true">&rarr;</span></a></div>',
-						esc_url( site_url( '/creators/' ) ),
-						esc_html__( 'Show all', 'blok45' )
-					);
-					?>
+						printf(
+							'<a class="filters__group-link" href="%1$s">%2$s</a>',
+							esc_url( site_url( '/artists/' ) ),
+							esc_html__( 'Show all artists', 'blok45' )
+						);
+						?>
+					</div>
 
 					<div class="filters__list" role="list" data-tax="artist">
 						<?php
@@ -70,45 +99,26 @@
 					</div>
 				</div>
 
-				<div class="filters__group filters__group--years">
-					<?php
-					printf(
-						'<h4 class="filters__group-title">%s</h4>',
-						esc_html__( 'Year', 'blok45' )
-					);
-					?>
-
-					<div class="filters__list" role="list" data-tax="years">
+				<div class="filters__group filters__group--sort">
+					<div class="filters__group-heading">
 						<?php
 						printf(
-							'<button class="filters__item filters__item--active" data-value="" role="listitem" aria-pressed="true">%s</button>',
-							esc_html__( 'Any', 'blok45' )
+							'<h4 class="filters__group-title">%s</h4>',
+							esc_html__( 'Sort by', 'blok45' )
 						);
-
-						foreach ( blok45_year_ranges() as $range ) {
-							printf(
-								'<button class="filters__item" data-value="%1$s" role="listitem" aria-pressed="false">%2$s</button>',
-								esc_attr( $range['slug'] ),
-								esc_html( $range['label'] )
-							);
-						}
 						?>
 					</div>
-				</div>
-
-				<div class="filters__group filters__group--sort">
-					<?php
-					printf(
-						'<h4 class="filters__group-title">%s</h4>',
-						esc_html__( 'Sort by', 'blok45' )
-					);
-					?>
 
 					<div class="filters__list" role="list" data-role="sort">
 						<?php
 						printf(
 							'<button class="filters__item filters__item--active" role="listitem" aria-pressed="true">%s</button>',
-							esc_html__( 'By default', 'blok45' )
+							esc_html__( 'Default', 'blok45' )
+						);
+
+						printf(
+							'<button class="filters__item" role="listitem" data-sort="reversed" aria-pressed="false">%s</button>',
+							esc_html__( 'Reversed', 'blok45' )
 						);
 
 						printf(

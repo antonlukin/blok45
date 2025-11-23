@@ -1,6 +1,6 @@
 <?php
 /**
- * Directory helpers (artist previews, etc).
+ * Directory helpers artist previews.
  *
  * @package blok45
  * @since 1.0
@@ -73,16 +73,16 @@ class Blok45_Modules_Directory {
 			return array();
 		}
 
-		$cache_key            = self::get_cache_key( $artist_id );
-		$cached_thumbnails    = get_transient( $cache_key );
-		$normalized_thumbnails = self::normalize_thumbnail_cache( $cached_thumbnails );
+		$cache_key  = self::get_cache_key( $artist_id );
+		$cached     = get_transient( $cache_key );
+		$normalized = self::normalize_thumbnail_cache( $cached );
 
-		if ( ! empty( $normalized_thumbnails ) ) {
-			if ( $normalized_thumbnails !== $cached_thumbnails ) {
-				set_transient( $cache_key, $normalized_thumbnails, DAY_IN_SECONDS );
+		if ( ! empty( $normalized ) ) {
+			if ( $normalized !== $cached ) {
+				set_transient( $cache_key, $normalized, DAY_IN_SECONDS );
 			}
 
-			return $normalized_thumbnails;
+			return $normalized;
 		}
 
 		$args = array(
@@ -93,7 +93,7 @@ class Blok45_Modules_Directory {
 			'no_found_rows'       => true,
 			'fields'              => 'ids',
 			'orderby'             => 'date',
-			'order'               => 'DESC',
+			'order'               => 'ASC',
 			'tax_query'           => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
 				array(
 					'taxonomy' => 'artist',
@@ -192,30 +192,30 @@ class Blok45_Modules_Directory {
 		 *
 		 * @return string[]
 		 */
-		protected static function normalize_thumbnail_cache( $cache ) {
-			if ( false === $cache ) {
-				return array();
-			}
-
-			if ( isset( $cache[ self::PREVIEW_LIMIT ] ) && is_array( $cache[ self::PREVIEW_LIMIT ] ) ) {
-				$cache = $cache[ self::PREVIEW_LIMIT ];
-			}
-
-			if ( ! is_array( $cache ) ) {
-				return array();
-			}
-
-			$cache = array_values(
-				array_filter(
-					$cache,
-					static function ( $item ) {
-						return is_string( $item ) && $item !== '';
-					}
-				)
-			);
-
-			return $cache;
+	protected static function normalize_thumbnail_cache( $cache ) {
+		if ( false === $cache ) {
+			return array();
 		}
+
+		if ( isset( $cache[ self::PREVIEW_LIMIT ] ) && is_array( $cache[ self::PREVIEW_LIMIT ] ) ) {
+			$cache = $cache[ self::PREVIEW_LIMIT ];
+		}
+
+		if ( ! is_array( $cache ) ) {
+			return array();
+		}
+
+		$cache = array_values(
+			array_filter(
+				$cache,
+				static function ( $item ) {
+					return is_string( $item ) && $item !== '';
+				}
+			)
+		);
+
+		return $cache;
 	}
+}
 
 Blok45_Modules_Directory::load_module();

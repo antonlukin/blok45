@@ -12,25 +12,44 @@ class Blok45_Modules_Archive {
 	 */
 	public static function load_module() {
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_archive_script' ) );
+		add_action( 'pre_get_posts', array( __CLASS__, 'set_chronological_order' ) );
+	}
+
+	/**
+	 * Force chronological ordering for public archives and the front page.
+	 *
+	 * @param WP_Query $query Current query instance.
+	 */
+	public static function set_chronological_order( $query ) { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
+		if ( is_admin() || ! $query->is_main_query() ) {
+			return;
+		}
+
+		if ( ! ( $query->is_home() || $query->is_front_page() || $query->is_archive() ) ) {
+			return;
+		}
+
+		$orderby = $query->get( 'orderby' );
+
+		if ( empty( $orderby ) || in_array( $orderby, array( 'date', 'post_date' ), true ) ) {
+			$query->set( 'orderby', 'date' );
+			$query->set( 'order', 'ASC' );
+		}
 	}
 
 	/**
 	 * Enqueue infinite scroll script for taxonomy archives.
 	 */
 	public static function enqueue_archive_script() {
-		if ( ! is_tax() ) {
-			return;
-		}
-
 		global $wp_query;
 
-		if ( ! ( $wp_query instanceof WP_Query ) ) {
+		if ( ! is_tax() ) {
 			return;
 		}
 
 		$term = get_queried_object();
 
-		if ( ! ( $term instanceof WP_Term ) ) {
+		if ( empty( $term ) ) {
 			return;
 		}
 
@@ -40,9 +59,11 @@ class Blok45_Modules_Archive {
 			case 'artist':
 				$params['artist'] = (int) $term->term_id;
 				break;
+
 			case 'years':
 				$params['years'] = (int) $term->term_id;
 				break;
+
 			default:
 				return;
 		}

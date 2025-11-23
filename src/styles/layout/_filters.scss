@@ -215,15 +215,16 @@
     }
   }
 
+  .filters__group {
+    display: block;
+  }
+
   .filters__group-heading {
     display: flex;
     align-items: center;
     gap: 0.5rem;
     margin-bottom: 0.75rem;
-  }
 
-  .filters__group-title {
-    margin-bottom: 0.75rem;
     font-size: 0.8125rem;
     font-weight: 500;
     letter-spacing: 0.0125rem;
@@ -232,10 +233,6 @@
     @media screen and (max-width: 767px) {
       font-size: 0.875rem;
     }
-  }
-
-  .filters__group-heading .filters__group-title {
-    margin-bottom: 0;
   }
 
   .filters__group-link {
@@ -253,15 +250,6 @@
     &:focus-visible {
       color: var(--color-light);
       outline: none;
-    }
-
-    .filters__group-link-icon {
-      display: inline-flex;
-      font-size: 0.75em;
-    }
-
-    @media screen and (max-width: 767px) {
-      font-size: 0.75rem;
     }
   }
 
@@ -294,7 +282,8 @@
       position: sticky;
       right: 0;
       top: 0;
-      width: 1.5rem;
+      margin-left: -1rem;
+      width: 1.75rem;
       flex: 0 0 auto;
       pointer-events: none;
       background: linear-gradient(to right, transparent, var(--surface-sheet) 100%);
@@ -306,6 +295,14 @@
 
     .filters__list {
       gap: 0.5rem;
+    }
+  }
+
+  .filters__group--years .filters__list::after {
+    display: none;
+
+    @media screen and (max-width: 1023px) {
+      display: block;
     }
   }
 

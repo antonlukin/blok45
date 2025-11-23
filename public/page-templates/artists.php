@@ -1,6 +1,6 @@
 <?php
 /**
- * Template Name: Creators
+ * Template Name: Artists Catalog
  * Description: Lists all artists with their works.
  *
  * @package blok45
