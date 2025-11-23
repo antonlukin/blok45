@@ -11,7 +11,8 @@ if ( ! defined( 'WPINC' ) ) {
 }
 
 class Blok45_Modules_Settings {
-	const OPTION_CORRECTION_URL = 'blok45_correction_url';
+	const OPTION_CORRECTION_URL          = 'blok45_correction_url';
+	const OPTION_UNKNOWN_ARCHIVE_MESSAGE = 'blok45_unknown_archive_message';
 
 	/**
 	 * Bootstraps settings hooks.
@@ -43,6 +44,45 @@ class Blok45_Modules_Settings {
 			array(
 				'label_for' => self::OPTION_CORRECTION_URL,
 			)
+		);
+
+		register_setting(
+			'general',
+			self::OPTION_UNKNOWN_ARCHIVE_MESSAGE,
+			array(
+				'type'              => 'string',
+				'sanitize_callback' => 'wp_kses_post',
+				'default'           => '',
+			)
+		);
+
+		add_settings_field(
+			self::OPTION_UNKNOWN_ARCHIVE_MESSAGE,
+			__( 'Unknown artists description', 'blok45' ),
+			array( __CLASS__, 'render_unknown_description_field' ),
+			'general',
+			'default',
+			array(
+				'label_for' => self::OPTION_UNKNOWN_ARCHIVE_MESSAGE,
+			)
+		);
+	}
+
+	/**
+	 * Renders the unknown archive description field markup.
+	 */
+	public static function render_unknown_description_field() {
+		$value = get_option( self::OPTION_UNKNOWN_ARCHIVE_MESSAGE, '' );
+
+		printf(
+			'<textarea id="%1$s" name="%1$s" rows="5" class="large-text">%2$s</textarea>',
+			esc_attr( self::OPTION_UNKNOWN_ARCHIVE_MESSAGE ),
+			esc_textarea( $value )
+		);
+
+		printf(
+			'<p class="description">%s</p>',
+			esc_html__( 'Shown on the Unknown Artists archive page. Leave empty to use the default theme text.', 'blok45' )
 		);
 	}
 
@@ -103,6 +143,19 @@ class Blok45_Modules_Settings {
 		}
 
 		return sprintf( $url, rawurlencode( $permalink ) );
+	}
+
+	/**
+	 * Returns the Unknown Artists archive description with a sensible fallback.
+	 */
+	public static function get_unknown_archive_description() {
+		$description = trim( get_option( self::OPTION_UNKNOWN_ARCHIVE_MESSAGE, '' ) );
+
+		if ( '' === $description ) {
+			return esc_html__( 'This section features graffiti whose authors we haven’t been able to identify yet. If you recognize a style, tag, or artist, feel free to suggest a correction — your input helps us keep the archive accurate.', 'blok45' );
+		}
+
+		return wp_kses_post( $description );
 	}
 }
 

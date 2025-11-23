@@ -1,6 +1,6 @@
 <?php
 /**
- * Directory helpers artist previews.
+ * Directory helpers for artist listings and unknown archives.
  *
  * @package blok45
  * @since 1.0
@@ -11,8 +11,10 @@ if ( ! defined( 'WPINC' ) ) {
 }
 
 class Blok45_Modules_Directory {
-	const TRANSIENT_PREFIX = 'blok45_artist_preview';
-	const PREVIEW_LIMIT    = 4;
+	const TRANSIENT_PREFIX  = 'blok45_artist_preview';
+	const PREVIEW_LIMIT     = 4;
+	const UNKNOWN_SLUG      = 'artists/unknown';
+	const UNKNOWN_QUERY_VAR = 'blok45_unknown_artist';
 
 	/**
 	 * Bootstrap directory module.
@@ -20,6 +22,14 @@ class Blok45_Modules_Directory {
 	public static function load_module() {
 		add_action( 'transition_post_status', array( __CLASS__, 'handle_status_transition' ), 10, 3 );
 		add_action( 'before_delete_post', array( __CLASS__, 'flush_all_cache' ) );
+
+		add_action( 'init', array( __CLASS__, 'register_unknown_artist_rewrite' ) );
+		add_filter( 'query_vars', array( __CLASS__, 'register_unknown_query_var' ) );
+		add_action( 'pre_get_posts', array( __CLASS__, 'handle_unknown_archive' ), 9 );
+		add_filter( 'template_include', array( __CLASS__, 'ensure_unknown_archive_template' ) );
+
+		add_filter( 'get_the_archive_title', array( __CLASS__, 'filter_unknown_archive_title' ) );
+		add_filter( 'get_the_archive_description', array( __CLASS__, 'filter_unknown_archive_description' ) );
 	}
 
 	/**
@@ -183,15 +193,15 @@ class Blok45_Modules_Directory {
 		return sprintf( '%s_%d', self::TRANSIENT_PREFIX, absint( $artist_id ) );
 	}
 
-		/**
-		 * Normalize cached thumbnails to current format.
-		 *
-		 * Handles legacy caches stored as [limit => array( ... )].
-		 *
-		 * @param mixed $cache Cached value.
-		 *
-		 * @return string[]
-		 */
+	/**
+	 * Normalize cached thumbnails to current format.
+	 *
+	 * Handles legacy caches stored as [limit => array( ... )].
+	 *
+	 * @param mixed $cache Cached value.
+	 *
+	 * @return string[]
+	 */
 	protected static function normalize_thumbnail_cache( $cache ) {
 		if ( false === $cache ) {
 			return array();
@@ -215,6 +225,134 @@ class Blok45_Modules_Directory {
 		);
 
 		return $cache;
+	}
+
+	/**
+	 * Register rewrite rule for unknown artist archive.
+	 */
+	public static function register_unknown_artist_rewrite() {
+		$slug = trim( self::UNKNOWN_SLUG, '/' );
+
+		if ( '' === $slug ) {
+			return;
+		}
+
+		add_rewrite_rule(
+			sprintf( '^%s/?$', $slug ),
+			sprintf( 'index.php?post_type=post&%s=1', self::UNKNOWN_QUERY_VAR ),
+			'top'
+		);
+	}
+
+	/**
+	 * Register custom query var for unknown archive detection.
+	 *
+	 * @param array $vars Public query vars.
+	 *
+	 * @return array
+	 */
+	public static function register_unknown_query_var( $vars ) {
+		$vars[] = self::UNKNOWN_QUERY_VAR;
+
+		return array_unique( $vars );
+	}
+
+	/**
+	 * Prepare WP_Query for unknown artist archive requests.
+	 *
+	 * @param WP_Query $query Current query.
+	 */
+	public static function handle_unknown_archive( $query ) {
+		if ( is_admin() || ! $query->is_main_query() ) {
+			return;
+		}
+
+		if ( ! self::is_unknown_artist_archive() ) {
+			return;
+		}
+
+		$query->set( 'post_type', 'post' );
+		$query->set( 'post_status', 'publish' );
+		$query->set( 'posts_per_page', -1 );
+		$query->set(
+			'tax_query',
+			array(
+				array(
+					'taxonomy' => 'artist',
+					'field'    => 'term_id',
+					'operator' => 'NOT EXISTS',
+				),
+			)
+		);
+
+		$query->is_archive = true;
+		$query->is_home    = false;
+	}
+
+	/**
+	 * Force archive template usage for unknown artist archive.
+	 *
+	 * @param string $template Current template path.
+	 *
+	 * @return string
+	 */
+	public static function ensure_unknown_archive_template( $template ) {
+		if ( self::is_unknown_artist_archive() ) {
+			$new_template = locate_template( array( 'archive.php' ) );
+
+			if ( ! empty( $new_template ) ) {
+				return $new_template;
+			}
+		}
+
+		return $template;
+	}
+
+	/**
+	 * Substitute archive title for unknown artist archive.
+	 *
+	 * @param string $title Default title.
+	 *
+	 * @return string
+	 */
+	public static function filter_unknown_archive_title( $title ) {
+		if ( self::is_unknown_artist_archive() ) {
+			return esc_html__( 'Unknown Artists', 'blok45' );
+		}
+
+		return $title;
+	}
+
+	/**
+	 * Substitute archive description when needed.
+	 *
+	 * @param string $description Default description.
+	 *
+	 * @return string
+	 */
+	public static function filter_unknown_archive_description( $description ) {
+		if ( ! self::is_unknown_artist_archive() ) {
+			return $description;
+		}
+
+		if ( method_exists( 'Blok45_Modules_Settings', 'get_unknown_archive_description' ) ) {
+			$description = Blok45_Modules_Settings::get_unknown_archive_description();
+		}
+
+		return $description;
+	}
+
+	/**
+	 * Determine whether the current or provided query targets unknown artists archive.
+	 *
+	 * @return bool
+	 */
+	protected static function is_unknown_artist_archive() {
+		if ( get_query_var( self::UNKNOWN_QUERY_VAR ) ) {
+			return true;
+		}
+
+		return false;
 	}
 }
 
