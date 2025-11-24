@@ -435,7 +435,7 @@ class Blok45_Modules_Filters {
 	public static function rest_get_by_coords( $request ) {
 		$coords = self::normalize_coords_value( $request->get_param( 'coords' ) );
 
-		if ( '' === $coords ) {
+		if ( empty( $coords ) ) {
 			return new WP_Error( 'bad_coords', 'Bad coords format', array( 'status' => 400 ) );
 		}
 

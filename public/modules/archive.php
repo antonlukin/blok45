@@ -76,13 +76,11 @@ class Blok45_Modules_Archive {
 
 		$current_page = max( 1, absint( get_query_var( 'paged' ) ) );
 
-		$script_path = get_template_directory() . '/assets/archive.min.js';
-
 		wp_enqueue_script(
 			'blok45-archive',
 			get_template_directory_uri() . '/assets/archive.min.js',
 			array(),
-			file_exists( $script_path ) ? filemtime( $script_path ) : null,
+			filemtime( get_template_directory() . '/assets/archive.min.js' ),
 			true
 		);
 

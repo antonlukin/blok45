@@ -40,6 +40,7 @@ class Blok45_Modules_Gallery {
 		if ( ! $post_id || empty( self::get_gallery_items( $post_id ) ) ) {
 			return;
 		}
+
 		wp_enqueue_style(
 			'blok45-swiper',
 			get_template_directory_uri() . '/assets/swiper/swiper-bundle.min.css',
@@ -81,15 +82,18 @@ class Blok45_Modules_Gallery {
 			return self::$cache[ $post_id ];
 		}
 
-		$blocks        = parse_blocks( (string) $post->post_content );
-		$gallery_block = self::locate_gallery_block( $blocks );
+		$blocks = parse_blocks( (string) $post->post_content );
 
-		if ( ! $gallery_block ) {
+		// Locate the first gallery block.
+		$gallery = self::locate_gallery_block( $blocks );
+
+		if ( ! $gallery ) {
 			self::$cache[ $post_id ] = array();
+
 			return self::$cache[ $post_id ];
 		}
 
-		$items = self::extract_items_from_block( $gallery_block );
+		$items = self::extract_items_from_block( $gallery );
 
 		self::$cache[ $post_id ] = $items;
 

@@ -19,6 +19,11 @@ class Blok45_Modules_Settings {
 	 */
 	public static function load_module() {
 		add_action( 'admin_init', array( __CLASS__, 'register_settings' ) );
+		add_action( 'after_setup_theme', array( __CLASS__, 'disable_theme_customizer' ), 20 );
+		add_action( 'admin_menu', array( __CLASS__, 'remove_customizer_menu_items' ), 999 );
+		add_action( 'admin_bar_menu', array( __CLASS__, 'remove_customizer_from_admin_bar' ), 999 );
+		add_action( 'load-customize.php', array( __CLASS__, 'block_customizer_screen' ) );
+		add_filter( 'map_meta_cap', array( __CLASS__, 'block_customizer_capability' ), 10, 4 );
 	}
 
 	/**
@@ -75,7 +80,7 @@ class Blok45_Modules_Settings {
 		$value = get_option( self::OPTION_UNKNOWN_ARCHIVE_MESSAGE, '' );
 
 		printf(
-			'<textarea id="%1$s" name="%1$s" rows="5" class="large-text">%2$s</textarea>',
+			'<textarea id="%1$s" name="%1$s" rows="5" class="regular-text">%2$s</textarea>',
 			esc_attr( self::OPTION_UNKNOWN_ARCHIVE_MESSAGE ),
 			esc_textarea( $value )
 		);
@@ -151,11 +156,64 @@ class Blok45_Modules_Settings {
 	public static function get_unknown_archive_description() {
 		$description = trim( get_option( self::OPTION_UNKNOWN_ARCHIVE_MESSAGE, '' ) );
 
-		if ( '' === $description ) {
-			return esc_html__( 'This section features graffiti whose authors we haven’t been able to identify yet. If you recognize a style, tag, or artist, feel free to suggest a correction — your input helps us keep the archive accurate.', 'blok45' );
+		return wp_kses_post( $description );
+	}
+
+	/**
+	 * Removes Customizer-related theme support features.
+	 */
+	public static function disable_theme_customizer() {
+		remove_theme_support( 'customize-selective-refresh-widgets' );
+	}
+
+	/**
+	 * Removes Customizer entry from the Appearance menu.
+	 */
+	public static function remove_customizer_menu_items() {
+		remove_submenu_page( 'themes.php', 'customize.php' );
+	}
+
+	/**
+	 * Removes the Customizer link from the admin bar.
+	 *
+	 * @param WP_Admin_Bar $wp_admin_bar Admin bar instance.
+	 */
+	public static function remove_customizer_from_admin_bar( $wp_admin_bar ) {
+		if ( ! $wp_admin_bar instanceof WP_Admin_Bar ) {
+			return;
 		}
 
-		return wp_kses_post( $description );
+		$wp_admin_bar->remove_menu( 'customize' );
+	}
+
+	/**
+	 * Stops direct access to the Customizer screen.
+	 */
+	public static function block_customizer_screen() {
+		wp_die(
+			esc_html__( 'The Theme Customizer is disabled for this site.', 'blok45' ),
+			403
+		);
+	}
+
+	/**
+	 * Denies the customize capability for every user.
+	 *
+	 * @param array  $caps    Primitive caps.
+	 * @param string $cap     Capability being checked.
+	 * @param int    $user_id User ID.
+	 * @param array  $args    Extra arguments.
+	 *
+	 * @return array
+	 */
+	public static function block_customizer_capability( $caps, $cap, $user_id, $args ) {
+		unset( $user_id, $args );
+
+		if ( 'customize' === $cap ) {
+			$caps = array( 'do_not_allow' );
+		}
+
+		return $caps;
 	}
 }
 

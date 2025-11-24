@@ -147,7 +147,9 @@ class Blok45_Modules_Blocks {
 			return $content;
 		}
 
-		$blocks   = parse_blocks( $content );
+		$blocks = parse_blocks( $content );
+
+		// Filter out image and gallery blocks.
 		$filtered = self::filter_blocks_recursive( $blocks );
 
 		return serialize_blocks( $filtered );
