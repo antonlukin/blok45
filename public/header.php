@@ -16,6 +16,8 @@
 	<meta name="apple-mobile-web-app-status-bar-style" content="black">
 
 	<?php wp_head(); ?>
+
+	<script defer src="https://cloud.umami.is/script.js" data-website-id="5ef9ddb0-8aa6-45f6-8058-2eaefc49f643"></script>
 </head>
 
 <body <?php body_class(); ?>>
