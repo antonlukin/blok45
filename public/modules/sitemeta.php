@@ -127,7 +127,7 @@ class Blok45_Modules_Sitemeta {
 
 			$meta[] = sprintf(
 				'<meta property="og:title" content="%s">',
-				wp_get_document_title()
+				esc_attr( get_bloginfo( 'name' ) )
 			);
 		}
 
