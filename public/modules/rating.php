@@ -189,24 +189,10 @@ class Blok45_Modules_Rating {
 			return;
 		}
 
-		global $wpdb;
+		// We're fine with the small race window for now.
+		$current = max( 0, (int) get_post_meta( $post_id, self::META_KEY, true ) );
 
-		$meta_key = self::META_KEY;
-
-		$updated = $wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.DirectQuery
-			$wpdb->prepare(
-				"UPDATE {$wpdb->postmeta}
-				SET meta_value = GREATEST( 0, CAST(meta_value AS SIGNED) + %d )
-				WHERE post_id = %d AND meta_key = %s",
-				$delta,
-				$post_id,
-				$meta_key
-			)
-		);
-
-		if ( $updated === 0 && $delta > 0 ) {
-			add_post_meta( $post_id, $meta_key, $delta, true );
-		}
+		update_post_meta( $post_id, self::META_KEY, max( 0, $current + $delta ) );
 	}
 
 	/**
