@@ -16,6 +16,15 @@
 	<meta name="apple-mobile-web-app-status-bar-style" content="black">
 
 	<?php wp_head(); ?>
+
+	<?php
+	if ( defined( 'UMAMI_WEBSITE_ID' ) ) :
+		printf(
+			'<script defer src="https://cloud.umami.is/script.js" data-website-id="%s"></script>', // phpcs:ignore
+			esc_attr( UMAMI_WEBSITE_ID )
+		);
+	endif;
+	?>
 </head>
 
 <body <?php body_class(); ?>>
