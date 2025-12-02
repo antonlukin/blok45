@@ -185,6 +185,8 @@
 		const accessToken = settings.accessToken || '';
 		const style = settings.style || 'mapbox://styles/mapbox/streets-v12';
 		const center = Array.isArray( settings.center ) ? settings.center : [ 0, 0 ];
+		const staticCoords = block.dataset.coords ? parseCoords( block.dataset.coords ) : null;
+		const mapCenter = staticCoords ? [ staticCoords.lng, staticCoords.lat ] : center;
 		const endpoints = settings.endpoints || {};
 
 		const canvas = block.querySelector( '.map__canvas' );
@@ -198,7 +200,7 @@
 		const map = new window.mapboxgl.Map( {
 			container: canvas,
 			style,
-			center,
+			center: mapCenter,
 			zoom: Number( settings.zoom || 2 ),
 			antialias: true,
 			attributionControl: false,
@@ -223,8 +225,6 @@
 				map.zoomOut( { duration: 200 } );
 			} );
 		}
-
-		const staticCoords = block.dataset.coords ? parseCoords( block.dataset.coords ) : null;
 
 		if ( staticCoords ) {
 			const markerEl = createMarkerElement();
