@@ -17,7 +17,14 @@
 
 	<?php wp_head(); ?>
 
-	<script defer src="https://cloud.umami.is/script.js" data-website-id="5ef9ddb0-8aa6-45f6-8058-2eaefc49f643"></script>
+	<?php
+	if ( defined( 'UMAMI_WEBSITE_ID' ) ) :
+		printf(
+			'<script defer src="https://cloud.umami.is/script.js" data-website-id="%s"></script>', // phpcs:ignore
+			esc_attr( UMAMI_WEBSITE_ID )
+		);
+	endif;
+	?>
 </head>
 
 <body <?php body_class(); ?>>
