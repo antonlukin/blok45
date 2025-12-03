@@ -79,9 +79,9 @@
         content: '';
         position: absolute;
         inset: 0;
-        background: var(--surface-sheet);
+        background: var(--color-dark);
         opacity: 0;
-        transition: opacity 0.3s ease;
+        transition: none;
       }
     }
   }
@@ -403,7 +403,7 @@
       }
 
       .filters__sheet::before {
-        opacity: 1;
+        opacity: 0.875;
       }
 
       .filters__sheet-inner {
