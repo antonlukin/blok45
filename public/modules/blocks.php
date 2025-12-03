@@ -23,6 +23,8 @@ class Blok45_Modules_Blocks {
 		add_filter( 'block_type_metadata_settings', array( __CLASS__, 'remove_gallery_gaps' ) );
 		add_filter( 'register_block_type_args', array( __CLASS__, 'modify_image_block_support' ), 10, 2 );
 		add_filter( 'the_content', array( __CLASS__, 'strip_media_blocks_from_posts' ), 5 );
+
+		remove_action( 'wp_footer', 'wp_enqueue_global_styles', 1 );
 	}
 
 	/**
