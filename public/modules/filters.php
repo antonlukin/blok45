@@ -207,6 +207,10 @@ class Blok45_Modules_Filters {
 				'hasMore'         => (bool) $has_more,
 				'emptyHeading'    => esc_html__( 'Nothing found', 'blok45' ),
 				'emptySubheading' => esc_html__( 'Try adjusting your search filters', 'blok45' ),
+				'strings'         => array(
+					'filtersSummary'      => esc_html__( '%s selected', 'blok45' ),
+					'locationFilterLabel' => esc_html__( 'Location filter', 'blok45' ),
+				),
 			)
 		);
 	}
