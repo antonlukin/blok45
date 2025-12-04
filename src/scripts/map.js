@@ -101,25 +101,9 @@
 	}
 
 	function setupResponsiveInteractions( map ) {
-		const mq = window.matchMedia( '(max-width: 767px)' );
-
-		function apply() {
-			if ( mq.matches ) {
-				map.dragPan.disable();
-			} else {
-				map.dragPan.enable();
-			}
+		if ( map && map.dragPan ) {
+			map.dragPan.enable();
 		}
-
-		apply();
-
-		if ( typeof mq.addEventListener === 'function' ) {
-			mq.addEventListener( 'change', apply );
-		}
-
-		map.on( 'remove', function() {
-			mq.removeEventListener( 'change', apply );
-		} );
 	}
 
 	function handleMarkerClick( coordStr, items, markerInstance ) {

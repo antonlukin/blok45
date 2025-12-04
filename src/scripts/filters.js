@@ -17,6 +17,8 @@
 
 	const sortList = filtersRoot.querySelector( '.filters__list--sort, .filters__list[data-role="sort"]' );
 	const filtersContainer = filtersRoot.closest( '.filters' );
+	const strings = settings.strings || {};
+	const toggleSummary = filtersRoot.querySelector( '.filters__toggle-summary' );
 
 	let mobileToggle = null;
 	let mobilePanel = null;
@@ -516,6 +518,8 @@
 			selectionState[ tax ] = desiredValue;
 		} );
 
+		updateStatusIndicator();
+
 		return result;
 	}
 
@@ -786,6 +790,46 @@
 		return true;
 	}
 
+	function getActiveFilterCount() {
+		let count = 0;
+
+		Object.keys( selectionState ).forEach( function( tax ) {
+			const currentValue = ( selectionState[ tax ] || '' ).trim();
+			const defaultValue = ( defaultSelectionState[ tax ] || '' ).trim();
+
+			if ( currentValue && currentValue !== defaultValue ) {
+				count += 1;
+			}
+		} );
+
+		if ( activeCoords ) {
+			count += 1;
+		}
+
+		return count;
+	}
+
+	function buildSummaryText( count ) {
+		if ( ! count || count <= 0 ) {
+			return '';
+		}
+
+		const template = strings.filtersSummary || '· %s';
+		return template.replace( '%s', count );
+	}
+
+	function updateStatusIndicator() {
+		if ( ! toggleSummary ) {
+			return;
+		}
+
+		const activeCount = getActiveFilterCount();
+		const summaryText = buildSummaryText( activeCount );
+
+		toggleSummary.textContent = summaryText;
+		toggleSummary.setAttribute( 'aria-hidden', summaryText ? 'false' : 'true' );
+	}
+
 	function updateCoordsState( nextCoords, options ) {
 		const config = options || {};
 
@@ -814,6 +858,7 @@
 
 		scrollListToTop();
 		fetchPage( { page: 1, append: false } );
+		updateStatusIndicator();
 	}
 
 	function applyCoordsFilter( rawCoords ) {
@@ -876,6 +921,7 @@
 	}
 
 	const initialState = applyStateFromParams( urlParams );
+	updateStatusIndicator();
 
 	syncHistoryState( { replace: true, force: true } );
 
@@ -943,6 +989,7 @@
 		activateListButton( listWrap, button );
 
 		selectionState[ tax ] = nextValue;
+		updateStatusIndicator();
 		nextPage = 2;
 		hasMore = false;
 

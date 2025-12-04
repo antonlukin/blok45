@@ -17,7 +17,10 @@
 			esc_url( blok45_get_icon( 'filters' ) )
 		);
 		?>
-		<span><?php esc_html_e( 'Filters', 'blok45' ); ?></span>
+		<span class="filters__toggle-label">
+			<?php esc_html_e( 'Filters', 'blok45' ); ?>
+			<span class="filters__toggle-summary" aria-live="polite" aria-atomic="true"></span>
+		</span>
 	</button>
 
 	<div class="filters__sheet" id="filters-panel-sheet" role="dialog" aria-modal="true" aria-labelledby="filters-panel-heading">
@@ -49,14 +52,16 @@
 					<div class="filters__list" role="list" data-tax="years">
 						<?php
 						printf(
-							'<button class="filters__item filters__item--active" data-value="" role="listitem" aria-pressed="true">%s</button>',
+							'<button class="filters__item filters__item--active" data-value="" data-label="%1$s" role="listitem" aria-pressed="true">%2$s</button>',
+							esc_attr__( 'Any', 'blok45' ),
 							esc_html__( 'Any', 'blok45' )
 						);
 
 						foreach ( blok45_year_ranges() as $range ) {
 							printf(
-								'<button class="filters__item" data-value="%1$s" role="listitem" aria-pressed="false">%2$s</button>',
+								'<button class="filters__item" data-value="%1$s" data-label="%2$s" role="listitem" aria-pressed="false">%3$s</button>',
 								esc_attr( $range['slug'] ),
+								esc_attr( $range['label'] ),
 								esc_html( $range['label'] )
 							);
 						}
@@ -83,14 +88,16 @@
 					<div class="filters__list" role="list" data-tax="artist">
 						<?php
 						printf(
-							'<button class="filters__item filters__item--active" data-value="" role="listitem" aria-pressed="true">%s</button>',
+							'<button class="filters__item filters__item--active" data-value="" data-label="%1$s" role="listitem" aria-pressed="true">%2$s</button>',
+							esc_attr__( 'Any', 'blok45' ),
 							esc_html__( 'Any', 'blok45' )
 						);
 
 						foreach ( blok45_get_artist_list( 4 ) as $artist ) {
 							printf(
-								'<button class="filters__item" data-value="%1$s" role="listitem" aria-pressed="false">%2$s<span class="filters__item-separator" aria-hidden="true"> | </span><span class="filters__item-count">%3$s</span></button>',
+								'<button class="filters__item" data-value="%1$s" data-label="%2$s" role="listitem" aria-pressed="false">%3$s<span class="filters__item-separator" aria-hidden="true"> | </span><span class="filters__item-count">%4$s</span></button>',
 								esc_attr( $artist->term_id ),
+								esc_attr( $artist->name ),
 								esc_html( $artist->name ),
 								esc_html( number_format_i18n( $artist->count ) )
 							);
