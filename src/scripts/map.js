@@ -103,12 +103,20 @@
 	function setupResponsiveInteractions( map ) {
 		const mq = window.matchMedia( '(max-width: 767px)' );
 
+		function enableTouchZoomRotate() {
+			if ( map && map.touchZoomRotate && typeof map.touchZoomRotate.enable === 'function' ) {
+				map.touchZoomRotate.enable();
+			}
+		}
+
 		function apply() {
 			if ( mq.matches ) {
 				map.dragPan.disable();
 			} else {
 				map.dragPan.enable();
 			}
+
+			enableTouchZoomRotate();
 		}
 
 		apply();
