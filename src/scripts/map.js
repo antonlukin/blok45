@@ -43,6 +43,7 @@
 		const el = document.createElement( 'button' );
 		el.type = 'button';
 		el.className = 'map__pin';
+		el.setAttribute( 'role', 'button' );
 		el.setAttribute( 'aria-pressed', 'false' );
 
 		if ( label ) {

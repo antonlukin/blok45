@@ -49,17 +49,17 @@
 						?>
 					</div>
 
-					<div class="filters__list" role="list" data-tax="years">
+					<div class="filters__list" data-tax="years">
 						<?php
 						printf(
-							'<button class="filters__item filters__item--active" data-value="" data-label="%1$s" role="listitem" aria-pressed="true">%2$s</button>',
+							'<button class="filters__item filters__item--active" data-value="" data-label="%1$s" aria-pressed="true">%2$s</button>',
 							esc_attr__( 'Any', 'blok45' ),
 							esc_html__( 'Any', 'blok45' )
 						);
 
 						foreach ( blok45_year_ranges() as $range ) {
 							printf(
-								'<button class="filters__item" data-value="%1$s" data-label="%2$s" role="listitem" aria-pressed="false">%3$s</button>',
+								'<button class="filters__item" data-value="%1$s" data-label="%2$s" aria-pressed="false">%3$s</button>',
 								esc_attr( $range['slug'] ),
 								esc_attr( $range['label'] ),
 								esc_html( $range['label'] )
@@ -85,17 +85,17 @@
 						?>
 					</div>
 
-					<div class="filters__list" role="list" data-tax="artist">
+					<div class="filters__list" data-tax="artist">
 						<?php
 						printf(
-							'<button class="filters__item filters__item--active" data-value="" data-label="%1$s" role="listitem" aria-pressed="true">%2$s</button>',
+							'<button class="filters__item filters__item--active" data-value="" data-label="%1$s" aria-pressed="true">%2$s</button>',
 							esc_attr__( 'Any', 'blok45' ),
 							esc_html__( 'Any', 'blok45' )
 						);
 
 						foreach ( blok45_get_artist_list( 4 ) as $artist ) {
 							printf(
-								'<button class="filters__item" data-value="%1$s" data-label="%2$s" role="listitem" aria-pressed="false">%3$s<span class="filters__item-separator" aria-hidden="true"> | </span><span class="filters__item-count">%4$s</span></button>',
+								'<button class="filters__item" data-value="%1$s" data-label="%2$s" aria-pressed="false">%3$s<span class="filters__item-separator" aria-hidden="true"> | </span><span class="filters__item-count">%4$s</span></button>',
 								esc_attr( $artist->term_id ),
 								esc_attr( $artist->name ),
 								esc_html( $artist->name ),
@@ -116,20 +116,20 @@
 						?>
 					</div>
 
-					<div class="filters__list" role="list" data-role="sort">
+					<div class="filters__list" data-role="sort">
 						<?php
 						printf(
-							'<button class="filters__item filters__item--active" role="listitem" aria-pressed="true">%s</button>',
+							'<button class="filters__item filters__item--active" aria-pressed="true">%s</button>',
 							esc_html__( 'Default', 'blok45' )
 						);
 
 						printf(
-							'<button class="filters__item" role="listitem" data-sort="reversed" aria-pressed="false">%s</button>',
+							'<button class="filters__item" data-sort="reversed" aria-pressed="false">%s</button>',
 							esc_html__( 'Reversed', 'blok45' )
 						);
 
 						printf(
-							'<button class="filters__item" role="listitem" data-sort="rating" aria-pressed="false">%s</button>',
+							'<button class="filters__item" data-sort="rating" aria-pressed="false">%s</button>',
 							esc_html__( 'Highest Rated', 'blok45' )
 						);
 						?>
