@@ -1,0 +1,132 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: apps
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: blok45-nginx
+  namespace: apps
+data:
+  default.conf: |
+    server {
+      listen 80;
+      server_name _;
+      root /var/www/html;
+
+      index index.php index.html;
+
+      location / {
+        try_files $uri $uri/ /index.php?$args;
+      }
+
+      location ~ \.php$ {
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param HTTPS off;
+        fastcgi_pass 127.0.0.1:9000;
+      }
+
+      location ~* \.(css|js|png|jpg|jpeg|gif|svg|ico|woff2?)$ {
+        expires 7d;
+        access_log off;
+      }
+    }
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: blok45
+  namespace: apps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: blok45
+  template:
+    metadata:
+      labels:
+        app: blok45
+    spec:
+      volumes:
+        - name: wp
+          emptyDir: {}
+        - name: nginx-conf
+          configMap:
+            name: blok45-nginx
+
+      initContainers:
+        - name: wp-seed
+          image: ghcr.io/antonlukin/blok45:latest
+          imagePullPolicy: Always
+          command: ["sh", "-lc"]
+          args:
+            - |
+              set -e
+              cp -a /usr/src/wordpress/. /work/
+          volumeMounts:
+            - name: wp
+              mountPath: /work
+
+      containers:
+        - name: php-fpm
+          image: ghcr.io/antonlukin/blok45:latest
+          imagePullPolicy: Always
+          envFrom:
+            - secretRef:
+                name: blok45-db
+          ports:
+            - containerPort: 9000
+          volumeMounts:
+            - name: wp
+              mountPath: /var/www/html
+
+        - name: nginx
+          image: nginx:1.27-alpine
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: wp
+              mountPath: /var/www/html
+            - name: nginx-conf
+              mountPath: /etc/nginx/conf.d/default.conf
+              subPath: default.conf
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: blok45
+  namespace: apps
+spec:
+  selector:
+    app: blok45
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: blok45
+  namespace: apps
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "64m"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: blok45.art
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: blok45
+                port:
+                  number: 80
