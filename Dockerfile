@@ -17,3 +17,4 @@ RUN set -eux; \
     done
 
 COPY public/ /usr/src/wordpress/wp-content/themes/blok45
+COPY mu-plugins/ /usr/src/wordpress/wp-content/mu-plugins/
