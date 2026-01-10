@@ -7,6 +7,7 @@ WORKDIR /build
 RUN set -eux; \
   composer init --no-interaction --name blok45/s3-uploads-build; \
   composer config --no-interaction platform.php 8.4.0; \
+  composer config --no-interaction allow-plugins.composer/installers true; \
   composer require --no-interaction --no-progress "humanmade/s3-uploads:${S3_UPLOADS_VERSION}"; \
   composer install --no-dev --classmap-authoritative --no-interaction --no-progress
 
@@ -30,3 +31,4 @@ COPY public/ /usr/src/wordpress/wp-content/themes/blok45
 COPY mu-plugins/ /usr/src/wordpress/wp-content/mu-plugins/
 
 COPY --from=s3uploads-build /build/vendor /usr/src/wordpress/wp-content/mu-plugins/vendor
+COPY --from=s3uploads-build /build/wp-content/plugins/s3-uploads /usr/src/wordpress/wp-content/plugins/s3-uploads
