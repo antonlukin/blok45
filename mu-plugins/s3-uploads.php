@@ -12,6 +12,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+$autoload = __DIR__ . '/vendor/autoload.php';
+
+if ( file_exists( $autoload ) ) {
+	require_once $autoload;
+}
+
 final class Blok45_S3_Uploads_Tweaks {
 	/**
 	 * Bootstrap static hooks.
@@ -29,8 +35,7 @@ final class Blok45_S3_Uploads_Tweaks {
 	 */
 	public static function configure_s3_client( array $params ): array {
 		$params['endpoint'] = 'https://ams3.digitaloceanspaces.com';
-		$params['use_path_style_endpoint'] = false;
-		$params['debug'] = false;
+		$params['debug']    = false;
 
 		return $params;
 	}
