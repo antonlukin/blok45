@@ -28,7 +28,7 @@ RUN set -eux; \
     done
 
 COPY public/ /usr/src/wordpress/wp-content/themes/blok45
-COPY mu-plugins/ /usr/src/wordpress/wp-content/mu-plugins/
+COPY mu-plugins/ /usr/src/wordpress/wp-content/mu-plugins
 
-COPY --from=s3uploads-build /build/vendor /usr/src/wordpress/wp-content/mu-plugins/vendor
+COPY --from=s3uploads-build /build/vendor /usr/src/wordpress/vendor
 COPY --from=s3uploads-build /build/wp-content/plugins/s3-uploads /usr/src/wordpress/wp-content/plugins/s3-uploads

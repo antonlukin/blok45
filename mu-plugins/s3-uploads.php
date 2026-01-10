@@ -12,12 +12,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$autoload = __DIR__ . '/vendor/autoload.php';
-
-if ( file_exists( $autoload ) ) {
-	require_once $autoload;
-}
-
 final class Blok45_S3_Uploads_Tweaks {
 	/**
 	 * Bootstrap static hooks.

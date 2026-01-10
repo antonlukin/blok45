@@ -72,6 +72,10 @@ spec:
           env:
             - name: WORDPRESS_CONFIG_EXTRA
               value: |
+                if (file_exists(__DIR__ . '/vendor/autoload.php')) {
+                  require_once __DIR__ . '/vendor/autoload.php';
+                }
+
                 define('WP_HOME', 'https://dev.blok45.art');
                 define('WP_SITEURL', 'https://dev.blok45.art');
 
@@ -79,14 +83,16 @@ spec:
                 define('DISALLOW_FILE_MODS', true);
                 define('UMAMI_WEBSITE_ID', '');
 
-                if (getenv('S3_UPLOADS_REGION')) define('S3_UPLOADS_REGION', getenv('S3_UPLOADS_REGION'));
-                if (getenv('S3_UPLOADS_BUCKET')) define('S3_UPLOADS_BUCKET', getenv('S3_UPLOADS_BUCKET'));
-                if (getenv('S3_UPLOADS_BUCKET_URL')) define('S3_UPLOADS_BUCKET_URL', getenv('S3_UPLOADS_BUCKET_URL'));
-                if (getenv('S3_UPLOADS_ENDPOINT')) define('S3_UPLOADS_ENDPOINT', getenv('S3_UPLOADS_ENDPOINT'));
+                define('S3_UPLOADS_KEY', $_ENV['S3_UPLOADS_KEY'] ?? null);
+                define('S3_UPLOADS_SECRET', $_ENV['S3_UPLOADS_SECRET'] ?? null);
+                define('S3_UPLOADS_BUCKET', $_ENV['S3_UPLOADS_BUCKET'] ?? null);
+                define('S3_UPLOADS_BUCKET_URL', $_ENV['S3_UPLOADS_BUCKET_URL'] ?? null);
+
+                define('S3_UPLOADS_REGION', 'ams3');
                 define('S3_UPLOADS_USE_PATH_STYLE_ENDPOINT', true);
 
-                if (getenv('BLOK45_LOGIN_SLUG')) define('BLOK45_LOGIN_SLUG', getenv('BLOK45_LOGIN_SLUG'));
-                if (getenv('BLOK45_LOGIN_REDIRECT_SLUG')) define('BLOK45_LOGIN_REDIRECT_SLUG', getenv('BLOK45_LOGIN_REDIRECT_SLUG'));
+                define('BLOK45_LOGIN_SLUG', $_ENV['BLOK45_LOGIN_SLUG'] ?? null);
+                define('BLOK45_LOGIN_REDIRECT_SLUG', $_ENV['BLOK45_LOGIN_REDIRECT_SLUG'] ?? null);
           envFrom:
             - secretRef:
                 name: blok45-db
