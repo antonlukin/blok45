@@ -72,11 +72,26 @@ spec:
           env:
             - name: WORDPRESS_CONFIG_EXTRA
               value: |
-                define('WP_HOME', 'http://dev.blok45.art');
-                define('WP_SITEURL', 'http://dev.blok45.art');
+                define('WP_HOME', 'https://dev.blok45.art');
+                define('WP_SITEURL', 'https://dev.blok45.art');
+
+                define('DISALLOW_FILE_EDIT', true);
+                define('DISALLOW_FILE_MODS', true);
+                define('UMAMI_WEBSITE_ID', '');
+
+                if (getenv('S3_UPLOADS_REGION')) define('S3_UPLOADS_REGION', getenv('S3_UPLOADS_REGION'));
+                if (getenv('S3_UPLOADS_BUCKET')) define('S3_UPLOADS_BUCKET', getenv('S3_UPLOADS_BUCKET'));
+                if (getenv('S3_UPLOADS_BUCKET_URL')) define('S3_UPLOADS_BUCKET_URL', getenv('S3_UPLOADS_BUCKET_URL'));
+                if (getenv('S3_UPLOADS_ENDPOINT')) define('S3_UPLOADS_ENDPOINT', getenv('S3_UPLOADS_ENDPOINT'));
+                define('S3_UPLOADS_USE_PATH_STYLE_ENDPOINT', true);
+
+                if (getenv('BLOK45_LOGIN_SLUG')) define('BLOK45_LOGIN_SLUG', getenv('BLOK45_LOGIN_SLUG'));
+                if (getenv('BLOK45_LOGIN_REDIRECT_SLUG')) define('BLOK45_LOGIN_REDIRECT_SLUG', getenv('BLOK45_LOGIN_REDIRECT_SLUG'));
           envFrom:
             - secretRef:
                 name: blok45-db
+            - secretRef:
+                name: blok45-wp-secrets
           ports:
             - containerPort: 9000
           volumeMounts:
