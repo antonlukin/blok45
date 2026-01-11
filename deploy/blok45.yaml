@@ -28,6 +28,10 @@ data:
         expires 7d;
         access_log off;
       }
+
+      location = /xmlrpc.php {
+        deny all;
+      }
     }
 
 ---
@@ -36,7 +40,12 @@ kind: Deployment
 metadata:
   name: blok45
 spec:
-  replicas: 1
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
   selector:
     matchLabels:
       app: blok45
@@ -82,14 +91,17 @@ spec:
                 define('DISALLOW_FILE_EDIT', true);
                 define('DISALLOW_FILE_MODS', true);
                 define('UMAMI_WEBSITE_ID', '');
+                define('DISABLE_WP_CRON', true);
 
                 define('S3_UPLOADS_KEY', $_ENV['S3_UPLOADS_KEY'] ?? null);
                 define('S3_UPLOADS_SECRET', $_ENV['S3_UPLOADS_SECRET'] ?? null);
                 define('S3_UPLOADS_BUCKET', $_ENV['S3_UPLOADS_BUCKET'] ?? null);
                 define('S3_UPLOADS_BUCKET_URL', $_ENV['S3_UPLOADS_BUCKET_URL'] ?? null);
-
-                define('S3_UPLOADS_REGION', 'ams3');
+                define('S3_UPLOADS_REGION', $_ENV['S3_UPLOADS_REGION'] ?? null);
                 define('S3_UPLOADS_USE_PATH_STYLE_ENDPOINT', true);
+
+                define('CLOUDFLARE_ZONE_ID', $_ENV['CLOUDFLARE_ZONE_ID'] ?? null);
+                define('CLOUDFLARE_API_TOKEN', $_ENV['CLOUDFLARE_API_TOKEN'] ?? null);
 
                 define('BLOK45_LOGIN_SLUG', $_ENV['BLOK45_LOGIN_SLUG'] ?? null);
                 define('BLOK45_LOGIN_REDIRECT_SLUG', $_ENV['BLOK45_LOGIN_REDIRECT_SLUG'] ?? null);
