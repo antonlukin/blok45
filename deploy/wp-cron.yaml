@@ -1,0 +1,71 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: blok45-wp-cron
+spec:
+  schedule: "*/10 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      template:
+        spec:
+          restartPolicy: Never
+
+          volumes:
+            - name: wp
+              emptyDir: {}
+
+          initContainers:
+            - name: wp-seed
+              image: ghcr.io/antonlukin/blok45:latest
+              imagePullPolicy: Always
+              command: ["sh", "-lc"]
+              args:
+                - |
+                  set -e
+                  cp -a /usr/src/wordpress/. /work/
+              volumeMounts:
+                - name: wp
+                  mountPath: /work
+
+          containers:
+            - name: wp-cli
+              image: wordpress:cli-php8.4
+              securityContext:
+                runAsUser: 0
+                runAsGroup: 0
+                allowPrivilegeEscalation: false
+              imagePullPolicy: IfNotPresent
+              envFrom:
+                - secretRef:
+                    name: blok45-db
+              env:
+                - name: WORDPRESS_CONFIG_EXTRA
+                  value: |
+                    define('WP_HOME', 'https://dev.blok45.art');
+                    define('WP_SITEURL', 'https://dev.blok45.art');
+                    define('DISABLE_WP_CRON', true);
+              volumeMounts:
+                - name: wp
+                  mountPath: /var/www/html
+              command: ["sh", "-lc"]
+              args:
+                - |
+                  set -euo pipefail
+                  cd /var/www/html
+
+                  wp --allow-root config create \
+                    --dbname="$WORDPRESS_DB_NAME" \
+                    --dbuser="$WORDPRESS_DB_USER" \
+                    --dbpass="$WORDPRESS_DB_PASSWORD" \
+                    --dbhost="$WORDPRESS_DB_HOST" \
+                    --skip-check \
+                    --extra-php <<PHP
+                    if (file_exists(__DIR__ . '/vendor/autoload.php')) {
+                      require_once __DIR__ . '/vendor/autoload.php';
+                    }
+                    PHP
+                  wp --allow-root cron event run --due-now
