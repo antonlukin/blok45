@@ -105,6 +105,15 @@ spec:
 
                 define('BLOK45_LOGIN_SLUG', $_ENV['BLOK45_LOGIN_SLUG'] ?? null);
                 define('BLOK45_LOGIN_REDIRECT_SLUG', $_ENV['BLOK45_LOGIN_REDIRECT_SLUG'] ?? null);
+
+                define( 'WP_REDIS_PREFIX', 'blok45:' );
+                define( 'WP_REDIS_HOST', 'redis' );
+                define( 'WP_REDIS_PORT', 6379 );
+
+                define( 'WP_REDIS_DISABLE_BANNERS', true );
+                define( 'WP_REDIS_DISABLE_METRICS', true );
+                define( 'WP_REDIS_DISABLE_COMMENT', true );
+                define( 'WP_REDIS_DISABLE_ADMINBAR', true );
           envFrom:
             - secretRef:
                 name: blok45-db
