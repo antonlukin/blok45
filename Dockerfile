@@ -13,11 +13,13 @@ RUN set -eux; \
 
 FROM wordpress:php8.4-fpm
 
-ARG WP_PLUGINS="query-monitor sharing-image wps-hide-login"
+ARG WP_PLUGINS="query-monitor sharing-image wps-hide-login redis-cache"
 
 RUN set -eux; \
     apt-get update; \
     apt-get install -y --no-install-recommends curl unzip; \
+    pecl install redis; \
+    docker-php-ext-enable redis; \
     rm -rf /var/lib/apt/lists/*
 
 RUN set -eux; \

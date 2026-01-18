@@ -45,8 +45,8 @@ spec:
               env:
                 - name: WORDPRESS_CONFIG_EXTRA
                   value: |
-                    define('WP_HOME', 'https://dev.blok45.art');
-                    define('WP_SITEURL', 'https://dev.blok45.art');
+                    define('WP_HOME', 'https://blok45.art');
+                    define('WP_SITEURL', 'https://blok45.art');
                     define('DISABLE_WP_CRON', true);
               volumeMounts:
                 - name: wp
