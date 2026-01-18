@@ -35,5 +35,7 @@ COPY mu-plugins/ /usr/src/wordpress/wp-content/mu-plugins
 COPY --from=s3uploads-build /build/vendor /usr/src/wordpress/vendor
 COPY --from=s3uploads-build /build/wp-content/plugins/s3-uploads /usr/src/wordpress/wp-content/plugins/s3-uploads
 
+COPY wp-config-docker.php /usr/src/wordpress/wp-config-docker.php
+
 RUN set -eux; \
   cp /usr/src/wordpress/wp-content/plugins/redis-cache/includes/object-cache.php /usr/src/wordpress/wp-content/object-cache.php

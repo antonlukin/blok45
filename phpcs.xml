@@ -8,4 +8,5 @@
         <exclude name="WordPress.WP.I18n.MissingTranslatorsComment"/>
     </rule>
     <exclude-pattern>external/*</exclude-pattern>
+    <exclude-pattern>wp-config-docker.php</exclude-pattern>
 </ruleset>

@@ -78,42 +78,6 @@ spec:
         - name: php-fpm
           image: ghcr.io/antonlukin/blok45:latest
           imagePullPolicy: Always
-          env:
-            - name: WORDPRESS_CONFIG_EXTRA
-              value: |
-                if (file_exists(__DIR__ . '/vendor/autoload.php')) {
-                  require_once __DIR__ . '/vendor/autoload.php';
-                }
-
-                define('WP_HOME', 'https://blok45.art');
-                define('WP_SITEURL', 'https://blok45.art');
-
-                define('DISALLOW_FILE_EDIT', true);
-                define('DISALLOW_FILE_MODS', true);
-                define('UMAMI_WEBSITE_ID', '5ef9ddb0-8aa6-45f6-8058-2eaefc49f643');
-                define('DISABLE_WP_CRON', true);
-
-                define('S3_UPLOADS_KEY', $_ENV['S3_UPLOADS_KEY'] ?? null);
-                define('S3_UPLOADS_SECRET', $_ENV['S3_UPLOADS_SECRET'] ?? null);
-                define('S3_UPLOADS_BUCKET', $_ENV['S3_UPLOADS_BUCKET'] ?? null);
-                define('S3_UPLOADS_BUCKET_URL', $_ENV['S3_UPLOADS_BUCKET_URL'] ?? null);
-                define('S3_UPLOADS_REGION', $_ENV['S3_UPLOADS_REGION'] ?? null);
-                define('S3_UPLOADS_USE_PATH_STYLE_ENDPOINT', true);
-
-                define('CLOUDFLARE_ZONE_ID', $_ENV['CLOUDFLARE_ZONE_ID'] ?? null);
-                define('CLOUDFLARE_API_TOKEN', $_ENV['CLOUDFLARE_API_TOKEN'] ?? null);
-
-                define('BLOK45_LOGIN_SLUG', $_ENV['BLOK45_LOGIN_SLUG'] ?? null);
-                define('BLOK45_LOGIN_REDIRECT_SLUG', $_ENV['BLOK45_LOGIN_REDIRECT_SLUG'] ?? null);
-
-                define( 'WP_REDIS_PREFIX', 'blok45:' );
-                define( 'WP_REDIS_HOST', 'redis' );
-                define( 'WP_REDIS_PORT', 6379 );
-
-                define( 'WP_REDIS_DISABLE_BANNERS', true );
-                define( 'WP_REDIS_DISABLE_METRICS', true );
-                define( 'WP_REDIS_DISABLE_COMMENT', true );
-                define( 'WP_REDIS_DISABLE_ADMINBAR', true );
           envFrom:
             - secretRef:
                 name: blok45-db

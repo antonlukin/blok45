@@ -34,20 +34,16 @@ spec:
           containers:
             - name: wp-cli
               image: wordpress:cli-php8.4
+              imagePullPolicy: IfNotPresent
               securityContext:
                 runAsUser: 0
                 runAsGroup: 0
                 allowPrivilegeEscalation: false
-              imagePullPolicy: IfNotPresent
               envFrom:
                 - secretRef:
                     name: blok45-db
-              env:
-                - name: WORDPRESS_CONFIG_EXTRA
-                  value: |
-                    define('WP_HOME', 'https://blok45.art');
-                    define('WP_SITEURL', 'https://blok45.art');
-                    define('DISABLE_WP_CRON', true);
+                - secretRef:
+                    name: blok45-wp-secrets
               volumeMounts:
                 - name: wp
                   mountPath: /var/www/html
@@ -56,16 +52,6 @@ spec:
                 - |
                   set -euo pipefail
                   cd /var/www/html
-
-                  wp --allow-root config create \
-                    --dbname="$WORDPRESS_DB_NAME" \
-                    --dbuser="$WORDPRESS_DB_USER" \
-                    --dbpass="$WORDPRESS_DB_PASSWORD" \
-                    --dbhost="$WORDPRESS_DB_HOST" \
-                    --skip-check \
-                    --extra-php <<PHP
-                    if (file_exists(__DIR__ . '/vendor/autoload.php')) {
-                      require_once __DIR__ . '/vendor/autoload.php';
-                    }
-                    PHP
+                  cp wp-config-docker.php wp-config.php
                   wp --allow-root cron event run --due-now
+
