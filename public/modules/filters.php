@@ -287,18 +287,21 @@ class Blok45_Modules_Filters {
 
 				$meta_key = Blok45_Modules_Rating::META_KEY;
 
-				$args['meta_key']  = $meta_key; // phpcs:ignore WordPress.DB.SlowDBQuery
-				$args['meta_type'] = 'NUMERIC';
-				$args['orderby']   = array(
+				$args['meta_key']            = $meta_key; // phpcs:ignore WordPress.DB.SlowDBQuery
+				$args['meta_type']           = 'NUMERIC';
+				$args['orderby']             = array(
 					'meta_value_num' => 'DESC',
 					'date'           => 'ASC',
 				);
+				$args['ignore_sticky_posts'] = true;
+
 				unset( $args['order'] );
 				break;
 
 			case 'reversed':
-				$args['orderby'] = 'ID';
-				$args['order']   = 'DESC';
+				$args['orderby']             = 'ID';
+				$args['order']               = 'DESC';
+				$args['ignore_sticky_posts'] = true;
 				break;
 
 			default:

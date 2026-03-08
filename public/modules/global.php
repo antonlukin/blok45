@@ -209,8 +209,12 @@ class Blok45_Modules_Global {
 	/**
 	 * Set custom post classes using only post format
 	 */
-	public static function update_post_classes( $classes, $name ) {
-		return $name;
+	public static function update_post_classes( $classes, $css_class ) {
+		if ( is_sticky() ) {
+			$css_class[] = 'card--sticky';
+		}
+
+		return $css_class;
 	}
 
 	/**

@@ -7,7 +7,7 @@
  */
 ?>
 
-<div class="card">
+<div <?php post_class( 'card' ); ?>>
 	<figure class="card__image">
 		<?php
 		the_post_thumbnail(
