@@ -177,6 +177,59 @@
 			} );
 	} );
 
+	var refreshedIds = new Set();
+
+	function refreshRatings() {
+		var buttons = document.querySelectorAll( '.like[data-post]' );
+		var ids = [];
+		var targetButtons = [];
+
+		buttons.forEach( function( button ) {
+			var id = Number( button.dataset.post );
+
+			if ( ! Number.isNaN( id ) && id > 0 && ! refreshedIds.has( id ) ) {
+				if ( ids.indexOf( id ) === -1 ) {
+					ids.push( id );
+				}
+
+				targetButtons.push( button );
+			}
+		} );
+
+		if ( ! ids.length ) {
+			return;
+		}
+
+		var url = endpoint.replace( /\/rating$/, '/ratings' ) + '?posts=' + ids.join( ',' );
+
+		window.fetch( url, { credentials: 'same-origin' } )
+			.then( function( response ) {
+				return response.ok ? response.json() : null;
+			} )
+			.then( function( data ) {
+				if ( ! data || ! data.ratings ) {
+					return;
+				}
+
+				ids.forEach( function( id ) {
+					refreshedIds.add( id );
+				} );
+
+				targetButtons.forEach( function( button ) {
+					var postId = String( button.dataset.post );
+
+					if ( data.ratings.hasOwnProperty( postId ) ) {
+						updateCount( button, Number( data.ratings[ postId ] ) || 0 );
+					}
+				} );
+			} )
+			.catch( function() {} );
+	}
+
 	syncAllButtons();
-	window.addEventListener( 'blok45:cards-updated', syncAllButtons );
+	refreshRatings();
+	window.addEventListener( 'blok45:cards-updated', function() {
+		syncAllButtons();
+		refreshRatings();
+	} );
 }() );

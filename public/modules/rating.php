@@ -76,6 +76,22 @@ class Blok45_Modules_Rating {
 				),
 			)
 		);
+
+		register_rest_route(
+			'blok45/v1',
+			'/ratings',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( __CLASS__, 'rest_get_ratings_batch' ),
+				'permission_callback' => '__return_true',
+				'args'                => array(
+					'posts' => array(
+						'required' => true,
+						'type'     => 'string',
+					),
+				),
+			)
+		);
 	}
 
 	/**
@@ -117,6 +133,47 @@ class Blok45_Modules_Rating {
 		}
 
 		update_post_meta( $post_id, self::META_KEY, 0 );
+	}
+
+	/**
+	 * Return rating for requested post.
+	 *
+	 * @param WP_REST_Request $request Incoming request.
+	 *
+	 * @return WP_REST_Response|
+	 */
+	/**
+	 * Return ratings for multiple posts in a single request.
+	 *
+	 * @param WP_REST_Request $request Incoming request.
+	 *
+	 * @return WP_REST_Response
+	 */
+	public static function rest_get_ratings_batch( WP_REST_Request $request ) {
+		$raw_ids  = explode( ',', $request->get_param( 'posts' ) );
+		$post_ids = array();
+
+		foreach ( $raw_ids as $raw_id ) {
+			$id = absint( trim( $raw_id ) );
+
+			if ( $id > 0 ) {
+				$post_ids[] = $id;
+			}
+		}
+
+		$post_ids = array_unique( array_slice( $post_ids, 0, 100 ) );
+		$ratings  = array();
+
+		foreach ( $post_ids as $post_id ) {
+			$ratings[ $post_id ] = self::get_post_rating_value( $post_id );
+		}
+
+		return rest_ensure_response(
+			array(
+				'ratings' => $ratings,
+				'success' => true,
+			)
+		);
 	}
 
 	/**
