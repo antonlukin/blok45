@@ -31,6 +31,7 @@ class Blok45_Modules_Global {
 		add_action( 'admin_init', array( __CLASS__, 'hide_useless_functions' ) );
 		add_action( 'pre_get_posts', array( __CLASS__, 'disable_default_archives' ) );
 		add_action( 'pre_get_posts', array( __CLASS__, 'disable_front_search' ) );
+		add_action( 'pre_get_posts', array( __CLASS__, 'set_default_post_order' ) );
 
 		// Remove auto suggestions
 		add_filter( 'do_redirect_guess_404_permalink', '__return_false' );
@@ -78,6 +79,7 @@ class Blok45_Modules_Global {
 		add_theme_support( 'automatic-feed-links' );
 		add_theme_support( 'customize-selective-refresh-widgets' );
 		add_post_type_support( 'page', 'excerpt' );
+		add_post_type_support( 'post', 'page-attributes' );
 
 		remove_theme_support( 'core-block-patterns' );
 		remove_theme_support( 'block-templates' );
@@ -123,6 +125,24 @@ class Blok45_Modules_Global {
 
 		remove_submenu_page( 'themes.php', 'site-editor.php?path=/patterns' );
 		remove_action( 'admin_head', 'wp_site_icon' );
+	}
+
+	/**
+	 * Sort posts by menu_order by default.
+	 *
+	 * @param WP_Query $query Current query instance.
+	 */
+	public static function set_default_post_order( $query ) {
+		if ( ! $query->get( 'post_type' ) || $query->get( 'post_type' ) === 'post' ) {
+			$orderby = array(
+				'menu_order' => 'DESC',
+				'ID'         => 'ASC',
+			);
+
+			if ( ! $query->get( 'orderby' ) ) {
+				$query->set( 'orderby', $orderby );
+			}
+		}
 	}
 
 	/**
