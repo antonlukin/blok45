@@ -29,6 +29,11 @@ class Blok45_Modules_Global {
 		add_action( 'get_header', array( __CLASS__, 'remove_adminbar_styles' ) );
 		add_filter( 'feed_links_show_comments_feed', '__return_false' );
 		add_action( 'admin_init', array( __CLASS__, 'hide_useless_functions' ) );
+		add_filter( 'manage_posts_columns', array( __CLASS__, 'add_order_column' ) );
+		add_action( 'manage_posts_custom_column', array( __CLASS__, 'render_order_column' ), 10, 2 );
+		add_filter( 'manage_edit-post_sortable_columns', array( __CLASS__, 'sortable_order_column' ) );
+		add_filter( 'rest_pre_insert_post', array( __CLASS__, 'save_rest_menu_order' ), 10, 2 );
+		add_filter( 'rest_prepare_post', array( __CLASS__, 'expose_rest_menu_order' ), 10, 2 );
 		add_action( 'pre_get_posts', array( __CLASS__, 'disable_default_archives' ) );
 		add_action( 'pre_get_posts', array( __CLASS__, 'disable_front_search' ) );
 		add_action( 'pre_get_posts', array( __CLASS__, 'set_default_post_order' ) );
@@ -125,6 +130,63 @@ class Blok45_Modules_Global {
 
 		remove_submenu_page( 'themes.php', 'site-editor.php?path=/patterns' );
 		remove_action( 'admin_head', 'wp_site_icon' );
+	}
+
+	/**
+	 * Ensure menu_order is saved via REST API regardless of schema cache.
+	 *
+	 * WordPress caches the REST API schema (object cache / Redis), so menu_order
+	 * may not be present in a cached schema even after page-attributes support is added.
+	 * This filter bypasses the schema check and always saves the value when provided.
+	 *
+	 * @param stdClass        $prepared_post Post object prepared for database insertion.
+	 * @param WP_REST_Request $request       Request object.
+	 */
+	/**
+	 * Ensure menu_order is exposed in REST API GET responses.
+	 *
+	 * @param WP_REST_Response $response REST response object.
+	 * @param WP_Post          $post     Post object.
+	 */
+	public static function expose_rest_menu_order( $response, $post ) {
+		$response->data['menu_order'] = (int) $post->menu_order;
+
+		return $response;
+	}
+
+	public static function save_rest_menu_order( $prepared_post, $request ) {
+		if ( isset( $request['menu_order'] ) ) {
+			$prepared_post->menu_order = (int) $request['menu_order'];
+		}
+
+		return $prepared_post;
+	}
+
+	/**
+	 * Add Order column to posts list table.
+	 */
+	public static function add_order_column( $columns ) {
+		$columns['menu_order'] = esc_html__( 'Order', 'blok45' );
+
+		return $columns;
+	}
+
+	/**
+	 * Render Order column value.
+	 */
+	public static function render_order_column( $column, $post_id ) {
+		if ( 'menu_order' === $column ) {
+			echo (int) get_post_field( 'menu_order', $post_id );
+		}
+	}
+
+	/**
+	 * Make Order column sortable.
+	 */
+	public static function sortable_order_column( $columns ) {
+		$columns['menu_order'] = 'menu_order';
+
+		return $columns;
 	}
 
 	/**
