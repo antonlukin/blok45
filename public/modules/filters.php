@@ -402,15 +402,9 @@ class Blok45_Modules_Filters {
 	public static function get_year_ranges() {
 		return array(
 			array(
-				'slug'  => 'from-2005',
-				'label' => '< 2005',
+				'slug'  => 'from-2010',
+				'label' => '< 2010',
 				'min'   => null,
-				'max'   => 2004,
-			),
-			array(
-				'slug'  => '2005-2009',
-				'label' => '2005-2009',
-				'min'   => 2005,
 				'max'   => 2009,
 			),
 			array(
@@ -426,9 +420,15 @@ class Blok45_Modules_Filters {
 				'max'   => 2019,
 			),
 			array(
-				'slug'  => 'after-2020',
-				'label' => '> 2020',
+				'slug'  => '2020-2024',
+				'label' => '2020-2024',
 				'min'   => 2020,
+				'max'   => 2024,
+			),
+			array(
+				'slug'  => 'after-2025',
+				'label' => '> 2025',
+				'min'   => 2025,
 				'max'   => null,
 			),
 		);
