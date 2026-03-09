@@ -32,7 +32,7 @@
 			esc_url( blok45_get_icon( 'liked' ) )
 		);
 		?>
-		<span class="like__count" aria-live="polite"></span>
+		<span class="like__count" aria-live="polite">0</span>
 	</button>
 
 	<div class="card__content">
