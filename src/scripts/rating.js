@@ -63,13 +63,47 @@
 		persistStore();
 	}
 
+	const formatter = new Intl.NumberFormat();
+
 	function updateCount( button, rating ) {
 		const counter = button.querySelector( '.like__count' );
 
 		if ( counter ) {
 			counter.dataset.rating = String( rating );
-			counter.textContent = new Intl.NumberFormat().format( rating );
+			counter.textContent = formatter.format( rating );
 		}
+	}
+
+	function animateCount( button, target ) {
+		const counter = button.querySelector( '.like__count' );
+
+		if ( ! counter ) {
+			return;
+		}
+
+		counter.dataset.rating = String( target );
+
+		if ( target === 0 ) {
+			counter.textContent = formatter.format( 0 );
+			return;
+		}
+
+		const duration = 400;
+		const start = performance.now();
+
+		function step( now ) {
+			const progress = Math.min( ( now - start ) / duration, 1 );
+			const eased = 1 - Math.pow( 1 - progress, 3 );
+			const current = Math.round( eased * target );
+
+			counter.textContent = formatter.format( current );
+
+			if ( progress < 1 ) {
+				window.requestAnimationFrame( step );
+			}
+		}
+
+		window.requestAnimationFrame( step );
 	}
 
 	function setBusyState( button, busy ) {
@@ -94,15 +128,7 @@
 			return;
 		}
 
-		const counter = button.querySelector( '.like__count' );
-		const rating = counter ? Number( counter.dataset.rating ) : Number.NaN;
-
-		if ( ! Number.isNaN( rating ) ) {
-			updateCount( button, rating );
-		}
-
-		const liked = hasRated( postId );
-		applyButtonState( button, liked );
+		applyButtonState( button, hasRated( postId ) );
 	}
 
 	function syncAllButtons() {
@@ -177,17 +203,21 @@
 			} );
 	} );
 
-	var refreshedIds = new Set();
+	const refreshedButtons = new WeakSet();
 
 	function refreshRatings() {
-		var buttons = document.querySelectorAll( '.like[data-post]' );
-		var ids = [];
-		var targetButtons = [];
+		const buttons = document.querySelectorAll( '.like[data-post]' );
+		const ids = [];
+		const targetButtons = [];
 
 		buttons.forEach( function( button ) {
-			var id = Number( button.dataset.post );
+			if ( refreshedButtons.has( button ) ) {
+				return;
+			}
 
-			if ( ! Number.isNaN( id ) && id > 0 && ! refreshedIds.has( id ) ) {
+			const id = Number( button.dataset.post );
+
+			if ( ! Number.isNaN( id ) && id > 0 ) {
 				if ( ids.indexOf( id ) === -1 ) {
 					ids.push( id );
 				}
@@ -200,7 +230,7 @@
 			return;
 		}
 
-		var url = endpoint.replace( /\/rating$/, '/ratings' ) + '?posts=' + ids.join( ',' );
+		const url = endpoint.replace( /\/rating$/, '/ratings' ) + '?posts=' + ids.join( ',' );
 
 		window.fetch( url, { credentials: 'same-origin' } )
 			.then( function( response ) {
@@ -211,15 +241,15 @@
 					return;
 				}
 
-				ids.forEach( function( id ) {
-					refreshedIds.add( id );
+				targetButtons.forEach( function( button ) {
+					refreshedButtons.add( button );
 				} );
 
 				targetButtons.forEach( function( button ) {
-					var postId = String( button.dataset.post );
+					const postId = String( button.dataset.post );
 
 					if ( data.ratings.hasOwnProperty( postId ) ) {
-						updateCount( button, Number( data.ratings[ postId ] ) || 0 );
+						animateCount( button, Number( data.ratings[ postId ] ) || 0 );
 					}
 				} );
 			} )

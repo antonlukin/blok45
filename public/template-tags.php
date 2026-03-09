@@ -87,31 +87,6 @@ if ( ! function_exists( 'blok45_get_map_args' ) ) :
 	}
 endif;
 
-if ( ! function_exists( 'blok45_get_post_rating' ) ) :
-	/**
-	 * Return rating data for the given post.
-	 *
-	 * @param int|WP_Post|null $post Optional post reference.
-	 *
-	 * @return array
-	 */
-	function blok45_get_post_rating( $post = null ) {
-		$post = get_post( $post );
-
-		if ( ! $post ) {
-			return 0;
-		}
-
-		$rating = 0;
-
-		if ( method_exists( 'Blok45_Modules_Rating', 'get_post_rating_value' ) ) {
-			$rating = (float) Blok45_Modules_Rating::get_post_rating_value( $post->ID );
-		}
-
-		return $rating;
-	}
-endif;
-
 if ( ! function_exists( 'blok45_get_single_context' ) ) :
 	/**
 	 * Return prepared context data for the single post template.

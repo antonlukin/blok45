@@ -136,13 +136,6 @@ class Blok45_Modules_Rating {
 	}
 
 	/**
-	 * Return rating for requested post.
-	 *
-	 * @param WP_REST_Request $request Incoming request.
-	 *
-	 * @return WP_REST_Response|
-	 */
-	/**
 	 * Return ratings for multiple posts in a single request.
 	 *
 	 * @param WP_REST_Request $request Incoming request.

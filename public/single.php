@@ -30,7 +30,7 @@ get_header(); ?>
 							esc_url( blok45_get_icon( 'liked' ) )
 						);
 						?>
-						<span class="like__count" aria-live="polite" data-rating="<?php echo esc_attr( $gallery['rating']['value'] ); ?>"><?php echo esc_html( $gallery['rating']['display'] ); ?></span>
+						<span class="like__count" aria-live="polite"></span>
 					</button>
 				</div>
 

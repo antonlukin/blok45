@@ -20,8 +20,6 @@
 		?>
 	</figure>
 
-	<?php $rating = blok45_get_post_rating( get_the_ID() ); ?>
-
 	<button class="card__like like" type="button" data-post="<?php echo esc_attr( get_the_ID() ); ?>" aria-pressed="false">
 		<?php
 		printf(
@@ -33,13 +31,8 @@
 			'<svg class="like__icon like__icon--active" aria-hidden="true"><use xlink:href="%1$s" href="%1$s"></use></svg>',
 			esc_url( blok45_get_icon( 'liked' ) )
 		);
-
-		printf(
-			'<span class="like__count" aria-live="polite" data-rating="%s">%s</span>',
-			esc_attr( $rating ),
-			esc_html( $rating )
-		);
 		?>
+		<span class="like__count" aria-live="polite"></span>
 	</button>
 
 	<div class="card__content">
