@@ -261,7 +261,10 @@ class Blok45_Modules_Filters {
 			'posts_per_page' => 24,
 			'no_found_rows'  => false,
 			'paged'          => $page,
-			'orderby'        => array( 'menu_order' => 'DESC', 'ID' => 'ASC' ),
+			'orderby'        => array(
+				'menu_order' => 'DESC',
+				'ID'         => 'ASC',
+			),
 		);
 
 		if ( $coords_filter ) {
@@ -298,7 +301,10 @@ class Blok45_Modules_Filters {
 				break;
 
 			case 'reversed':
-				$args['orderby']             = array( 'menu_order' => 'ASC', 'ID' => 'DESC' );
+				$args['orderby']             = array(
+					'menu_order' => 'ASC',
+					'ID'         => 'DESC',
+				);
 				$args['ignore_sticky_posts'] = true;
 				break;
 
