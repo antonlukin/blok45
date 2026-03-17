@@ -13,6 +13,7 @@ if ( ! defined( 'WPINC' ) ) {
 class Blok45_Modules_Settings {
 	const OPTION_CORRECTION_URL          = 'blok45_correction_url';
 	const OPTION_UNKNOWN_ARCHIVE_MESSAGE = 'blok45_unknown_archive_message';
+	const OPTION_QR_UTM_QUERY            = 'blok45_qr_utm_query';
 
 	/**
 	 * Bootstraps settings hooks.
@@ -71,6 +72,27 @@ class Blok45_Modules_Settings {
 				'label_for' => self::OPTION_UNKNOWN_ARCHIVE_MESSAGE,
 			)
 		);
+
+		register_setting(
+			'general',
+			self::OPTION_QR_UTM_QUERY,
+			array(
+				'type'              => 'string',
+				'sanitize_callback' => array( __CLASS__, 'sanitize_qr_utm_query' ),
+				'default'           => '',
+			)
+		);
+
+		add_settings_field(
+			self::OPTION_QR_UTM_QUERY,
+			__( 'QR UTM parameters', 'blok45' ),
+			array( __CLASS__, 'render_qr_utm_field' ),
+			'general',
+			'default',
+			array(
+				'label_for' => self::OPTION_QR_UTM_QUERY,
+			)
+		);
 	}
 
 	/**
@@ -120,6 +142,33 @@ class Blok45_Modules_Settings {
 	}
 
 	/**
+	 * Renders the QR UTM query field markup.
+	 */
+	public static function render_qr_utm_field() {
+		$value = self::get_qr_utm_query();
+
+		printf(
+			'<input type="text" id="%1$s" name="%1$s" value="%2$s" class="regular-text ltr" placeholder="%3$s">',
+			esc_attr( self::OPTION_QR_UTM_QUERY ),
+			esc_attr( $value ),
+			esc_attr__( 'utm_source=qr&utm_medium=offline', 'blok45' )
+		);
+
+		printf(
+			'<p class="description">%s</p>',
+			esc_html__( 'Applied to QR short links like /qr/123/ before redirecting to the canonical object URL.', 'blok45' )
+		);
+
+		printf(
+			'<p class="description">%s</p>',
+			sprintf(
+				esc_html__( 'Format: %s', 'blok45' ),
+				'utm_source=qr&utm_medium=offline'
+			)
+		);
+	}
+
+	/**
 	 * Returns the correction URL, applying the permalink placeholder if present.
 	 *
 	 * @param int|WP_Post|null $post Optional post reference.
@@ -157,6 +206,50 @@ class Blok45_Modules_Settings {
 		$description = trim( get_option( self::OPTION_UNKNOWN_ARCHIVE_MESSAGE, '' ) );
 
 		return wp_kses_post( $description );
+	}
+
+	/**
+	 * Returns the sanitized QR UTM query string.
+	 *
+	 * @return string
+	 */
+	public static function get_qr_utm_query() {
+		return self::sanitize_qr_utm_query( get_option( self::OPTION_QR_UTM_QUERY, '' ) );
+	}
+
+	/**
+	 * Normalizes a raw UTM query string.
+	 *
+	 * @param mixed $value Raw option value.
+	 *
+	 * @return string
+	 */
+	public static function sanitize_qr_utm_query( $value ) {
+		$value = ltrim( trim( (string) $value ), '?' );
+
+		if ( '' === $value ) {
+			return '';
+		}
+
+		$parsed = array();
+		wp_parse_str( $value, $parsed );
+
+		if ( empty( $parsed ) || ! is_array( $parsed ) ) {
+			return '';
+		}
+
+		$parsed = array_filter(
+			$parsed,
+			static function ( $item ) {
+				return is_scalar( $item ) && '' !== trim( (string) $item );
+			}
+		);
+
+		if ( empty( $parsed ) ) {
+			return '';
+		}
+
+		return http_build_query( $parsed, '', '&', PHP_QUERY_RFC3986 );
 	}
 
 	/**
