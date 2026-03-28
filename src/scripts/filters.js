@@ -372,17 +372,38 @@
 		};
 	}
 
+	function getPreservedSearchString() {
+		const searchParams = new window.URLSearchParams( window.location.search || '' );
+
+		Object.keys( selectionState ).forEach( function( tax ) {
+			searchParams.delete( tax );
+		} );
+
+		searchParams.delete( 'sort' );
+		searchParams.delete( 'coords' );
+		searchParams.delete( 'page' );
+
+		const preservedSearch = searchParams.toString();
+
+		if ( preservedSearch.length > 0 ) {
+			return '?' + preservedSearch;
+		}
+
+		return '';
+	}
+
 	function syncHistoryState( options ) {
 		const config = options || {};
 		const params = buildParams( { sort: getSortParam() } );
 		const hashString = params.toString();
+		const preservedSearch = getPreservedSearchString();
 
 		let targetHash = '';
 		if ( hashString.length > 0 ) {
 			targetHash = '#' + hashString;
 		}
 
-		const targetUrl = window.location.pathname + targetHash;
+		const targetUrl = window.location.pathname + preservedSearch + targetHash;
 
 		if ( ! window.history || typeof window.history.pushState !== 'function' ) {
 			const currentHash = window.location.hash || '';
