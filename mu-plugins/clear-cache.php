@@ -16,6 +16,7 @@ final class Blok45_Cloudflare_Cache_Clear {
 	private const ACTION_PARAM = 'clear_cloudflare_cache';
 	private const NOTICE_PARAM = 'cf_cache_cleared';
 	private const NONCE_ACTION = 'clear_cloudflare_cache_action';
+	private const NOTICE_KEY   = 'blok45_cf_cache_notice_';
 
 	/**
 	 * Bootstrap hooks.
@@ -75,19 +76,18 @@ final class Blok45_Cloudflare_Cache_Clear {
 			return;
 		}
 
-		$cleared = self::clear_cloudflare_cache();
+		$result = self::clear_cloudflare_cache();
 
-		$notice_value   = '0';
-		$notice_message = '';
+		$notice_value = '1';
 
-		if ( $cleared === true ) {
-			$notice_value = '1';
-		} elseif ( is_wp_error( $cleared ) ) {
-			$notice_message = $cleared->get_error_message();
-		}
+		if ( is_wp_error( $result ) ) {
+			$notice_value = '0';
 
-		if ( $notice_message !== '' ) {
-			self::store_notice_message( $notice_message );
+			$message = sprintf( '[%s] %s', $result->get_error_code(), $result->get_error_message() );
+
+			self::store_notice_message( $message );
+
+			error_log( 'Cloudflare cache purge failed: ' . $message ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		}
 
 		$redirect_url = wp_get_referer();
@@ -96,7 +96,7 @@ final class Blok45_Cloudflare_Cache_Clear {
 			$redirect_url = admin_url( 'index.php' );
 		}
 
-		$redirect_url = remove_query_arg( self::ACTION_PARAM, $redirect_url );
+		$redirect_url = remove_query_arg( array( self::ACTION_PARAM, '_wpnonce' ), $redirect_url );
 		$redirect_url = add_query_arg( self::NOTICE_PARAM, $notice_value, $redirect_url );
 
 		wp_safe_redirect( esc_url_raw( $redirect_url ) );
@@ -115,33 +115,38 @@ final class Blok45_Cloudflare_Cache_Clear {
 
 		if ( $notice === '1' ) {
 			printf(
-				'<div class="notice notice-sucess is-dismissible"><p>%s</p></div>',
-				esc_html__( 'Cloudflare cache successfuly purged.', 'blok45' )
+				'<div class="notice notice-success is-dismissible"><p>%s</p></div>',
+				esc_html__( 'Cloudflare cache successfully purged.', 'blok45' )
 			);
 
 			return;
 		}
 
+		$details = self::pull_notice_message();
+
 		printf(
-			'<div class="notice notice-error is-dismissible"><p>%s</p></div>',
-			esc_html__( 'Cloudflare cache flush failed. Check configuration.', 'blok45' )
+			'<div class="notice notice-error is-dismissible"><p><strong>%s</strong>%s</p></div>',
+			esc_html__( 'Cloudflare cache flush failed.', 'blok45' ),
+			$details !== '' ? ' <code>' . esc_html( $details ) . '</code>' : ''
 		);
 	}
 
 	/**
 	 * Call the Cloudflare API to purge the entire zone cache.
+	 *
+	 * @return true|WP_Error True on success, WP_Error describing the failure otherwise.
 	 */
-	private static function clear_cloudflare_cache(): bool {
+	private static function clear_cloudflare_cache() {
 		$zone_id = self::get_zone_id();
 
-		if ( empty( $zone_id ) ) {
-			return false;
+		if ( $zone_id === '' ) {
+			return new WP_Error( 'cf_no_zone_id', 'CLOUDFLARE_ZONE_ID constant is not defined or empty.' );
 		}
 
 		$token = self::get_api_token();
 
-		if ( empty( $token ) ) {
-			return false;
+		if ( $token === '' ) {
+			return new WP_Error( 'cf_no_token', 'CLOUDFLARE_API_TOKEN constant is not defined or empty.' );
 		}
 
 		$response = wp_remote_post(
@@ -157,32 +162,80 @@ final class Blok45_Cloudflare_Cache_Clear {
 		);
 
 		if ( is_wp_error( $response ) ) {
-			return false;
+			return new WP_Error(
+				'cf_http_error',
+				sprintf( 'wp_remote_post failed: %s (%s)', $response->get_error_message(), $response->get_error_code() )
+			);
 		}
 
 		$status_code = (int) wp_remote_retrieve_response_code( $response );
-
-		if ( $status_code < 200 || $status_code >= 300 ) {
-			return false;
-		}
-
-		$body = wp_remote_retrieve_body( $response );
-
-		if ( ! is_string( $body ) || $body === '' ) {
-			return false;
-		}
-
-		$data = json_decode( $body, true );
+		$body        = (string) wp_remote_retrieve_body( $response );
+		$data        = json_decode( $body, true );
 
 		if ( ! is_array( $data ) ) {
-			return false;
+			return new WP_Error(
+				'cf_bad_response',
+				sprintf( 'HTTP %d, non-JSON body: %s', $status_code, self::truncate( $body ) )
+			);
 		}
 
-		if ( ! array_key_exists( 'success', $data ) ) {
-			return false;
+		if ( ( $data['success'] ?? false ) === true && $status_code >= 200 && $status_code < 300 ) {
+			return true;
 		}
 
-		return $data['success'] === true;
+		$errors = array();
+
+		foreach ( (array) ( $data['errors'] ?? array() ) as $error ) {
+			$code    = isset( $error['code'] ) ? (string) $error['code'] : '?';
+			$message = isset( $error['message'] ) ? (string) $error['message'] : '';
+
+			$errors[] = sprintf( '%s: %s', $code, $message );
+		}
+
+		if ( $errors === array() ) {
+			$errors[] = self::truncate( $body );
+		}
+
+		return new WP_Error(
+			'cf_api_error',
+			sprintf( 'HTTP %d, Cloudflare errors: %s', $status_code, implode( '; ', $errors ) )
+		);
+	}
+
+	/**
+	 * Store the failure details for the current user until the notice is rendered.
+	 */
+	private static function store_notice_message( string $message ): void {
+		set_transient( self::NOTICE_KEY . get_current_user_id(), $message, MINUTE_IN_SECONDS );
+	}
+
+	/**
+	 * Read and delete the stored failure details for the current user.
+	 */
+	private static function pull_notice_message(): string {
+		$key     = self::NOTICE_KEY . get_current_user_id();
+		$message = get_transient( $key );
+
+		delete_transient( $key );
+
+		return is_string( $message ) ? $message : '';
+	}
+
+	/**
+	 * Keep raw bodies short enough for a notice.
+	 */
+	private static function truncate( string $text, int $limit = 300 ): string {
+		$text = trim( $text );
+
+		if ( $text === '' ) {
+			return '(empty body)';
+		}
+
+		if ( strlen( $text ) <= $limit ) {
+			return $text;
+		}
+
+		return substr( $text, 0, $limit ) . '…';
 	}
 
 	/**
@@ -193,13 +246,7 @@ final class Blok45_Cloudflare_Cache_Clear {
 			return '';
 		}
 
-		$zone_id = trim( (string) CLOUDFLARE_ZONE_ID );
-
-		if ( empty( $zone_id ) ) {
-			return '';
-		}
-
-		return $zone_id;
+		return trim( (string) CLOUDFLARE_ZONE_ID );
 	}
 
 	/**
@@ -210,13 +257,7 @@ final class Blok45_Cloudflare_Cache_Clear {
 			return '';
 		}
 
-		$token = trim( (string) CLOUDFLARE_API_TOKEN );
-
-		if ( empty( $token ) ) {
-			return '';
-		}
-
-		return $token;
+		return trim( (string) CLOUDFLARE_API_TOKEN );
 	}
 }
 
