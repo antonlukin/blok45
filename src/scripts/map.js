@@ -101,9 +101,36 @@
 		}
 	}
 
-	function setupResponsiveInteractions( map ) {
-		if ( map && map.dragPan ) {
+	/**
+	 * Toggle drag panning. A static map (single address pin) on a touch device
+	 * should not capture one-finger gestures, otherwise page scroll stops on it.
+	 * @param {Object}  map
+	 * @param {boolean} isStatic
+	 */
+	function setupResponsiveInteractions( map, isStatic ) {
+		if ( ! map || ! map.dragPan ) {
+			return;
+		}
+
+		if ( ! isStatic || typeof window.matchMedia !== 'function' ) {
 			map.dragPan.enable();
+			return;
+		}
+
+		const touchQuery = window.matchMedia( '(hover: none) and (pointer: coarse)' );
+
+		function applyDragPan() {
+			if ( touchQuery.matches ) {
+				map.dragPan.disable();
+			} else {
+				map.dragPan.enable();
+			}
+		}
+
+		applyDragPan();
+
+		if ( typeof touchQuery.addEventListener === 'function' ) {
+			touchQuery.addEventListener( 'change', applyDragPan );
 		}
 	}
 
@@ -193,7 +220,7 @@
 		} );
 
 		setupDynamicResize( map, block );
-		setupResponsiveInteractions( map );
+		setupResponsiveInteractions( map, Boolean( staticCoords ) );
 
 		const zoomIn = block.querySelector( '.map__zoom-in' );
 
