@@ -5,9 +5,16 @@
  * @package blok45
  * @since 1.0
  */
+
+$is_archived  = (bool) get_post_meta( get_the_ID(), 'blok45_graffiti_archived', true );
+$card_classes = array( 'card' );
+
+if ( $is_archived ) {
+	$card_classes[] = 'card--archived';
+}
 ?>
 
-<div <?php post_class( 'card' ); ?>>
+<div <?php post_class( $card_classes ); ?>>
 	<figure class="card__image">
 		<?php
 		the_post_thumbnail(
@@ -19,6 +26,12 @@
 		);
 		?>
 	</figure>
+
+	<?php if ( $is_archived ) : ?>
+		<span class="card__state" aria-label="<?php esc_attr_e( 'This graffiti has been removed.', 'blok45' ); ?>">
+			<?php esc_html_e( 'Removed', 'blok45' ); ?>
+		</span>
+	<?php endif; ?>
 
 	<button class="card__like like" type="button" data-post="<?php echo esc_attr( get_the_ID() ); ?>" aria-pressed="false">
 		<?php

@@ -17,6 +17,23 @@
     transform: scale(1.025);
   }
 
+  &.card--archived {
+    border-color: var(--color-warning);
+
+    .card__thumbnail {
+      filter: grayscale(1) saturate(0.5) brightness(0.72);
+    }
+
+    .card__content {
+      background-image: linear-gradient(
+        -180deg,
+        rgba(0, 0, 0, 0.16) 0%,
+        transparent 42%,
+        var(--surface-sheet) 100%
+      );
+    }
+  }
+
   .list--loading &:not(.card--skeleton) {
     display: none;
   }
@@ -45,6 +62,35 @@
     transition: transform 0.375s;
 
     -webkit-backface-visibility: hidden;
+  }
+
+  .card__state {
+    display: inline-flex;
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    z-index: 3;
+
+    align-items: center;
+    max-width: calc(100% - 5.5rem);
+    padding: 0.375rem 0.5rem;
+    overflow: hidden;
+
+    color: var(--color-alert);
+    background: rgba(16, 16, 16, 0.82);
+    border: 0.0625rem solid var(--color-warning);
+    border-radius: 50rem;
+
+    font-size: 0.625rem;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.06em;
+    text-overflow: ellipsis;
+    text-transform: uppercase;
+    white-space: nowrap;
+
+    pointer-events: none;
+    backdrop-filter: blur(0.5rem);
   }
 
   .card__content {
